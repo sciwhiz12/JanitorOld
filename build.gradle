@@ -26,15 +26,19 @@ archivesBaseName = 'janitor_bot'
 version = getVersion()
 println("Version: ${version}")
 
+shadowJar {
+    configurations = [project.configurations.implementation]
+}
+
 dependencies {
-    shadow "net.dv8tion:JDA:${jda_version}"
-    shadow "com.electronwill.night-config:toml:${nightconfig_version}"
-    shadow "net.sf.jopt-simple:jopt-simple:${jopt_version}"
-    shadow "com.google.guava:guava:${guava_version}"
-    shadow "com.google.code.gson:gson:${gson_version}"
-    shadow "org.apache.logging.log4j:log4j-api:${log4j_version}"
-    shadow "org.apache.logging.log4j:log4j-core:${log4j_version}"
-    shadow "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
+    implementation "net.dv8tion:JDA:${jda_version}"
+    implementation "com.electronwill.night-config:toml:${nightconfig_version}"
+    implementation "net.sf.jopt-simple:jopt-simple:${jopt_version}"
+    implementation "com.google.guava:guava:${guava_version}"
+    implementation "com.google.code.gson:gson:${gson_version}"
+    implementation "org.apache.logging.log4j:log4j-api:${log4j_version}"
+    implementation "org.apache.logging.log4j:log4j-core:${log4j_version}"
+    implementation "org.apache.logging.log4j:log4j-slf4j-impl:${log4j_version}"
 
     testImplementation "junit:junit:${junit_version}"
 }
