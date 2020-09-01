@@ -1,14 +1,13 @@
 # From https://github.com/github/gitignore/blob/master/Gradle.gitignore
 
-.gradle
+.idea/
+.gradle/
 build/
-!src/**/build/
+out/
+run/
 gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
-
-.idea/
-out/
 
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties

@@ -1,0 +1,10 @@
+[discord]
+# The client secret/token for the bot user
+client_token = "NONE"
+
+# The id of the bot owner; used for sending status messages and allowing bot admin commands
+owner_id = 0
+
+[commands]
+# The prefix for commands
+prefix = "!"

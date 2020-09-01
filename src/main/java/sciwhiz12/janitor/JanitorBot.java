@@ -1,68 +1,52 @@
 package sciwhiz12.janitor;
 
-import joptsimple.ArgumentAcceptingOptionSpec;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
 import sciwhiz12.janitor.commands.CommandRegistry;
-import sciwhiz12.janitor.commands.OKCommand;
-import sciwhiz12.janitor.commands.PingCommand;
-import sciwhiz12.janitor.commands.ShutdownCommand;
+import sciwhiz12.janitor.config.BotConfig;
+import sciwhiz12.janitor.listeners.StatusListener;
 
 import javax.security.auth.login.LoginException;
 
-public class JanitorBot {
-    public static JanitorBot INSTANCE;
+import static sciwhiz12.janitor.Logging.JANITOR;
+import static sciwhiz12.janitor.Logging.STATUS;
 
+public class JanitorBot {
     private final JDA jda;
+    private final BotConfig config;
     private final CommandRegistry cmdRegistry;
 
-    public JanitorBot(JDA jda, String prefix) {
-        this.jda = jda;
-        this.cmdRegistry = new CommandRegistry(this, prefix);
+    public JanitorBot(JDABuilder jdaBuilder, BotConfig config) throws LoginException {
+        this.config = config;
+        this.cmdRegistry = new CommandRegistry(this, config.getCommandPrefix());
+        jdaBuilder
+            .setActivity(Activity.playing("the Readying game..."))
+            .setStatus(OnlineStatus.DO_NOT_DISTURB)
+            .setAutoReconnect(true)
+            .addEventListeners(
+                cmdRegistry,
+                new StatusListener(this)
+            );
+        this.jda = jdaBuilder.build();
+        JANITOR.info(STATUS, "Bot is built");
     }
 
-    public JDA getDiscord() {
+    public JDA getJDA() {
         return this.jda;
+    }
+
+    public BotConfig getConfig() {
+        return this.config;
     }
 
     public CommandRegistry getCommandRegistry() {
         return this.cmdRegistry;
     }
 
-    public static void main(String[] args) throws LoginException {
-        System.out.println("Starting...");
-
-        OptionParser parser = new OptionParser();
-        ArgumentAcceptingOptionSpec<String> token = parser
-                .accepts("token", "The Discord token for the bot user").withRequiredArg().required();
-        ArgumentAcceptingOptionSpec<String> prefix = parser
-                .accepts("prefix", "The prefix for commands").withRequiredArg().defaultsTo("!");
-        ArgumentAcceptingOptionSpec<Long> owner = parser.accepts("owner",
-                "The snowflake ID of the bot owner; Used for shutdowns and other bot management commands")
-                .withRequiredArg().ofType(Long.class);
-
-        OptionSet options = parser.parse(args);
-
-        System.out.println("Configuring and connecting...");
-
-        JDABuilder builder = JDABuilder.createDefault(token.value(options));
-        builder.addEventListeners(CommandListener.INSTANCE);
-        builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MESSAGE_REACTIONS);
-        JDA jda = builder.build();
-        INSTANCE = new JanitorBot(jda, prefix.value(options));
-
-        String inviteURL = jda.getInviteUrl(Permission.ADMINISTRATOR);
-
-        INSTANCE.getCommandRegistry().addCommand("ping", new PingCommand());
-        INSTANCE.getCommandRegistry().addCommand("ok", new OKCommand());
-        if (options.has(owner)) {
-            INSTANCE.getCommandRegistry().addCommand("shutdown", new ShutdownCommand(owner.value(options)));
-        }
-
-        System.out.println("Ready! Invite URL: " + inviteURL);
+    public void shutdown() {
+        JANITOR.info(STATUS, "Shutting down!");
+        getJDA().shutdown();
     }
 }
