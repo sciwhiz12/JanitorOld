@@ -26,10 +26,6 @@ archivesBaseName = 'janitor_bot'
 version = getVersion()
 println("Version: ${version}")
 
-shadowJar {
-    configurations = [project.configurations.implementation]
-}
-
 dependencies {
     implementation "net.dv8tion:JDA:${jda_version}"
     implementation "com.electronwill.night-config:toml:${nightconfig_version}"
