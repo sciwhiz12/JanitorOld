@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.commands.OKCommand;
 import sciwhiz12.janitor.commands.PingCommand;
+import sciwhiz12.janitor.commands.ShutdownCommand;
 
 import javax.security.auth.login.LoginException;
 
@@ -40,6 +41,9 @@ public class JanitorBot {
                 .accepts("token", "The Discord token for the bot user").withRequiredArg().required();
         ArgumentAcceptingOptionSpec<String> prefix = parser
                 .accepts("prefix", "The prefix for commands").withRequiredArg().defaultsTo("!");
+        ArgumentAcceptingOptionSpec<Long> owner = parser.accepts("owner",
+                "The snowflake ID of the bot owner; Used for shutdowns and other bot management commands")
+                .withRequiredArg().ofType(Long.class);
 
         OptionSet options = parser.parse(args);
 
@@ -55,6 +59,9 @@ public class JanitorBot {
 
         INSTANCE.getCommandRegistry().addCommand("ping", new PingCommand());
         INSTANCE.getCommandRegistry().addCommand("ok", new OKCommand());
+        if (options.has(owner)) {
+            INSTANCE.getCommandRegistry().addCommand("shutdown", new ShutdownCommand(owner.value(options)));
+        }
 
         System.out.println("Ready! Invite URL: " + inviteURL);
     }
