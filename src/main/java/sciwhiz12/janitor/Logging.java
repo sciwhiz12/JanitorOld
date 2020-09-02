@@ -10,5 +10,6 @@ public class Logging {
     public static final Marker COMMANDS = MarkerFactory.getMarker("COMMANDS");
 
     public static final Logger JANITOR = LoggerFactory.getLogger("janitor");
+    public static final Logger CONSOLE = LoggerFactory.getLogger("janitor.console");
     public static final Logger CONFIG = LoggerFactory.getLogger("janitor.config");
 }
