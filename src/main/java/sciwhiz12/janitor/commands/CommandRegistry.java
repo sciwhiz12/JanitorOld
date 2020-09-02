@@ -22,7 +22,8 @@ public class CommandRegistry extends BaseListener {
         super(bot);
         this.pattern = Pattern.compile("^" + prefix + "([A-Za-z0-9]+).*$");
 
-        addCommand("ping", new PingCommand(this));
+        addCommand("ping", new PingCommand(this, "Pong!"));
+        addCommand("pong", new PingCommand(this, "Ping!"));
         addCommand("ok", new OKCommand(this));
         if (bot.getConfig().getOwnerID().isPresent()) {
             addCommand("shutdown", new ShutdownCommand(this, bot.getConfig().getOwnerID().get()));
