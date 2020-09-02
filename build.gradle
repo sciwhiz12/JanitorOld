@@ -12,6 +12,10 @@ buildscript {
 repositories {
     mavenCentral()
     jcenter()
+    maven {
+        name = "Minecraft Libraries"
+        url = "https://libraries.minecraft.net"
+    }
 }
 
 apply plugin: 'com.github.johnrengelman.shadow'
@@ -33,6 +37,7 @@ dependencies {
     implementation "com.google.guava:guava:${guava_version}"
     implementation "com.google.code.gson:gson:${gson_version}"
     implementation "ch.qos.logback:logback-classic:${logback_version}"
+    implementation "com.mojang:brigadier:${brigadier_version}"
 
     testImplementation "junit:junit:${junit_version}"
 }
