@@ -1,11 +1,10 @@
 package sciwhiz12.janitor;
 
-import com.google.common.base.Preconditions;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.Permission;
+import org.javacord.api.DiscordApiBuilder;
 import sciwhiz12.janitor.config.BotConfig;
 import sciwhiz12.janitor.config.BotOptions;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static sciwhiz12.janitor.Logging.JANITOR;
 
 public class BotStartup {
@@ -14,20 +13,15 @@ public class BotStartup {
 
         BotOptions options = new BotOptions(args);
         BotConfig config = new BotConfig(options);
+        checkArgument(config.getToken().isPresent(),
+            "Token is not supplied through config or command line");
 
         JANITOR.info("Building bot instance and connecting to Discord...");
 
-        JDABuilder builder;
-        JanitorBot bot;
         try {
-            Preconditions.checkArgument(config.getToken().isPresent(),
-                "Token is not supplied through config or command line");
-            builder = JDABuilder.createDefault(config.getToken().get());
-            bot = new JanitorBot(builder, config);
-
-            bot.getJDA().awaitReady();
-            String inviteURL = bot.getJDA().getInviteUrl(Permission.ADMINISTRATOR);
-            JANITOR.info("Invite URL (gives ADMIN permission): " + inviteURL);
+            DiscordApiBuilder builder = new DiscordApiBuilder().setToken(config.getToken().get());
+            builder.login()
+                .thenAccept(api -> new JanitorBot(api, config));
         } catch (Exception ex) {
             JANITOR.error("Error while building Discord connection", ex);
         }

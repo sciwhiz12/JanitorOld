@@ -36,7 +36,7 @@ public class BotConsole {
         String[] parts = input.split(" ");
         switch (parts[0]) {
             case "shutdown": {
-                bot.shutdown();
+                bot.disconnect();
                 break;
             }
             default:

@@ -2,7 +2,7 @@ package sciwhiz12.janitor.commands.bot;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import org.javacord.api.event.message.MessageCreateEvent;
 import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.utils.Util;
@@ -19,24 +19,23 @@ public class ShutdownCommand extends BaseCommand {
     }
 
     @Override
-    public LiteralArgumentBuilder<MessageReceivedEvent> getNode() {
+    public LiteralArgumentBuilder<MessageCreateEvent> getNode() {
         return literal("shutdown")
-            .requires(ctx -> ctx.getAuthor().getIdLong() == ownerID)
+            .requires(ctx -> ctx.getMessageAuthor().getId() == ownerID)
             .executes(this::run);
     }
 
-    int run(final CommandContext<MessageReceivedEvent> ctx) {
+    int run(final CommandContext<MessageCreateEvent> ctx) {
         ctx.getSource()
             .getMessage()
             .getChannel()
             .sendMessage("Shutting down, in accordance with the owner's command. Goodbye all!")
-            .submit()
-            .whenComplete(Util.handle(
-                success -> JANITOR.debug("Sent shutdown message to channel {}", Util.toString(ctx.getSource().getAuthor())),
-                err -> JANITOR.error("Error while sending ping message to bot owner {}", Util.toString(ctx.getSource().getAuthor()))
+            .whenCompleteAsync(Util.handle(
+                success -> JANITOR.debug("Sent shutdown message to channel {}", Util.toString(ctx.getSource().getMessageAuthor())),
+                err -> JANITOR.error("Error while sending ping message to bot owner {}", Util.toString(ctx.getSource().getMessageAuthor()))
                 )
             ).join();
-        getBot().shutdown();
+        getBot().disconnect();
         return 1;
     }
 }
