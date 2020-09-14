@@ -8,6 +8,7 @@ import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 import sciwhiz12.janitor.JanitorBot;
 import sciwhiz12.janitor.commands.bot.ShutdownCommand;
+import sciwhiz12.janitor.commands.misc.HelloCommand;
 import sciwhiz12.janitor.commands.misc.OKCommand;
 import sciwhiz12.janitor.commands.misc.PingCommand;
 import sciwhiz12.janitor.utils.Util;
@@ -34,10 +35,10 @@ public class CommandRegistry implements MessageCreateListener {
         addCommand(new PingCommand(this, "ping", "Pong!"));
         addCommand(new PingCommand(this, "pong", "Ping!"));
         addCommand(new OKCommand(this));
+        addCommand(new HelloCommand(this));
         if (bot.getConfig().getOwnerID().isPresent()) {
             addCommand(new ShutdownCommand(this, bot.getConfig().getOwnerID().get()));
         }
-
     }
 
     public CommandDispatcher<MessageCreateEvent> getDispatcher() {
@@ -56,15 +57,18 @@ public class CommandRegistry implements MessageCreateListener {
     public void onMessageCreate(MessageCreateEvent event) {
         String msg = event.getMessage().getContent();
         if (!msg.startsWith(this.prefix)) return;
+        JANITOR.debug(COMMANDS, "Received message starting with valid command prefix. Author: {}, full message: {}",
+            Util.toString(event.getMessageAuthor().asUser().orElse(null)), msg);
         try {
             StringReader command = new StringReader(msg.substring(this.prefix.length()));
             ParseResults<MessageCreateEvent> parseResults = this.dispatcher.parse(command, event);
             if (parseResults.getReader().canRead()) {
                 // Parsing did not succeed, i.e. command not found
                 // TODO: add separate code path when insufficient permissions / requires fails
+                JANITOR.error(COMMANDS, "Error while parsing command: {}", parseResults.getExceptions().values());
                 return;
             }
-            JANITOR.debug(COMMANDS, "Received command and executing. Author: {}, full message: {}", Util.toString(event.getMessageAuthor().asUser().orElse(null)), msg);
+            JANITOR.debug(COMMANDS, "Executing command.");
             dispatcher.execute(parseResults);
         } catch (CommandSyntaxException ex) {
             JANITOR.error(COMMANDS, "Error while parsing message and executing command", ex);
