@@ -38,12 +38,27 @@ public class UserArgument implements ArgumentType<UserArgument.IUserProvider> {
                 return new NumericalProvider(Long.parseLong(matcher.group(1)));
             }
         }
+        reader.setCursor(startCursor);
+        CommandSyntaxException idReadException = null;
+        if (StringReader.isAllowedNumber(reader.peek())) {
+            try {
+                long value = reader.readLong();
+                return new NumericalProvider(value);
+            } catch (CommandSyntaxException e) {
+                idReadException = e;
+            }
+        }
+        if (idReadException != null) throw idReadException;
         throw UNKNOWN_USER_IDENTIFIER.create();
     }
 
     @Override
     public Collection<String> getExamples() {
         return ImmutableList.of("<@!607058472709652501>", "<@750291676764962816>");
+    }
+
+    private boolean isNumericalCharacter(char c) {
+        return c >= '0' && c <= '9';
     }
 
     public interface IUserProvider {
