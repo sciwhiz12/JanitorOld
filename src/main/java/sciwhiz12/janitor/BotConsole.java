@@ -70,7 +70,7 @@ public class BotConsole {
                         continue;
                     }
                     CONSOLE.debug("Received command: {}", input);
-                    BotConsole.this.parseCommand(scanner.nextLine());
+                    BotConsole.this.parseCommand(input);
                 } catch (Exception e) {
                     CONSOLE.error("Error while running console thread", e);
                 }
