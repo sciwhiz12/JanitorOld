@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class UserArgument implements ArgumentType<UserArgument.IUserProvider> {
     public static final SimpleCommandExceptionType UNKNOWN_USER_IDENTIFIER = new SimpleCommandExceptionType(new LiteralMessage("Unknown user identifier"));
-    public static final Pattern USER_IDENTIFIER_PATTERN = Pattern.compile("<@!([0-9]+)>");
+    public static final Pattern USER_IDENTIFIER_PATTERN = Pattern.compile("<@!?([0-9]+)>");
 
     public static UserArgument user() {
         return new UserArgument();
@@ -29,6 +29,7 @@ public class UserArgument implements ArgumentType<UserArgument.IUserProvider> {
 
     @Override
     public IUserProvider parse(StringReader reader) throws CommandSyntaxException {
+        int startCursor = reader.getCursor();
         if (reader.peek() == '<') { // Expecting a possible user identifier
             int start = reader.getCursor();
             reader.readStringUntil('>');
