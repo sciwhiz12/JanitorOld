@@ -7,11 +7,11 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.user.User;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,7 +62,7 @@ public class UserArgument implements ArgumentType<UserArgument.IUserProvider> {
     }
 
     public interface IUserProvider {
-        CompletableFuture<User> getUsers(DiscordApi api);
+        RestAction<User> getUsers(JDA api);
     }
 
     static class NumericalProvider implements IUserProvider {
@@ -73,8 +73,8 @@ public class UserArgument implements ArgumentType<UserArgument.IUserProvider> {
         }
 
         @Override
-        public CompletableFuture<User> getUsers(DiscordApi api) {
-            return api.getUserById(snowflakeID);
+        public RestAction<User> getUsers(JDA api) {
+            return api.retrieveUserById(snowflakeID);
         }
     }
 }

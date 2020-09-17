@@ -2,7 +2,7 @@ package sciwhiz12.janitor.commands.misc;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import org.javacord.api.event.message.MessageCreateEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.utils.Util;
@@ -15,19 +15,18 @@ public class OKCommand extends BaseCommand {
         super(registry);
     }
 
-    public LiteralArgumentBuilder<MessageCreateEvent> getNode() {
+    public LiteralArgumentBuilder<MessageReceivedEvent> getNode() {
         return literal("ok")
             .executes(this::run);
     }
 
-    int run(final CommandContext<MessageCreateEvent> ctx) {
+    int run(final CommandContext<MessageReceivedEvent> ctx) {
         ctx.getSource()
             .getMessage()
             .addReaction("\uD83D\uDC4C")
-            .whenCompleteAsync(Util.handle(
-                success -> JANITOR.debug("Reacted :ok_hand: to {}'s message", Util.toString(ctx.getSource().getMessageAuthor())),
-                err -> JANITOR.error("Error while reacting :ok_hand: to {}'s message", Util.toString(ctx.getSource().getMessageAuthor()))
-                )
+            .queue(
+                success -> JANITOR.debug("Reacted :ok_hand: to {}'s message", Util.toString(ctx.getSource().getAuthor())),
+                err -> JANITOR.error("Error while reacting :ok_hand: to {}'s message", Util.toString(ctx.getSource().getAuthor()))
             );
         return 1;
     }

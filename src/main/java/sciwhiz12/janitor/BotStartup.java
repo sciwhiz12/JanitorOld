@@ -1,6 +1,12 @@
 package sciwhiz12.janitor;
 
-import org.javacord.api.DiscordApiBuilder;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.jetbrains.annotations.NotNull;
 import sciwhiz12.janitor.config.BotConfig;
 import sciwhiz12.janitor.config.BotOptions;
 
@@ -19,9 +25,18 @@ public class BotStartup {
         JANITOR.info("Building bot instance and connecting to Discord...");
 
         try {
-            DiscordApiBuilder builder = new DiscordApiBuilder().setToken(config.getToken().get());
-            builder.login()
-                .thenAccept(api -> new JanitorBot(api, config));
+            JDABuilder builder = JDABuilder.createDefault(config.getToken().get());
+            builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_MEMBERS)
+                .setStatus(OnlineStatus.DO_NOT_DISTURB)
+                .setAutoReconnect(true)
+                .setActivity(Activity.listening("for the ready call..."))
+                .addEventListeners(new ListenerAdapter() {
+                    @Override
+                    public void onReady(@NotNull ReadyEvent event) {
+                        new JanitorBot(event.getJDA(), config);
+                    }
+                })
+                .build();
         } catch (Exception ex) {
             JANITOR.error("Error while building Discord connection", ex);
         }

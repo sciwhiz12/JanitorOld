@@ -1,9 +1,10 @@
 package sciwhiz12.janitor;
 
-import org.javacord.api.DiscordApi;
-import org.javacord.api.entity.activity.ActivityType;
-import org.javacord.api.entity.user.User;
-import org.javacord.api.entity.user.UserStatus;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.PrivateChannel;
+import net.dv8tion.jda.api.entities.User;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.config.BotConfig;
 import sciwhiz12.janitor.utils.Util;
@@ -12,35 +13,34 @@ import static sciwhiz12.janitor.Logging.JANITOR;
 import static sciwhiz12.janitor.Logging.STATUS;
 
 public class JanitorBot {
-    private final DiscordApi discord;
+    private final JDA discord;
     private final BotConfig config;
     private final BotConsole console;
     private final CommandRegistry cmdRegistry;
 
-    public JanitorBot(DiscordApi discord, BotConfig config) {
+    public JanitorBot(JDA discord, BotConfig config) {
         this.config = config;
         this.console = new BotConsole(this, System.in);
         this.cmdRegistry = new CommandRegistry(this, config.getCommandPrefix());
         this.discord = discord;
-        discord.addMessageCreateListener(cmdRegistry);
-        discord.updateStatus(UserStatus.ONLINE);
-        discord.updateActivity(ActivityType.PLAYING, " n' sweeping n' testing!");
+        discord.addEventListener(cmdRegistry);
+        discord.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(" n' sweeping n' testing!"));
         JANITOR.info("Ready!");
         config.getOwnerID()
-            .map(ownerId -> getDiscord().getUserById(ownerId))
+            .map(discord::retrieveUserById)
             .ifPresent(retrieveUser ->
                 retrieveUser
-                    .thenCompose(User::openPrivateChannel)
-                    .thenCompose(channel -> channel.sendMessage("Started up and ready!"))
-                    .whenCompleteAsync(Util.handle(
+                    .flatMap(User::openPrivateChannel)
+                    .flatMap(channel -> channel.sendMessage("Started up and ready!"))
+                    .queue(
                         msg -> JANITOR.debug(STATUS, "Sent ready message to owner!"),
-                        error -> JANITOR.error(STATUS, "Error while sending ready message to owner", error))
+                        error -> JANITOR.error(STATUS, "Error while sending ready message to owner", error)
                     )
             );
         console.start();
     }
 
-    public DiscordApi getDiscord() {
+    public JDA getDiscord() {
         return this.discord;
     }
 
@@ -52,24 +52,28 @@ public class JanitorBot {
         return this.cmdRegistry;
     }
 
-    public void disconnect() {
+    public void shutdown() {
         JANITOR.info(STATUS, "Shutting down!");
         console.stop();
-        discord.disconnect();
-//        getConfig().getOwnerID()
-//            .map(id -> getJDA().getUserById(id))
-//            .ifPresent(owner -> owner.openPrivateChannel().submit()
-//                .thenCompose(channel -> channel.sendMessage(
-//                    "Shutting down, in accordance with your orders. Goodbye!")
-//                    .submit())
-//                .whenComplete(Util.handle(
-//                    msg -> JANITOR
-//                        .debug(STATUS, "Sent shutdown message to owner: {}",
-//                            Util.toString(owner)),
-//                    err -> JANITOR
-//                        .error(STATUS, "Error while sending shutdown message to owner", err)
-//                ))
-//                .join());
-//        getJDA().shutdown();
+        getConfig().getOwnerID()
+            .map(discord::retrieveUserById)
+            .map(owner ->
+                owner
+                    .flatMap(User::openPrivateChannel)
+                    .flatMap(channel ->
+                        channel.sendMessage("Shutting down, in accordance with your orders. Goodbye!"))
+                    .submit()
+                    .whenComplete(Util.handle(
+                        msg ->
+                            JANITOR
+                                .debug(STATUS, "Sent shutdown message to owner: {}",
+                                    Util.toString(((PrivateChannel) msg.getChannel()).getUser())),
+                        err ->
+                            JANITOR
+                                .error(STATUS, "Error while sending shutdown message to owner", err)
+                    ))
+                    .join()
+            );
+        discord.shutdown();
     }
 }

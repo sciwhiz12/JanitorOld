@@ -3,14 +3,14 @@ package sciwhiz12.janitor.utils;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
-import org.javacord.api.event.message.MessageCreateEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public class CommandHelper {
-    public static LiteralArgumentBuilder<MessageCreateEvent> literal(String command) {
+    public static LiteralArgumentBuilder<MessageReceivedEvent> literal(String command) {
         return LiteralArgumentBuilder.literal(command);
     }
 
-    public static <Arg> RequiredArgumentBuilder<MessageCreateEvent, Arg> argument(String command, ArgumentType<Arg> argument) {
+    public static <Arg> RequiredArgumentBuilder<MessageReceivedEvent, Arg> argument(String command, ArgumentType<Arg> argument) {
         return RequiredArgumentBuilder.argument(command, argument);
     }
 }

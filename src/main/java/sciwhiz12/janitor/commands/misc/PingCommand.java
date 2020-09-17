@@ -2,7 +2,7 @@ package sciwhiz12.janitor.commands.misc;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import org.javacord.api.event.message.MessageCreateEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.utils.Util;
@@ -20,20 +20,19 @@ public class PingCommand extends BaseCommand {
         this.reply = reply;
     }
 
-    public LiteralArgumentBuilder<MessageCreateEvent> getNode() {
+    public LiteralArgumentBuilder<MessageReceivedEvent> getNode() {
         return literal(command)
             .executes(this::run);
     }
 
-    int run(final CommandContext<MessageCreateEvent> ctx) {
+    int run(final CommandContext<MessageReceivedEvent> ctx) {
         ctx.getSource()
             .getMessage()
             .getChannel()
             .sendMessage(reply)
-            .whenCompleteAsync(Util.handle(
-                success -> JANITOR.debug("Sent ping message to {}: {}", Util.toString(ctx.getSource().getMessageAuthor()), reply),
-                err -> JANITOR.error("Error while sending ping message to {}", Util.toString(ctx.getSource().getMessageAuthor()))
-                )
+            .queue(
+                success -> JANITOR.debug("Sent ping message to {}: {}", Util.toString(ctx.getSource().getAuthor()), reply),
+                err -> JANITOR.error("Error while sending ping message to {}", Util.toString(ctx.getSource().getAuthor()))
             );
         return 1;
     }

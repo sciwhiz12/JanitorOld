@@ -31,7 +31,7 @@ version = getVersion()
 println("Version: ${version}")
 
 dependencies {
-    implementation group: 'org.javacord', name: 'javacord', version: javacord_version
+    implementation group: 'net.dv8tion', name: 'JDA', version: jda_version
     implementation group: 'com.electronwill.night-config', name: 'toml', version: nightconfig_version
     implementation group: 'net.sf.jopt-simple', name: 'jopt-simple', version: jopt_version
     implementation group: 'com.google.guava', name: 'guava', version: guava_version

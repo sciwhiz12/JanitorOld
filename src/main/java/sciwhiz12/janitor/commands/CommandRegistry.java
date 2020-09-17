@@ -4,8 +4,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import org.javacord.api.event.message.MessageCreateEvent;
-import org.javacord.api.listener.message.MessageCreateListener;
+import net.dv8tion.jda.api.events.GenericEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.EventListener;
+import org.jetbrains.annotations.NotNull;
 import sciwhiz12.janitor.JanitorBot;
 import sciwhiz12.janitor.commands.bot.ShutdownCommand;
 import sciwhiz12.janitor.commands.misc.HelloCommand;
@@ -19,16 +21,14 @@ import java.util.Map;
 import static sciwhiz12.janitor.Logging.COMMANDS;
 import static sciwhiz12.janitor.Logging.JANITOR;
 
-public class CommandRegistry implements MessageCreateListener {
+public class CommandRegistry implements EventListener {
     private final JanitorBot bot;
-    //    private final Pattern pattern;
     private final String prefix;
     private final Map<String, BaseCommand> registry = new HashMap<>();
-    private final CommandDispatcher<MessageCreateEvent> dispatcher;
+    private final CommandDispatcher<MessageReceivedEvent> dispatcher;
 
     public CommandRegistry(JanitorBot bot, String prefix) {
         this.bot = bot;
-//        this.pattern = Pattern.compile("^" + prefix + "([A-Za-z0-9]+).*$");
         this.prefix = prefix;
         this.dispatcher = new CommandDispatcher<>();
 
@@ -41,7 +41,7 @@ public class CommandRegistry implements MessageCreateListener {
         }
     }
 
-    public CommandDispatcher<MessageCreateEvent> getDispatcher() {
+    public CommandDispatcher<MessageReceivedEvent> getDispatcher() {
         return this.dispatcher;
     }
 
@@ -54,14 +54,16 @@ public class CommandRegistry implements MessageCreateListener {
     }
 
     @Override
-    public void onMessageCreate(MessageCreateEvent event) {
-        String msg = event.getMessage().getContent();
+    public void onEvent(@NotNull GenericEvent genericEvent) {
+        if (!(genericEvent instanceof MessageReceivedEvent)) return;
+        MessageReceivedEvent event = (MessageReceivedEvent) genericEvent;
+        String msg = event.getMessage().getContentRaw();
         if (!msg.startsWith(this.prefix)) return;
         JANITOR.debug(COMMANDS, "Received message starting with valid command prefix. Author: {}, full message: {}",
-            Util.toString(event.getMessageAuthor().asUser().orElse(null)), msg);
+            Util.toString(event.getAuthor()), msg);
         try {
             StringReader command = new StringReader(msg.substring(this.prefix.length()));
-            ParseResults<MessageCreateEvent> parseResults = this.dispatcher.parse(command, event);
+            ParseResults<MessageReceivedEvent> parseResults = this.dispatcher.parse(command, event);
             if (parseResults.getReader().canRead()) {
                 // Parsing did not succeed, i.e. command not found
                 // TODO: add separate code path when insufficient permissions / requires fails
