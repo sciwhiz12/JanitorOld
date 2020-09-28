@@ -10,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 import sciwhiz12.janitor.config.BotConfig;
 import sciwhiz12.janitor.config.BotOptions;
 
+import java.util.EnumSet;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static sciwhiz12.janitor.Logging.JANITOR;
 
@@ -25,11 +27,10 @@ public class BotStartup {
         JANITOR.info("Building bot instance and connecting to Discord...");
 
         try {
-            JDABuilder builder = JDABuilder.createDefault(config.getToken().get());
-            builder.enableIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.GUILD_MEMBERS)
+            JDABuilder.create(config.getToken().get(), EnumSet.allOf(GatewayIntent.class))
                 .setStatus(OnlineStatus.DO_NOT_DISTURB)
-                .setAutoReconnect(true)
                 .setActivity(Activity.listening("for the ready call..."))
+                .setAutoReconnect(true)
                 .addEventListeners(new ListenerAdapter() {
                     @Override
                     public void onReady(@NotNull ReadyEvent event) {

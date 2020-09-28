@@ -3,6 +3,7 @@ package sciwhiz12.janitor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 import sciwhiz12.janitor.commands.CommandRegistry;
@@ -25,6 +26,7 @@ public class JanitorBot {
         this.discord = discord;
         discord.addEventListener(cmdRegistry);
         discord.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(" n' sweeping n' testing!"));
+        discord.getGuilds().forEach(Guild::loadMembers);
         JANITOR.info("Ready!");
         config.getOwnerID()
             .map(discord::retrieveUserById)
