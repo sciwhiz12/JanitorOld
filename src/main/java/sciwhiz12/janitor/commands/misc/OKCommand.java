@@ -8,7 +8,7 @@ import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.utils.Util;
 
 import static sciwhiz12.janitor.Logging.JANITOR;
-import static sciwhiz12.janitor.utils.CommandHelper.literal;
+import static sciwhiz12.janitor.commands.util.CommandHelper.literal;
 
 public class OKCommand extends BaseCommand {
     public OKCommand(CommandRegistry registry) {

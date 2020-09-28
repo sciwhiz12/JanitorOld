@@ -14,6 +14,7 @@ import sciwhiz12.janitor.utils.StringReaderUtil;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -102,8 +103,9 @@ public class GuildMemberArgument implements ArgumentType<GuildMemberArgument.IMe
 
         @Override
         public List<Member> fromGuild(Guild guild) throws CommandSyntaxException {
+            final String nameLowercase = name.toLowerCase(Locale.ROOT);
             final List<Member> members = guild.getMembers().stream()
-                .filter(member -> (member.getUser().getName() + '#' + member.getUser().getDiscriminator()).replaceAll("\\s", "").startsWith(name))
+                .filter(member -> (member.getUser().getName() + '#' + member.getUser().getDiscriminator()).replaceAll("\\s", "").toLowerCase(Locale.ROOT).startsWith(nameLowercase))
                 .collect(Collectors.toList());
             if (!multiple && members.size() > 1) {
                 throw MULTIPLE_MEMBERS.create();

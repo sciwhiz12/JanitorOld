@@ -14,8 +14,8 @@ import java.util.List;
 
 import static sciwhiz12.janitor.Logging.JANITOR;
 import static sciwhiz12.janitor.commands.arguments.GuildMemberArgument.getMembers;
-import static sciwhiz12.janitor.utils.CommandHelper.argument;
-import static sciwhiz12.janitor.utils.CommandHelper.literal;
+import static sciwhiz12.janitor.commands.util.CommandHelper.argument;
+import static sciwhiz12.janitor.commands.util.CommandHelper.literal;
 
 public class HelloCommand extends BaseCommand {
     public HelloCommand(CommandRegistry registry) {

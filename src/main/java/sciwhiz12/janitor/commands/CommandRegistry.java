@@ -13,6 +13,7 @@ import sciwhiz12.janitor.commands.bot.ShutdownCommand;
 import sciwhiz12.janitor.commands.misc.HelloCommand;
 import sciwhiz12.janitor.commands.misc.OKCommand;
 import sciwhiz12.janitor.commands.misc.PingCommand;
+import sciwhiz12.janitor.commands.moderation.KickCommand;
 import sciwhiz12.janitor.utils.Util;
 
 import java.util.HashMap;
@@ -36,6 +37,7 @@ public class CommandRegistry implements EventListener {
         addCommand(new PingCommand(this, "pong", "Ping!"));
         addCommand(new OKCommand(this));
         addCommand(new HelloCommand(this));
+        addCommand(new KickCommand(this));
         if (bot.getConfig().getOwnerID().isPresent()) {
             addCommand(new ShutdownCommand(this, bot.getConfig().getOwnerID().get()));
         }
