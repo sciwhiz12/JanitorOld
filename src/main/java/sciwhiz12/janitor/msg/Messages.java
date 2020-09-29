@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -94,7 +95,8 @@ public class Messages {
                 new EmbedBuilder()
                     .setTitle(translate("general.cannot_action_performer.title"))
                     .setDescription(translate("general.cannot_action_performer.desc"))
-                    .addField(translate("general.cannot_action_performer.field.performer"), performer.getUser().getAsMention(), true)
+                    .addField(translate("general.cannot_action_performer.field.performer"), performer.getUser().getAsMention(),
+                        true)
                     .setColor(General.FAILURE_COLOR)
                     .build()
             );
@@ -158,6 +160,42 @@ public class Messages {
             if (reason != null)
                 embed.addField(translate("moderation.kick.dm.field.reason"), reason, false);
             return channel.sendMessage(embed.setColor(MODERATION_COLOR).build());
+        }
+
+        public MessageAction banUser(MessageChannel channel, Member performer, Member target, @Nullable String reason,
+            int deletionDays, boolean sentDM) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setAuthor(translate("moderation.ban.info.author"), null, GAVEL_ICON_URL)
+                .addField(translate("moderation.ban.info.field.performer"), performer.getUser().getAsMention(), true)
+                .addField(translate("moderation.ban.info.field.target"), target.getUser().getAsMention(), true)
+                .addField(translate("moderation.ban.info.field.sent_private_message"), sentDM ? "✅" : "❌", true);
+            if (deletionDays != 0)
+                embed.addField(translate("moderation.ban.info.field.delete_duration"),
+                    String.valueOf(deletionDays).concat(" day(s)"), true);
+            if (reason != null)
+                embed.addField(translate("moderation.ban.info.field.reason"), reason, false);
+            return channel.sendMessage(embed.setColor(MODERATION_COLOR).build());
+        }
+
+        public MessageAction bannedDM(MessageChannel channel, Member performer, Member target, @Nullable String reason) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setAuthor(performer.getGuild().getName(), null, performer.getGuild().getIconUrl())
+                .setTitle(translate("moderation.ban.dm.title"))
+                .addField(translate("moderation.ban.dm.field.performer"), performer.getUser().getAsMention(), true);
+            if (reason != null)
+                embed.addField(translate("moderation.ban.dm.field.reason"), reason, false);
+            return channel.sendMessage(embed.setColor(MODERATION_COLOR).build());
+        }
+
+        public MessageAction unbanUser(MessageChannel channel, Member performer, User target) {
+            return channel.sendMessage(
+                new EmbedBuilder()
+                    .setAuthor(translate("moderation.unban.info.author"), null, GAVEL_ICON_URL)
+                    .addField(translate("moderation.unban.info.field.performer"), performer.getUser().getAsMention(), true)
+                    .addField(translate("moderation.unban.info.field.target"), target.getAsMention(), true)
+                    .setColor(MODERATION_COLOR)
+                    .build()
+            );
         }
     }
 

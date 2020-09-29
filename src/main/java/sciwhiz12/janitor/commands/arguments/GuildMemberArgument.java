@@ -105,7 +105,7 @@ public class GuildMemberArgument implements ArgumentType<GuildMemberArgument.IMe
         public List<Member> fromGuild(Guild guild) throws CommandSyntaxException {
             final String nameLowercase = name.toLowerCase(Locale.ROOT);
             final List<Member> members = guild.getMembers().stream()
-                .filter(member -> (member.getUser().getName() + '#' + member.getUser().getDiscriminator()).replaceAll("\\s", "").toLowerCase(Locale.ROOT).startsWith(nameLowercase))
+                .filter(member -> member.getUser().getAsTag().replaceAll("\\s", "").toLowerCase(Locale.ROOT).startsWith(nameLowercase))
                 .collect(Collectors.toList());
             if (!multiple && members.size() > 1) {
                 throw MULTIPLE_MEMBERS.create();

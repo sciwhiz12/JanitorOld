@@ -2,6 +2,7 @@ package sciwhiz12.janitor.commands.util;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -14,5 +15,18 @@ public class ModerationHelper {
         if (reason != null)
             auditReason.append(" for reason: ").append(reason);
         return guild.kick(target, auditReason.toString());
+    }
+
+    public static AuditableRestAction<Void> banUser(Guild guild, Member performer, Member target, int deleteDuration,
+        @Nullable String reason) {
+        StringBuilder auditReason = new StringBuilder();
+        auditReason.append("Banned by ").append(nameFor(performer.getUser()));
+        if (reason != null)
+            auditReason.append(" for reason: ").append(reason);
+        return guild.ban(target, deleteDuration, auditReason.toString());
+    }
+
+    public static AuditableRestAction<Void> unbanUser(Guild guild, User target) {
+        return guild.unban(target);
     }
 }

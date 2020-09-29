@@ -29,5 +29,17 @@
   "moderation.kick.info.field.sent_private_message": "Sent DM",
   "moderation.kick.dm.title": "You were kicked from this server.",
   "moderation.kick.dm.field.performer": "Moderator",
-  "moderation.kick.dm.field.reason": "Reason"
+  "moderation.kick.dm.field.reason": "Reason",
+  "moderation.ban.info.author": "Banned user from server.",
+  "moderation.ban.info.field.performer": "Performer",
+  "moderation.ban.info.field.target": "Target",
+  "moderation.ban.info.field.reason": "Reason",
+  "moderation.ban.info.field.sent_private_message": "Sent DM",
+  "moderation.ban.info.field.delete_duration": "Days of Message Deletion",
+  "moderation.ban.dm.title": "You were banned from this server.",
+  "moderation.ban.dm.field.performer": "Moderator",
+  "moderation.ban.dm.field.reason": "Reason",
+  "moderation.unban.info.author": "Unbanned user from server.",
+  "moderation.unban.info.field.performer": "Performer",
+  "moderation.unban.info.field.target": "Target"
 }
