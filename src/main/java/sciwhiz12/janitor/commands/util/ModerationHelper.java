@@ -3,7 +3,7 @@ package sciwhiz12.janitor.commands.util;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import sciwhiz12.janitor.msg.General;
@@ -20,7 +20,7 @@ public class ModerationHelper {
         return guild.kick(target, auditReason.toString());
     }
 
-    public static boolean ensurePermissions(TextChannel channel, Member performer, Member target, EnumSet<Permission> permissions) {
+    public static boolean ensurePermissions(MessageChannel channel, Member performer, Member target, EnumSet<Permission> permissions) {
         if (!CommandHelper.hasPermission(channel, target.getGuild(), permissions)) return false;
         if (!CommandHelper.canInteract(channel, target)) return false;
         if (!performer.hasPermission(permissions)) {

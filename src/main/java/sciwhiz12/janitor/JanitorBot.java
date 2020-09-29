@@ -10,6 +10,8 @@ import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.config.BotConfig;
 import sciwhiz12.janitor.utils.Util;
 
+import java.util.concurrent.CompletableFuture;
+
 import static sciwhiz12.janitor.Logging.JANITOR;
 import static sciwhiz12.janitor.Logging.STATUS;
 
@@ -74,8 +76,7 @@ public class JanitorBot {
                             JANITOR
                                 .error(STATUS, "Error while sending shutdown message to owner", err)
                     ))
-                    .join()
-            );
+            ).ifPresent(CompletableFuture::join);
         discord.shutdown();
     }
 }

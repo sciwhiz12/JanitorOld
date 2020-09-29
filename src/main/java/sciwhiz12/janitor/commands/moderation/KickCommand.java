@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import sciwhiz12.janitor.commands.BaseCommand;
@@ -47,20 +48,19 @@ public class KickCommand extends BaseCommand {
     }
 
     private int runWithReason(CommandContext<MessageReceivedEvent> ctx, @Nullable String reason) throws CommandSyntaxException {
+        MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            General.guildOnlyCommand(ctx.getSource().getTextChannel()).queue();
+            General.guildOnlyCommand(channel).queue();
             return 1;
         }
         Member performer = ctx.getSource().getMember();
         if (performer == null) return 1;
-        List<Member> members = getMembers("member", ctx).fromGuild(ctx.getSource().getGuild());
-        if (members.size() > 1) {
-            General.ambiguousMember(ctx.getSource().getTextChannel()).queue();
-            return 1;
-        }
+        List<Member> members = getMembers("member", ctx).fromGuild(performer.getGuild());
         Member target = members.get(0);
-        if (ModerationHelper.ensurePermissions(ctx.getSource().getTextChannel(), performer, target, KICK_PERMISSION)) {
-            ModerationHelper.kickUser(target.getGuild(), performer, target, reason)
+        if (ModerationHelper.ensurePermissions(channel, performer, target, KICK_PERMISSION)) {
+            target.getUser().openPrivateChannel()
+                .flatMap(dm -> Moderation.kickedDM(dm, performer, target, reason))
+                .flatMap(v -> ModerationHelper.kickUser(target.getGuild(), performer, target, reason))
                 .flatMap(v -> Moderation.kickUser(ctx.getSource().getChannel(), performer, target, reason))
                 .queue();
         }

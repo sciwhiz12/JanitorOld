@@ -15,6 +15,7 @@ import static sciwhiz12.janitor.msg.General.nameFor;
 
 public final class Moderation {
     public static final int MODERATION_COLOR = 0xF1BD25;
+    public static final String GAVEL_ICON_URL = "https://cdn.discordapp.com/attachments/738478941760782526/760463743330549760/gavel.png";
 
     private Moderation() {
     }
@@ -48,14 +49,25 @@ public final class Moderation {
 
     public static MessageAction kickUser(MessageChannel channel, Member performer, Member target, @Nullable String reason) {
         final EmbedBuilder embed = new EmbedBuilder()
-            .setTitle("Kicked.")
-            .addField("Performer", nameFor(performer.getUser()), true)
+            .setAuthor("Kicked user from server.", null, GAVEL_ICON_URL)
+            .addField("Moderator", nameFor(performer.getUser()), true)
             .addField("Target", nameFor(target.getUser()), true);
         if (reason != null)
             embed.addField("Reason", reason, false);
         return channel.sendMessage(
-            embed.setColor(MODERATION_COLOR)
-                .build()
+            embed.setColor(MODERATION_COLOR).build()
+        );
+    }
+
+    public static MessageAction kickedDM(MessageChannel channel, Member performer, Member target, @Nullable String reason) {
+        final EmbedBuilder embed = new EmbedBuilder()
+            .setAuthor(performer.getGuild().getName(), null, performer.getGuild().getIconUrl())
+            .setTitle("You were kicked from this server.")
+            .addField("Moderator", nameFor(performer.getUser()), true);
+        if (reason != null)
+            embed.addField("Reason", reason, false);
+        return channel.sendMessage(
+            embed.setColor(MODERATION_COLOR).build()
         );
     }
 }

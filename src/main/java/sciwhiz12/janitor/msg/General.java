@@ -14,7 +14,7 @@ public final class General {
     private General() {
     }
 
-    public static RestAction<Message> guildOnlyCommand(TextChannel channel) {
+    public static RestAction<Message> guildOnlyCommand(MessageChannel channel) {
         return channel.sendMessage(
             new EmbedBuilder()
                 .setTitle("Guild only command!")
@@ -24,7 +24,7 @@ public final class General {
         );
     }
 
-    public static RestAction<Message> insufficientPermissions(TextChannel channel, EnumSet<Permission> permissions) {
+    public static RestAction<Message> insufficientPermissions(MessageChannel channel, EnumSet<Permission> permissions) {
         return channel.sendMessage(
             new EmbedBuilder()
                 .setTitle("I have insufficient permissions!")
@@ -39,7 +39,7 @@ public final class General {
         );
     }
 
-    public static RestAction<Message> ambiguousMember(TextChannel channel) {
+    public static RestAction<Message> ambiguousMember(MessageChannel channel) {
         return channel.sendMessage(
             new EmbedBuilder()
                 .setTitle("Ambiguous member argument!")
@@ -50,7 +50,7 @@ public final class General {
         );
     }
 
-    public static RestAction<Message> cannotInteract(TextChannel channel, Member target) {
+    public static RestAction<Message> cannotInteract(MessageChannel channel, Member target) {
         return channel.sendMessage(
             new EmbedBuilder()
                 .setTitle("Member is higher than me!")

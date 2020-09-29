@@ -6,7 +6,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import sciwhiz12.janitor.msg.General;
 
@@ -21,7 +21,7 @@ public class CommandHelper {
         return RequiredArgumentBuilder.argument(command, argument);
     }
 
-    public static boolean canInteract(TextChannel response, Member target) {
+    public static boolean canInteract(MessageChannel response, Member target) {
         if (!target.getGuild().getSelfMember().canInteract(target)) {
             General.cannotInteract(response, target).queue();
             return false;
@@ -29,7 +29,7 @@ public class CommandHelper {
         return true;
     }
 
-    public static boolean hasPermission(TextChannel response, Guild guild, EnumSet<Permission> permissions) {
+    public static boolean hasPermission(MessageChannel response, Guild guild, EnumSet<Permission> permissions) {
         if (!guild.getSelfMember().hasPermission(permissions)) {
             General.insufficientPermissions(response, permissions).queue();
             return false;
