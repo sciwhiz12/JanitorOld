@@ -47,6 +47,10 @@ public class Util {
         return String.format("<%s%s>", prefix, entity.getId());
     }
 
+    public static String nameFor(User user) {
+        return user.getName().concat("#").concat(user.getDiscriminator());
+    }
+
     public static <Success, Error> BiConsumer<Success, Error> handle(final Consumer<Success> success,
                                                                      final Consumer<Error> exceptionally) {
         return (suc, ex) -> {

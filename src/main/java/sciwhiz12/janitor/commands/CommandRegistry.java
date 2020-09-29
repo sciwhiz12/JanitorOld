@@ -74,7 +74,8 @@ public class CommandRegistry implements EventListener {
             }
             JANITOR.debug(COMMANDS, "Executing command.");
             dispatcher.execute(parseResults);
-        } catch (CommandSyntaxException ex) {
+        }
+        catch (CommandSyntaxException ex) {
             JANITOR.error(COMMANDS, "Error while parsing message and executing command", ex);
         }
     }

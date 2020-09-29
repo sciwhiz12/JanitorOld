@@ -8,6 +8,7 @@ import org.slf4j.MarkerFactory;
 public class Logging {
     public static final Marker STATUS = MarkerFactory.getMarker("STATUS");
     public static final Marker COMMANDS = MarkerFactory.getMarker("COMMANDS");
+    public static final Marker TRANSLATIONS = MarkerFactory.getMarker("TRANSLATIONS");
 
     public static final Logger JANITOR = LoggerFactory.getLogger("janitor");
     public static final Logger CONSOLE = LoggerFactory.getLogger("janitor.console");

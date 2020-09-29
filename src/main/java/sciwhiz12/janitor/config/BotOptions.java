@@ -13,6 +13,7 @@ import static joptsimple.util.PathProperties.*;
 public class BotOptions {
     private final OptionSet options;
     private final ArgumentAcceptingOptionSpec<Path> configPath;
+    private final ArgumentAcceptingOptionSpec<Path> translationsPath;
     private final ArgumentAcceptingOptionSpec<String> token;
     private final ArgumentAcceptingOptionSpec<String> prefix;
     private final ArgumentAcceptingOptionSpec<Long> owner;
@@ -23,6 +24,10 @@ public class BotOptions {
             .accepts("config", "The path to the config file; defaults to 'config.toml'")
             .withRequiredArg()
             .withValuesConvertedBy(new PathConverter(FILE_EXISTING, READABLE, WRITABLE));
+        this.translationsPath = parser
+            .accepts("translations", "The path to the translations file")
+            .withRequiredArg()
+            .withValuesConvertedBy(new PathConverter(FILE_EXISTING, READABLE));
         this.token = parser
             .accepts("token", "The Discord token for the bot user")
             .withRequiredArg();
@@ -38,6 +43,10 @@ public class BotOptions {
 
     public Optional<Path> getConfigPath() {
         return configPath.valueOptional(options);
+    }
+
+    public Optional<Path> getTranslationsFile() {
+        return translationsPath.valueOptional(options);
     }
 
     public Optional<String> getToken() {

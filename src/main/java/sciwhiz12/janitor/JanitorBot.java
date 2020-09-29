@@ -8,6 +8,8 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.config.BotConfig;
+import sciwhiz12.janitor.msg.Messages;
+import sciwhiz12.janitor.msg.Translations;
 import sciwhiz12.janitor.utils.Util;
 
 import java.util.concurrent.CompletableFuture;
@@ -18,14 +20,18 @@ import static sciwhiz12.janitor.Logging.STATUS;
 public class JanitorBot {
     private final JDA discord;
     private final BotConfig config;
-    private final BotConsole console;
-    private final CommandRegistry cmdRegistry;
+    private final Messages messages;
+    private BotConsole console;
+    private CommandRegistry cmdRegistry;
+    private Translations translations;
 
     public JanitorBot(JDA discord, BotConfig config) {
         this.config = config;
         this.console = new BotConsole(this, System.in);
         this.cmdRegistry = new CommandRegistry(this, config.getCommandPrefix());
         this.discord = discord;
+        this.translations = new Translations(this, config.getTranslationsFile());
+        this.messages = new Messages(this);
         discord.addEventListener(cmdRegistry);
         discord.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(" n' sweeping n' testing!"));
         discord.getGuilds().forEach(Guild::loadMembers);
@@ -52,8 +58,14 @@ public class JanitorBot {
         return this.config;
     }
 
+    public Messages getMessages() { return this.messages; }
+
     public CommandRegistry getCommandRegistry() {
         return this.cmdRegistry;
+    }
+
+    public Translations getTranslations() {
+        return this.translations;
     }
 
     public void shutdown() {
