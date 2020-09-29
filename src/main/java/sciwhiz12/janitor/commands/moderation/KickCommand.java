@@ -50,7 +50,7 @@ public class KickCommand extends BaseCommand {
     private int runWithReason(CommandContext<MessageReceivedEvent> ctx, @Nullable String reason) throws CommandSyntaxException {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            getBot().getMessages().GENERAL.guildOnlyCommand(channel).queue();
+            messages().GENERAL.guildOnlyCommand(channel).queue();
             return 1;
         }
         final Guild guild = ctx.getSource().getGuild();
@@ -60,28 +60,26 @@ public class KickCommand extends BaseCommand {
             return 1;
         }
         final Member target = members.get(0);
-        if (!guild.getSelfMember().hasPermission(KICK_PERMISSION)) {
-            getBot().getMessages().GENERAL.insufficientPermissions(channel, KICK_PERMISSION).queue();
-            return 1;
-        }
-        if (!guild.getSelfMember().canInteract(target)) {
-            getBot().getMessages().GENERAL.cannotInteract(channel, target).queue();
-            return 1;
-        }
-        if (!performer.hasPermission(KICK_PERMISSION)) {
-            getBot().getMessages().MODERATION.performerInsufficientPermissions(channel, performer, KICK_PERMISSION).queue();
-            return 1;
-        }
-        if (!performer.canInteract(target)) {
-            getBot().getMessages().MODERATION.cannotModerate(channel, performer, target).queue();
-            return 1;
-        }
-        target.getUser().openPrivateChannel()
-            .flatMap(dm -> getBot().getMessages().MODERATION.kickedDM(dm, performer, target, reason))
-            .mapToResult()
-            .flatMap(res -> ModerationHelper.kickUser(target.getGuild(), performer, target, reason)
-                .flatMap(v -> getBot().getMessages().MODERATION.kickUser(channel, performer, target, reason, res.isSuccess())))
-            .queue();
+        if (guild.getSelfMember().equals(target))
+            messages().GENERAL.cannotActionSelf(channel).queue();
+        else if (performer.equals(target))
+            messages().GENERAL.cannotActionPerformer(channel, performer).queue();
+        else if (!guild.getSelfMember().hasPermission(KICK_PERMISSION))
+            messages().GENERAL.insufficientPermissions(channel, KICK_PERMISSION).queue();
+        else if (!guild.getSelfMember().canInteract(target))
+            messages().GENERAL.cannotInteract(channel, target).queue();
+        else if (!performer.hasPermission(KICK_PERMISSION))
+            messages().MODERATION.performerInsufficientPermissions(channel, performer, KICK_PERMISSION).queue();
+        else if (!performer.canInteract(target))
+            messages().MODERATION.cannotModerate(channel, performer, target).queue();
+        else
+            target.getUser().openPrivateChannel()
+                .flatMap(dm -> messages().MODERATION.kickedDM(dm, performer, target, reason))
+                .mapToResult()
+                .flatMap(res -> ModerationHelper.kickUser(target.getGuild(), performer, target, reason)
+                    .flatMap(
+                        v -> messages().MODERATION.kickUser(channel, performer, target, reason, res.isSuccess())))
+                .queue();
         return 1;
     }
 }

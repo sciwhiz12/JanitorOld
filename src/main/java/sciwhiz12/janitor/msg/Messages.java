@@ -78,6 +78,27 @@ public class Messages {
                     .build()
             );
         }
+
+        public RestAction<Message> cannotActionSelf(MessageChannel channel) {
+            return channel.sendMessage(
+                new EmbedBuilder()
+                    .setTitle(translate("general.cannot_action_self.title"))
+                    .setDescription(translate("general.cannot_action_self.desc"))
+                    .setColor(General.FAILURE_COLOR)
+                    .build()
+            );
+        }
+
+        public RestAction<Message> cannotActionPerformer(MessageChannel channel, Member performer) {
+            return channel.sendMessage(
+                new EmbedBuilder()
+                    .setTitle(translate("general.cannot_action_performer.title"))
+                    .setDescription(translate("general.cannot_action_performer.desc"))
+                    .addField(translate("general.cannot_action_performer.field.performer"), performer.getUser().getAsMention(), true)
+                    .setColor(General.FAILURE_COLOR)
+                    .build()
+            );
+        }
     }
 
     public final class Moderation {

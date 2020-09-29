@@ -3,6 +3,7 @@ package sciwhiz12.janitor.commands;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import sciwhiz12.janitor.JanitorBot;
+import sciwhiz12.janitor.msg.Messages;
 
 public abstract class BaseCommand {
     private final CommandRegistry registry;
@@ -17,6 +18,10 @@ public abstract class BaseCommand {
 
     public JanitorBot getBot() {
         return registry.getBot();
+    }
+
+    protected Messages messages() {
+        return getBot().getMessages();
     }
 
     public abstract LiteralArgumentBuilder<MessageReceivedEvent> getNode();
