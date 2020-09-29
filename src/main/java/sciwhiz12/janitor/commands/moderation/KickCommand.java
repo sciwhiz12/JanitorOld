@@ -78,8 +78,9 @@ public class KickCommand extends BaseCommand {
         }
         target.getUser().openPrivateChannel()
             .flatMap(dm -> getBot().getMessages().MODERATION.kickedDM(dm, performer, target, reason))
-            .flatMap(v -> ModerationHelper.kickUser(target.getGuild(), performer, target, reason))
-            .flatMap(v -> getBot().getMessages().MODERATION.kickUser(channel, performer, target, reason))
+            .mapToResult()
+            .flatMap(res -> ModerationHelper.kickUser(target.getGuild(), performer, target, reason)
+                .flatMap(v -> getBot().getMessages().MODERATION.kickUser(channel, performer, target, reason, res.isSuccess())))
             .queue();
         return 1;
     }

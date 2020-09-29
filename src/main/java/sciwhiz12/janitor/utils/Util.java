@@ -1,11 +1,16 @@
 package sciwhiz12.janitor.utils;
 
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildChannel;
+import net.dv8tion.jda.api.entities.ISnowflake;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
 
-import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 public class Util {
     public static <T> T make(Supplier<T> creator, Consumer<T> configurator) {
@@ -14,18 +19,17 @@ public class Util {
         return obj;
     }
 
-//    public static String toString(final MessageAuthor author) {
-//        return author.asUser().map(Util::toString).orElseGet(() -> String.format("{MessageAuthor,%s}:%s", author.getDiscriminatedName(), author.getId()));
-//    }
-
     public static String toString(@Nullable final User user) {
-        return user != null ? String.format("{User,%s#%s}:%s", user.getName(), user.getDiscriminator(), getID(user)) : "unknown";
+        return user != null ?
+            String.format("{User,%s#%s}:%s", user.getName(), user.getDiscriminator(), getID(user)) :
+            "unknown";
     }
 
     public static String toString(final MessageChannel channel) {
         if (channel instanceof GuildChannel) {
             GuildChannel gc = (GuildChannel) channel;
-            return String.format("[GuildChannel:%s,%s@%s]%s", gc.getType(), gc.getName(), toString(gc.getGuild()), getID(channel));
+            return String
+                .format("[GuildChannel:%s,%s@%s]%s", gc.getType(), gc.getName(), toString(gc.getGuild()), getID(channel));
         }
         // TextChannel vs PrivateChannel
         return String.format("[MessageChannel]:%s", getID(channel));
@@ -52,7 +56,7 @@ public class Util {
     }
 
     public static <Success, Error> BiConsumer<Success, Error> handle(final Consumer<Success> success,
-                                                                     final Consumer<Error> exceptionally) {
+        final Consumer<Error> exceptionally) {
         return (suc, ex) -> {
             if (ex == null) {
                 success.accept(suc);

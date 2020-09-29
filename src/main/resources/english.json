@@ -21,6 +21,7 @@
   "moderation.kick.info.field.performer": "Performer",
   "moderation.kick.info.field.target": "Target",
   "moderation.kick.info.field.reason": "Reason",
+  "moderation.kick.info.field.sent_private_message": "Sent DM",
   "moderation.kick.dm.title": "You were kicked from this server.",
   "moderation.kick.dm.field.performer": "Moderator",
   "moderation.kick.dm.field.reason": "Reason"

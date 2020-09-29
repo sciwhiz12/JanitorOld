@@ -14,8 +14,6 @@ import sciwhiz12.janitor.JanitorBot;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
 
-import static sciwhiz12.janitor.utils.Util.nameFor;
-
 public class Messages {
     private final JanitorBot bot;
     public final General GENERAL;
@@ -75,7 +73,7 @@ public class Messages {
                 new EmbedBuilder()
                     .setTitle(translate("general.cannot_interact.title"))
                     .setDescription(translate("general.cannot_interact.desc"))
-                    .addField(translate("general.cannot_interact.field.target"), nameFor(target.getUser()), true)
+                    .addField(translate("general.cannot_interact.field.target"), target.getUser().getAsMention(), true)
                     .setColor(General.FAILURE_COLOR)
                     .build()
             );
@@ -95,7 +93,8 @@ public class Messages {
                 new EmbedBuilder()
                     .setTitle(translate("moderation.insufficient_permissions.title"))
                     .setDescription(translate("moderation.insufficient_permissions.desc"))
-                    .addField(translate("moderation.insufficient_permissions.field.performer"), nameFor(performer.getUser()),
+                    .addField(translate("moderation.insufficient_permissions.field.performer"),
+                        performer.getUser().getAsMention(),
                         true)
                     .addField(new MessageEmbed.Field(
                         translate("moderation.insufficient_permissions.field.permissions"),
@@ -111,18 +110,20 @@ public class Messages {
                 new EmbedBuilder()
                     .setTitle(translate("moderation.cannot_interact.title"))
                     .setDescription(translate("moderation.cannot_interact.desc"))
-                    .addField(translate("moderation.cannot_interact.field.performer"), nameFor(performer.getUser()), true)
-                    .addField(translate("moderation.cannot_interact.field.target"), nameFor(target.getUser()), true)
+                    .addField(translate("moderation.cannot_interact.field.performer"), performer.getUser().getAsMention(), true)
+                    .addField(translate("moderation.cannot_interact.field.target"), target.getUser().getAsMention(), true)
                     .setColor(General.FAILURE_COLOR)
                     .build()
             );
         }
 
-        public MessageAction kickUser(MessageChannel channel, Member performer, Member target, @Nullable String reason) {
+        public MessageAction kickUser(MessageChannel channel, Member performer, Member target, @Nullable String reason,
+            boolean sentDM) {
             final EmbedBuilder embed = new EmbedBuilder()
                 .setAuthor(translate("moderation.kick.info.author"), null, GAVEL_ICON_URL)
-                .addField(translate("moderation.kick.info.field.performer"), nameFor(performer.getUser()), true)
-                .addField(translate("moderation.kick.info.field.target"), nameFor(target.getUser()), true);
+                .addField(translate("moderation.kick.info.field.performer"), performer.getUser().getAsMention(), true)
+                .addField(translate("moderation.kick.info.field.target"), target.getUser().getAsMention(), true)
+                .addField(translate("moderation.kick.info.field.sent_private_message"), sentDM ? "✅" : "❌", true);
             if (reason != null)
                 embed.addField(translate("moderation.kick.info.field.reason"), reason, false);
             return channel.sendMessage(embed.setColor(MODERATION_COLOR).build());
@@ -132,7 +133,7 @@ public class Messages {
             final EmbedBuilder embed = new EmbedBuilder()
                 .setAuthor(performer.getGuild().getName(), null, performer.getGuild().getIconUrl())
                 .setTitle(translate("moderation.kick.dm.title"))
-                .addField(translate("moderation.kick.dm.field.performer"), nameFor(performer.getUser()), true);
+                .addField(translate("moderation.kick.dm.field.performer"), performer.getUser().getAsMention(), true);
             if (reason != null)
                 embed.addField(translate("moderation.kick.dm.field.reason"), reason, false);
             return channel.sendMessage(embed.setColor(MODERATION_COLOR).build());
