@@ -11,17 +11,16 @@ import static sciwhiz12.janitor.Logging.JANITOR;
 import static sciwhiz12.janitor.commands.util.CommandHelper.literal;
 
 public class ShutdownCommand extends BaseCommand {
-    private final long ownerID;
-
-    public ShutdownCommand(CommandRegistry registry, long ownerID) {
+    public ShutdownCommand(CommandRegistry registry) {
         super(registry);
-        this.ownerID = ownerID;
     }
 
     @Override
     public LiteralArgumentBuilder<MessageReceivedEvent> getNode() {
         return literal("shutdown")
-            .requires(ctx -> ctx.getAuthor().getIdLong() == ownerID)
+            .requires(ctx -> getBot().getConfig().getOwnerID().map(
+                id -> id == ctx.getAuthor().getIdLong()).orElse(false)
+            )
             .executes(this::run);
     }
 
@@ -33,7 +32,8 @@ public class ShutdownCommand extends BaseCommand {
             .submit()
             .whenComplete(Util.handle(
                 success -> JANITOR.debug("Sent shutdown message to channel {}", Util.toString(ctx.getSource().getAuthor())),
-                err -> JANITOR.error("Error while sending ping message to bot owner {}", Util.toString(ctx.getSource().getAuthor()))
+                err -> JANITOR
+                    .error("Error while sending ping message to bot owner {}", Util.toString(ctx.getSource().getAuthor()))
                 )
             )
             .join();

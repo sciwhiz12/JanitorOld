@@ -48,9 +48,7 @@ public class CommandRegistry implements EventListener {
         addCommand(new WarnCommand(this));
         addCommand(new WarnListCommand(this));
         addCommand(new UnwarnCommand(this));
-        if (bot.getConfig().getOwnerID().isPresent()) {
-            addCommand(new ShutdownCommand(this, bot.getConfig().getOwnerID().get()));
-        }
+        addCommand(new ShutdownCommand(this));
     }
 
     public CommandDispatcher<MessageReceivedEvent> getDispatcher() {

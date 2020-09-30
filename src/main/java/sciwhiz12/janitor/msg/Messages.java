@@ -312,6 +312,33 @@ public class Messages {
                 embed.addField(translate("moderation.unwarn.field.reason"), entry.getReason(), false);
             return channel.sendMessage(embed.build());
         }
+
+        public MessageAction cannotWarnMods(MessageChannel channel, Member performer, Member target) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setTitle(translate("moderation.warn.cannot_warn_mods.title"), null)
+                .setColor(General.FAILURE_COLOR)
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
+                .setDescription(translate("moderation.warn.cannot_warn_mods.desc"))
+                .addField(translate("moderation.warn.cannot_warn_mods.field.performer"),
+                    performer.getAsMention(), true)
+                .addField(translate("moderation.warn.cannot_warn_mods.field.target"),
+                    target.getAsMention(), true);
+            return channel.sendMessage(embed.build());
+        }
+
+        public MessageAction cannotRemoveHigherModerated(MessageChannel channel, Member performer, int caseID, WarningEntry entry) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setTitle(translate("moderation.unwarn.cannot_remove_higher_mod.title"), null)
+                .setColor(General.FAILURE_COLOR)
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
+                .setDescription(translate("moderation.unwarn.cannot_remove_higher_mod.desc"))
+                .addField(translate("moderation.unwarn.cannot_remove_higher_mod.field.performer"),
+                    performer.getUser().getAsMention(), true)
+                .addField(translate("moderation.unwarn.cannot_remove_higher_mod.field.original_performer"),
+                    entry.getPerformer().getAsMention(), true)
+                .addField(translate("moderation.unwarn.cannot_remove_higher_mod.field.case_id"), String.valueOf(caseID), true);
+            return channel.sendMessage(embed.build());
+        }
     }
 
 }

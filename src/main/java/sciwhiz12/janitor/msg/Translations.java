@@ -32,7 +32,7 @@ public class Translations {
         loadTranslations();
     }
 
-    void loadTranslations() {
+    public void loadTranslations() {
         if (translationsFile == null) {
             JANITOR.info(TRANSLATIONS, "No translation file given, using default english translations");
             loadDefaultTranslations();

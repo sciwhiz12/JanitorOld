@@ -72,5 +72,14 @@
   "moderation.unwarn.cannot_unwarn_self.desc": "Performer cannot remove a warning from themselves.",
   "moderation.unwarn.cannot_unwarn_self.field.performer": "Performer/Original Target",
   "moderation.unwarn.cannot_unwarn_self.field.original_performer": "Original Performer",
-  "moderation.unwarn.cannot_unwarn_self.field.case_id": "Case ID"
+  "moderation.unwarn.cannot_unwarn_self.field.case_id": "Case ID",
+  "moderation.warn.cannot_warn_mods.title": "Cannot warn moderators.",
+  "moderation.warn.cannot_warn_mods.desc": "Moderators cannot issue warnings to other moderators.",
+  "moderation.warn.cannot_warn_mods.field.performer": "Performer",
+  "moderation.warn.cannot_warn_mods.field.target": "Target",
+  "moderation.warn.cannot_remove_higher_mod.title": "Cannot remove warning issued by higher-ranked moderator.",
+  "moderation.warn.cannot_remove_higher_mod.desc": "The performer cannot remove this warning, as this was issued by a higher-ranking moderator.",
+  "moderation.warn.cannot_remove_higher_mod.field.performer": "Performer",
+  "moderation.warn.cannot_remove_higher_mod.field.original_performer": "Original Performer",
+  "moderation.warn.cannot_remove_higher_mod.field.case_id": "Case ID"
 }

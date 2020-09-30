@@ -31,6 +31,7 @@ public class UnwarnCommand extends BaseCommand {
     @Override
     public LiteralArgumentBuilder<MessageReceivedEvent> getNode() {
         return literal("unwarn")
+            .requires(ctx -> getBot().getConfig().WARNINGS_ENABLE.get())
             .then(argument("caseId", IntegerArgumentType.integer(1))
                 .executes(this::run)
             );
@@ -59,10 +60,16 @@ public class UnwarnCommand extends BaseCommand {
             final WarningStorage storage = WarningStorage.get(getBot().getStorage(), guild);
             @Nullable
             final WarningEntry entry = storage.getWarning(caseID);
+            Member temp;
             if (entry == null)
                 messages().MODERATION.noWarnWithID(channel, performer, caseID).queue();
-            else if (entry.getWarned().getIdLong() == performer.getIdLong())
+            else if (entry.getWarned().getIdLong() == performer.getIdLong()
+                && !config().WARNINGS_REMOVE_SELF_WARNINGS.get())
                 messages().MODERATION.cannotUnwarnSelf(channel, performer, caseID, entry).queue();
+            else if (config().WARNINGS_RESPECT_MOD_ROLES.get()
+                && (temp = guild.getMember(entry.getPerformer())) != null
+                && !performer.canInteract(temp))
+                messages().MODERATION.cannotRemoveHigherModerated(channel, performer, caseID, entry).queue();
             else {
                 storage.removeWarning(caseID);
                 messages().MODERATION.unwarn(channel, performer, caseID, entry).queue();

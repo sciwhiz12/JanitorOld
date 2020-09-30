@@ -62,7 +62,12 @@ public class GuildStorage {
     }
 
     public void save() {
-        Logging.JANITOR.debug("Saving guild storage to files under {}...", mainFolder);
+        save(false);
+    }
+
+    public void save(boolean isAutosave) {
+        if (!isAutosave)
+            Logging.JANITOR.debug("Saving guild storage to files under {}...", mainFolder);
         boolean anySaved = false;
         for (Guild guild : guildStorage.keySet()) {
             final Map<String, IStorage> storageMap = guildStorage.get(guild);
@@ -111,8 +116,8 @@ public class GuildStorage {
         @Override
         public void run() {
             while (running) {
-                storage.save();
-                try { Thread.sleep(10000); }
+                storage.save(true);
+                try { Thread.sleep(storage.getBot().getConfig().AUTOSAVE_INTERVAL.get() * 1000); }
                 catch (InterruptedException ignored) {}
             }
         }

@@ -36,6 +36,7 @@ public class WarnCommand extends BaseCommand {
     @Override
     public LiteralArgumentBuilder<MessageReceivedEvent> getNode() {
         return literal("warn")
+            .requires(ctx -> getBot().getConfig().WARNINGS_ENABLE.get())
             .then(argument("member", member())
                 .then(argument("reason", greedyString())
                     .executes(ctx -> this.run(ctx, getString(ctx, "reason")))
@@ -70,6 +71,8 @@ public class WarnCommand extends BaseCommand {
             messages().MODERATION.performerInsufficientPermissions(channel, performer, WARN_PERMISSION).queue();
         else if (!performer.canInteract(target))
             messages().MODERATION.cannotModerate(channel, performer, target).queue();
+        else if (target.hasPermission(WARN_PERMISSION) && config().WARNINGS_PREVENT_WARNING_MODS.get())
+            messages().MODERATION.cannotWarnMods(channel, performer, target).queue();
         else
             target.getUser().openPrivateChannel()
                 .flatMap(dm -> messages().MODERATION.warnDM(dm, performer, target, reason, dateTime))

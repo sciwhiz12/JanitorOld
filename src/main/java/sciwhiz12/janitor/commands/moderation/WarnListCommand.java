@@ -36,6 +36,7 @@ public class WarnListCommand extends BaseCommand {
     @Override
     public LiteralArgumentBuilder<MessageReceivedEvent> getNode() {
         return literal("warnlist")
+            .requires(ctx -> getBot().getConfig().WARNINGS_ENABLE.get())
             .then(literal("target")
                 .then(argument("target", member())
                     .then(literal("mod")

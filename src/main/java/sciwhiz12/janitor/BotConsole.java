@@ -34,14 +34,25 @@ public class BotConsole {
 
     public void parseCommand(String input) {
         String[] parts = input.split(" ");
+        outer:
         switch (parts[0]) {
             case "shutdown": {
                 running = false;
                 bot.shutdown();
                 break;
             }
+            case "reload": {
+                if (parts.length >= 2)
+                    switch (parts[1]) {
+                        case "translations": {
+                            CONSOLE.info("Reloading translations");
+                            bot.getTranslations().loadTranslations();
+                            break outer;
+                        }
+                    }
+            }
             default:
-                CONSOLE.warn("Unknown command: " + input);
+                CONSOLE.warn("Unknown command: {}", input);
         }
     }
 
@@ -60,7 +71,8 @@ public class BotConsole {
                 while (!scanner.hasNextLine()) {
                     try {
                         Thread.sleep(150);
-                    } catch (InterruptedException e) {
+                    }
+                    catch (InterruptedException e) {
                         CONSOLE.warn("Console thread is interrupted");
                         continue outer;
                     }
@@ -72,7 +84,8 @@ public class BotConsole {
                     }
                     CONSOLE.debug("Received command: {}", input);
                     BotConsole.this.parseCommand(input);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     CONSOLE.error("Error while running console thread", e);
                 }
             }
