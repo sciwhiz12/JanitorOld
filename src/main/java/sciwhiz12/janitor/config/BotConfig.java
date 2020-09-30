@@ -1,6 +1,7 @@
 package sciwhiz12.janitor.config;
 
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.file.FileNotFoundAction;
 import com.electronwill.nightconfig.core.file.FileWatcher;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -14,27 +15,52 @@ import static sciwhiz12.janitor.Logging.JANITOR;
 
 public class BotConfig {
     public static final Path DEFAULT_CONFIG_PATH = Path.of("config.toml");
-    public static final Path DEFAULT_STORAGE_PATH = Path.of("guild_storage");
-    public static final String CLIENT_TOKEN = "discord.client_token";
-    public static final String OWNER_ID = "discord.owner_id";
-    public static final String STORAGE_PATH = "storage.main_path";
-    public static final String TRANSLATION_FILE_PATH = "messages.translation_file";
-    public static final String COMMAND_PREFIX = "commands.prefix";
+
+    private final CommentedConfigSpec.ConfigValue<String> CLIENT_TOKEN;
+    private final CommentedConfigSpec.LongValue OWNER_ID;
+    public final CommentedConfigSpec.ConfigValue<String> STORAGE_PATH;
+    public final CommentedConfigSpec.ConfigValue<String> CUSTOM_TRANSLATION_FILE;
+    public final CommentedConfigSpec.ConfigValue<String> COMMAND_PREFIX;
 
     private final BotOptions options;
     private final Path configPath;
+    private final CommentedConfigSpec spec;
     private final CommentedFileConfig config;
 
     public BotConfig(BotOptions options) {
         this.options = options;
+
+        final CommentedConfigSpec.Builder builder = new CommentedConfigSpec.Builder();
+
+        CLIENT_TOKEN = builder
+            .comment("The client secret/token for the bot user", "This must be set, or the application will not start up.")
+            .define("discord.client_token", "");
+        OWNER_ID = builder
+            .comment("The id of the bot owner; used for sending status messages and for bot administration commands.",
+                "If 0, then the bot has no owner set.")
+            .defineInRange("discord.owner_id", 0L, Long.MIN_VALUE, Long.MAX_VALUE);
+        STORAGE_PATH = builder
+            .comment("The folder where per-guild storage is kept.")
+            .define("storage.main_path", "guild_storage");
+        CUSTOM_TRANSLATION_FILE = builder
+            .comment("A file which contains custom translation keys to load for messages.",
+                "If blank, no file shall be loaded.")
+            .define("messages.custom_translations", "");
+        COMMAND_PREFIX = builder
+            .comment("The prefix for commands.")
+            .define("commands.prefix", "!");
+
+        spec = builder.build();
+
         this.configPath = options.getConfigPath().orElse(DEFAULT_CONFIG_PATH);
         this.config = CommentedFileConfig.builder(configPath, TomlFormat.instance())
-            .defaultResource("default-config.toml")
+            .onFileNotFound(FileNotFoundAction.CREATE_EMPTY)
             .preserveInsertionOrder()
             .build();
         try {
             JANITOR.info("Building config from {}", configPath);
             config.load();
+            spec.setConfig(config);
             // TODO: config spec
             FileWatcher.defaultInstance().addWatch(configPath, this::onFileChange);
         }
@@ -50,24 +76,24 @@ public class BotConfig {
     @Nullable
     public Path getTranslationsFile() {
         return options.getTranslationsFile().
-            or(() -> Optional.ofNullable(config.<String>get(TRANSLATION_FILE_PATH)).map(Path::of))
+            or(() -> CUSTOM_TRANSLATION_FILE.get().isBlank() ?
+                Optional.empty() :
+                Optional.of(Path.of(CUSTOM_TRANSLATION_FILE.get())))
             .orElse(null);
     }
 
-    public Path getStoragePath() {
-        return config.<String>getOptional(STORAGE_PATH).map(Path::of).orElse(DEFAULT_STORAGE_PATH);
-    }
-
-    public Optional<String> getToken() {
-        return options.getToken().or(() -> config.getOptional(CLIENT_TOKEN));
+    public String getToken() {
+        return options.getToken().orElse(CLIENT_TOKEN.get());
     }
 
     public String getCommandPrefix() {
-        return options.getCommandPrefix().orElseGet(() -> config.get(COMMAND_PREFIX));
+        return options.getCommandPrefix().orElseGet(COMMAND_PREFIX::get);
     }
 
     public Optional<Long> getOwnerID() {
-        return options.getOwnerID().or(() -> config.getOptional(OWNER_ID));
+        final Long ret = options.getOwnerID().orElse(OWNER_ID.get());
+        if (ret == 0) return Optional.empty();
+        return Optional.of(ret);
     }
 
     public void close() {
@@ -78,6 +104,7 @@ public class BotConfig {
         try {
             CONFIG.info("Reloading config due to file change {}", configPath);
             config.load();
+            spec.setConfig(config);
         }
         catch (Exception ex) {
             CONFIG.error("Error while reloading config from {}", configPath, ex);

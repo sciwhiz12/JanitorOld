@@ -12,6 +12,7 @@ import sciwhiz12.janitor.msg.Messages;
 import sciwhiz12.janitor.msg.Translations;
 import sciwhiz12.janitor.utils.Util;
 
+import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
 import static sciwhiz12.janitor.Logging.JANITOR;
@@ -30,7 +31,7 @@ public class JanitorBot {
     public JanitorBot(JDA discord, BotConfig config) {
         this.config = config;
         this.console = new BotConsole(this, System.in);
-        this.storage = new GuildStorage(this, config.getStoragePath());
+        this.storage = new GuildStorage(this, Path.of(config.STORAGE_PATH.get()));
         this.cmdRegistry = new CommandRegistry(this, config.getCommandPrefix());
         this.discord = discord;
         this.translations = new Translations(this, config.getTranslationsFile());

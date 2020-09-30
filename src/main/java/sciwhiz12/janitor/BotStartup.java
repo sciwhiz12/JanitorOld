@@ -21,13 +21,12 @@ public class BotStartup {
 
         BotOptions options = new BotOptions(args);
         BotConfig config = new BotConfig(options);
-        checkArgument(config.getToken().isPresent(),
-            "Token is not supplied through config or command line");
+        checkArgument(!config.getToken().isEmpty(), "Supply a client token through config or command line");
 
         JANITOR.info("Building bot instance and connecting to Discord...");
 
         try {
-            JDABuilder.create(config.getToken().get(), EnumSet.allOf(GatewayIntent.class))
+            JDABuilder.create(config.getToken(), EnumSet.allOf(GatewayIntent.class))
                 .setStatus(OnlineStatus.DO_NOT_DISTURB)
                 .setActivity(Activity.listening("for the ready call..."))
                 .setAutoReconnect(true)
@@ -38,7 +37,8 @@ public class BotStartup {
                     }
                 })
                 .build();
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             JANITOR.error("Error while building Discord connection", ex);
         }
     }
