@@ -63,7 +63,7 @@ public class UnbanCommand extends BaseCommand {
                 .collect(Collectors.toList()))
             .queue(bans -> {
                 if (bans.size() > 1)
-                    messages().GENERAL.ambiguousMember(channel);
+                    messages().GENERAL.ambiguousMember(channel).queue();
                 else if (bans.size() == 1)
                     tryUnban(channel, guild, performer, bans.get(0).getUser());
             });

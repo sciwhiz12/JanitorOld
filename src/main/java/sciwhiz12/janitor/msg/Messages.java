@@ -12,6 +12,8 @@ import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import sciwhiz12.janitor.JanitorBot;
 
+import java.time.Clock;
+import java.time.OffsetDateTime;
 import java.util.EnumSet;
 import java.util.stream.Collectors;
 
@@ -41,6 +43,7 @@ public class Messages {
                     .setTitle(translate("general.guild_only_command.title"))
                     .setDescription(translate("general.guild_only_command.desc"))
                     .setColor(FAILURE_COLOR)
+                    .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                     .build()
             );
         }
@@ -55,6 +58,7 @@ public class Messages {
                         permissions.stream().map(Permission::getName).collect(Collectors.joining(", ")),
                         false))
                     .setColor(FAILURE_COLOR)
+                    .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                     .build()
             );
         }
@@ -65,6 +69,7 @@ public class Messages {
                     .setTitle(translate("general.ambiguous_member.title"))
                     .setDescription(translate("general.ambiguous_member.desc"))
                     .setColor(FAILURE_COLOR)
+                    .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                     .build()
             );
         }
@@ -76,6 +81,7 @@ public class Messages {
                     .setDescription(translate("general.cannot_interact.desc"))
                     .addField(translate("general.cannot_interact.field.target"), target.getUser().getAsMention(), true)
                     .setColor(General.FAILURE_COLOR)
+                    .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                     .build()
             );
         }
@@ -86,6 +92,7 @@ public class Messages {
                     .setTitle(translate("general.cannot_action_self.title"))
                     .setDescription(translate("general.cannot_action_self.desc"))
                     .setColor(General.FAILURE_COLOR)
+                    .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                     .build()
             );
         }
@@ -98,6 +105,7 @@ public class Messages {
                     .addField(translate("general.cannot_action_performer.field.performer"), performer.getUser().getAsMention(),
                         true)
                     .setColor(General.FAILURE_COLOR)
+                    .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                     .build()
             );
         }
@@ -124,6 +132,7 @@ public class Messages {
                         permissions.stream().map(Permission::getName).collect(Collectors.joining(", ")),
                         true))
                     .setColor(General.FAILURE_COLOR)
+                    .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                     .build()
             );
         }
@@ -136,6 +145,7 @@ public class Messages {
                     .addField(translate("moderation.cannot_interact.field.performer"), performer.getUser().getAsMention(), true)
                     .addField(translate("moderation.cannot_interact.field.target"), target.getUser().getAsMention(), true)
                     .setColor(General.FAILURE_COLOR)
+                    .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                     .build()
             );
         }
@@ -149,7 +159,8 @@ public class Messages {
                 .addField(translate("moderation.kick.info.field.sent_private_message"), sentDM ? "✅" : "❌", true);
             if (reason != null)
                 embed.addField(translate("moderation.kick.info.field.reason"), reason, false);
-            return channel.sendMessage(embed.setColor(MODERATION_COLOR).build());
+            return channel
+                .sendMessage(embed.setColor(MODERATION_COLOR).setTimestamp(OffsetDateTime.now(Clock.systemUTC())).build());
         }
 
         public MessageAction kickedDM(MessageChannel channel, Member performer, Member target, @Nullable String reason) {
@@ -159,7 +170,8 @@ public class Messages {
                 .addField(translate("moderation.kick.dm.field.performer"), performer.getUser().getAsMention(), true);
             if (reason != null)
                 embed.addField(translate("moderation.kick.dm.field.reason"), reason, false);
-            return channel.sendMessage(embed.setColor(MODERATION_COLOR).build());
+            return channel
+                .sendMessage(embed.setColor(MODERATION_COLOR).setTimestamp(OffsetDateTime.now(Clock.systemUTC())).build());
         }
 
         public MessageAction banUser(MessageChannel channel, Member performer, Member target, @Nullable String reason,
@@ -174,7 +186,8 @@ public class Messages {
                     String.valueOf(deletionDays).concat(" day(s)"), true);
             if (reason != null)
                 embed.addField(translate("moderation.ban.info.field.reason"), reason, false);
-            return channel.sendMessage(embed.setColor(MODERATION_COLOR).build());
+            return channel
+                .sendMessage(embed.setColor(MODERATION_COLOR).setTimestamp(OffsetDateTime.now(Clock.systemUTC())).build());
         }
 
         public MessageAction bannedDM(MessageChannel channel, Member performer, Member target, @Nullable String reason) {
@@ -184,7 +197,8 @@ public class Messages {
                 .addField(translate("moderation.ban.dm.field.performer"), performer.getUser().getAsMention(), true);
             if (reason != null)
                 embed.addField(translate("moderation.ban.dm.field.reason"), reason, false);
-            return channel.sendMessage(embed.setColor(MODERATION_COLOR).build());
+            return channel
+                .sendMessage(embed.setColor(MODERATION_COLOR).setTimestamp(OffsetDateTime.now(Clock.systemUTC())).build());
         }
 
         public MessageAction unbanUser(MessageChannel channel, Member performer, User target) {
@@ -194,6 +208,7 @@ public class Messages {
                     .addField(translate("moderation.unban.info.field.performer"), performer.getUser().getAsMention(), true)
                     .addField(translate("moderation.unban.info.field.target"), target.getAsMention(), true)
                     .setColor(MODERATION_COLOR)
+                    .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                     .build()
             );
         }
