@@ -14,8 +14,10 @@ import static sciwhiz12.janitor.Logging.JANITOR;
 
 public class BotConfig {
     public static final Path DEFAULT_CONFIG_PATH = Path.of("config.toml");
+    public static final Path DEFAULT_STORAGE_PATH = Path.of("guild_storage");
     public static final String CLIENT_TOKEN = "discord.client_token";
     public static final String OWNER_ID = "discord.owner_id";
+    public static final String STORAGE_PATH = "storage.main_path";
     public static final String TRANSLATION_FILE_PATH = "messages.translation_file";
     public static final String COMMAND_PREFIX = "commands.prefix";
 
@@ -50,6 +52,10 @@ public class BotConfig {
         return options.getTranslationsFile().
             or(() -> Optional.ofNullable(config.<String>get(TRANSLATION_FILE_PATH)).map(Path::of))
             .orElse(null);
+    }
+
+    public Path getStoragePath() {
+        return config.<String>getOptional(STORAGE_PATH).map(Path::of).orElse(DEFAULT_STORAGE_PATH);
     }
 
     public Optional<String> getToken() {

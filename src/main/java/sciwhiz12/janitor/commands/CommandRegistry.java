@@ -16,6 +16,9 @@ import sciwhiz12.janitor.commands.misc.PingCommand;
 import sciwhiz12.janitor.commands.moderation.BanCommand;
 import sciwhiz12.janitor.commands.moderation.KickCommand;
 import sciwhiz12.janitor.commands.moderation.UnbanCommand;
+import sciwhiz12.janitor.commands.moderation.UnwarnCommand;
+import sciwhiz12.janitor.commands.moderation.WarnCommand;
+import sciwhiz12.janitor.commands.moderation.WarnListCommand;
 import sciwhiz12.janitor.utils.Util;
 
 import java.util.HashMap;
@@ -42,6 +45,9 @@ public class CommandRegistry implements EventListener {
         addCommand(new KickCommand(this));
         addCommand(new BanCommand(this));
         addCommand(new UnbanCommand(this));
+        addCommand(new WarnCommand(this));
+        addCommand(new WarnListCommand(this));
+        addCommand(new UnwarnCommand(this));
         if (bot.getConfig().getOwnerID().isPresent()) {
             addCommand(new ShutdownCommand(this, bot.getConfig().getOwnerID().get()));
         }

@@ -11,11 +11,17 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import sciwhiz12.janitor.JanitorBot;
+import sciwhiz12.janitor.moderation.warns.WarningEntry;
 
 import java.time.Clock;
 import java.time.OffsetDateTime;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 
 public class Messages {
     private final JanitorBot bot;
@@ -211,6 +217,100 @@ public class Messages {
                     .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
                     .build()
             );
+        }
+
+        public MessageAction warnUser(MessageChannel channel, Member performer, Member target, String reason,
+            OffsetDateTime dateTime, int caseID, boolean sentDM) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setAuthor(translate("moderation.warn.info.author"), null, GAVEL_ICON_URL)
+                .addField(translate("moderation.warn.info.field.performer"), performer.getUser().getAsMention(), true)
+                .addField(translate("moderation.warn.info.field.target"), target.getUser().getAsMention(), true)
+                .addField(translate("moderation.warn.info.field.sent_private_message"), sentDM ? "✅" : "❌", true)
+                .addField(translate("moderation.warn.info.field.case_id"), String.valueOf(caseID), true)
+                .addField(translate("moderation.warn.info.field.date_time"),
+                    dateTime.format(RFC_1123_DATE_TIME), true)
+                .addField(translate("moderation.warn.info.field.reason"), reason, false);
+            return channel
+                .sendMessage(embed.setColor(MODERATION_COLOR).setTimestamp(OffsetDateTime.now(Clock.systemUTC())).build());
+        }
+
+        public MessageAction warnDM(MessageChannel channel, Member performer, Member target, String reason,
+            OffsetDateTime dateTime) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setAuthor(performer.getGuild().getName(), null, performer.getGuild().getIconUrl())
+                .setTitle(translate("moderation.warn.dm.title"))
+                .addField(translate("moderation.warn.dm.field.performer"), performer.getUser().getAsMention(), true)
+                .addField(translate("moderation.warn.dm.field.date_time"),
+                    dateTime.format(RFC_1123_DATE_TIME), true)
+                .addField(translate("moderation.warn.dm.field.reason"), reason, false);
+            return channel.sendMessage(embed.build());
+        }
+
+        public MessageAction warnList(MessageChannel channel, Map<Integer, WarningEntry> displayWarnings) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setAuthor(translate("moderation.warnlist.author"), null, GAVEL_ICON_URL)
+                .setColor(MODERATION_COLOR)
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()));
+            String warningsDesc = displayWarnings.size() > 0 ? displayWarnings.entrySet().stream()
+                .sorted(Collections.reverseOrder(Comparator.comparingInt(Map.Entry::getKey)))
+                .limit(10)
+                .map(entry ->
+                    translate("moderation.warnlist.entry",
+                        entry.getKey(),
+                        entry.getValue().getWarned().getAsMention(),
+                        entry.getValue().getPerformer().getAsMention(),
+                        entry.getValue().getDateTime().format(RFC_1123_DATE_TIME),
+                        entry.getValue().getReason() != null
+                            ? entry.getValue().getReason()
+                            : translate("moderation.warnlist.entry.no_reason"))
+                )
+                .collect(Collectors.joining("\n"))
+                : translate("moderation.warnlist.empty");
+            embed.setDescription(warningsDesc);
+            return channel.sendMessage(embed.build());
+        }
+
+        public MessageAction noWarnWithID(MessageChannel channel, Member performer, int caseID) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setTitle(translate("moderation.unwarn.no_case_found.title"), null)
+                .setColor(General.FAILURE_COLOR)
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
+                .setDescription(translate("moderation.unwarn.no_case_found.desc"))
+                .addField(translate("moderation.unwarn.no_case_found.field.performer"), performer.getUser().getAsMention(),
+                    true)
+                .addField(translate("moderation.unwarn.no_case_found.field.case_id"), String.valueOf(caseID), true);
+            return channel.sendMessage(embed.build());
+        }
+
+        public MessageAction cannotUnwarnSelf(MessageChannel channel, Member performer, int caseID, WarningEntry entry) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setTitle(translate("moderation.unwarn.cannot_unwarn_self.title"), null)
+                .setColor(General.FAILURE_COLOR)
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
+                .setDescription(translate("moderation.unwarn.cannot_unwarn_self.desc"))
+                .addField(translate("moderation.unwarn.cannot_unwarn_self.field.performer"),
+                    performer.getUser().getAsMention(), true)
+                .addField(translate("moderation.unwarn.cannot_unwarn_self.field.original_performer"),
+                    entry.getPerformer().getAsMention(), true)
+                .addField(translate("moderation.unwarn.cannot_unwarn_self.field.case_id"), String.valueOf(caseID), true);
+            return channel.sendMessage(embed.build());
+        }
+
+        public MessageAction unwarn(MessageChannel channel, Member performer, int caseID, WarningEntry entry) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setAuthor(translate("moderation.unwarn.author"), null, GAVEL_ICON_URL)
+                .setColor(MODERATION_COLOR)
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
+                .addField(translate("moderation.unwarn.field.performer"), performer.getUser().getAsMention(), true)
+                .addField(translate("moderation.unwarn.field.case_id"), String.valueOf(caseID), true)
+                .addField(translate("moderation.unwarn.field.original_target"), entry.getWarned().getAsMention(), true)
+                .addField(translate("moderation.unwarn.field.original_performer"), entry.getPerformer().getAsMention(),
+                    true)
+                .addField(translate("moderation.unwarn.field.date_time"),
+                    entry.getDateTime().format(RFC_1123_DATE_TIME), true);
+            if (entry.getReason() != null)
+                embed.addField(translate("moderation.unwarn.field.reason"), entry.getReason(), false);
+            return channel.sendMessage(embed.build());
         }
     }
 

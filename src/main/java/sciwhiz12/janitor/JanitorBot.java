@@ -22,12 +22,15 @@ public class JanitorBot {
     private final BotConfig config;
     private final Messages messages;
     private BotConsole console;
+    private final GuildStorage storage;
+    private final GuildStorage.SavingThread storageSavingThread;
     private CommandRegistry cmdRegistry;
     private Translations translations;
 
     public JanitorBot(JDA discord, BotConfig config) {
         this.config = config;
         this.console = new BotConsole(this, System.in);
+        this.storage = new GuildStorage(this, config.getStoragePath());
         this.cmdRegistry = new CommandRegistry(this, config.getCommandPrefix());
         this.discord = discord;
         this.translations = new Translations(this, config.getTranslationsFile());
@@ -47,6 +50,8 @@ public class JanitorBot {
                         error -> JANITOR.error(STATUS, "Error while sending ready message to owner", error)
                     )
             );
+        storageSavingThread = new GuildStorage.SavingThread(storage);
+        storageSavingThread.start();
         console.start();
     }
 
@@ -60,6 +65,8 @@ public class JanitorBot {
 
     public Messages getMessages() { return this.messages; }
 
+    public GuildStorage getStorage() { return this.storage; }
+
     public CommandRegistry getCommandRegistry() {
         return this.cmdRegistry;
     }
@@ -70,7 +77,6 @@ public class JanitorBot {
 
     public void shutdown() {
         JANITOR.info(STATUS, "Shutting down!");
-        console.stop();
         getConfig().getOwnerID()
             .map(discord::retrieveUserById)
             .map(owner ->
@@ -90,5 +96,8 @@ public class JanitorBot {
                     ))
             ).ifPresent(CompletableFuture::join);
         discord.shutdown();
+        storageSavingThread.stopThread();
+        storage.save();
+        console.stop();
     }
 }
