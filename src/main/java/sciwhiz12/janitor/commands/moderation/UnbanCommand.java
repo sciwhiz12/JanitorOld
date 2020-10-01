@@ -100,7 +100,7 @@ public class UnbanCommand extends BaseCommand {
         if (!guild.getSelfMember().hasPermission(UNBAN_PERMISSION))
             messages().GENERAL.insufficientPermissions(channel, UNBAN_PERMISSION).queue();
         else if (!performer.hasPermission(UNBAN_PERMISSION))
-            messages().MODERATION.performerInsufficientPermissions(channel, performer, UNBAN_PERMISSION).queue();
+            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, UNBAN_PERMISSION).queue();
         else
             ModerationHelper.unbanUser(guild, target)
                 .flatMap(v -> messages().MODERATION.unbanUser(channel, performer, target))

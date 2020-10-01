@@ -55,21 +55,21 @@ public class UnwarnCommand extends BaseCommand {
         final OffsetDateTime dateTime = OffsetDateTime.now();
 
         if (!performer.hasPermission(WARN_PERMISSION))
-            messages().MODERATION.performerInsufficientPermissions(channel, performer, WARN_PERMISSION).queue();
+            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, WARN_PERMISSION).queue();
         else {
             final WarningStorage storage = WarningStorage.get(getBot().getStorage(), guild);
             @Nullable
             final WarningEntry entry = storage.getWarning(caseID);
             Member temp;
             if (entry == null)
-                messages().MODERATION.noWarnWithID(channel, performer, caseID).queue();
+                messages().MODERATION.ERRORS.noWarnWithID(channel, performer, caseID).queue();
             else if (entry.getWarned().getIdLong() == performer.getIdLong()
                 && !config().WARNINGS_REMOVE_SELF_WARNINGS.get())
-                messages().MODERATION.cannotUnwarnSelf(channel, performer, caseID, entry).queue();
+                messages().MODERATION.ERRORS.cannotUnwarnSelf(channel, performer, caseID, entry).queue();
             else if (config().WARNINGS_RESPECT_MOD_ROLES.get()
                 && (temp = guild.getMember(entry.getPerformer())) != null
                 && !performer.canInteract(temp))
-                messages().MODERATION.cannotRemoveHigherModerated(channel, performer, caseID, entry).queue();
+                messages().MODERATION.ERRORS.cannotRemoveHigherModerated(channel, performer, caseID, entry).queue();
             else {
                 storage.removeWarning(caseID);
                 messages().MODERATION.unwarn(channel, performer, caseID, entry).queue();

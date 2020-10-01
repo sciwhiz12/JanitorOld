@@ -107,12 +107,12 @@ public class NoteCommand extends BaseCommand {
         else if (performer.equals(target))
             messages().GENERAL.cannotActionPerformer(channel, performer).queue();
         else if (!performer.hasPermission(NOTE_PERMISSION))
-            messages().MODERATION.performerInsufficientPermissions(channel, performer, NOTE_PERMISSION).queue();
+            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, NOTE_PERMISSION).queue();
         else {
             final NoteStorage storage = NoteStorage.get(getBot().getStorage(), guild);
             final int maxAmount = config().NOTES_MAX_AMOUNT_PER_MOD.get();
             if (storage.getAmountOfNotes(target.getUser()) >= maxAmount) {
-                messages().MODERATION.maxAmountOfNotes(channel, performer, target, maxAmount).queue();
+                messages().MODERATION.ERRORS.maxAmountOfNotes(channel, performer, target, maxAmount).queue();
             } else {
                 int noteID = storage.addNote(new NoteEntry(performer.getUser(), target.getUser(), dateTime, noteContents));
                 messages().MODERATION.addNote(channel, performer, target, noteContents, dateTime, noteID).queue();
@@ -161,7 +161,7 @@ public class NoteCommand extends BaseCommand {
         final OffsetDateTime dateTime = OffsetDateTime.now();
 
         if (!performer.hasPermission(NOTE_PERMISSION))
-            messages().MODERATION.performerInsufficientPermissions(channel, performer, NOTE_PERMISSION).queue();
+            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, NOTE_PERMISSION).queue();
         else
             messages().MODERATION.noteList(channel, NoteStorage.get(getBot().getStorage(), guild)
                 .getNotes()
@@ -184,13 +184,13 @@ public class NoteCommand extends BaseCommand {
         final OffsetDateTime dateTime = OffsetDateTime.now();
 
         if (!performer.hasPermission(NOTE_PERMISSION))
-            messages().MODERATION.performerInsufficientPermissions(channel, performer, NOTE_PERMISSION).queue();
+            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, NOTE_PERMISSION).queue();
         else {
             final NoteStorage storage = NoteStorage.get(getBot().getStorage(), guild);
             @Nullable
             final NoteEntry entry = storage.getNote(noteID);
             if (entry == null)
-                messages().MODERATION.noNoteFound(channel, performer, noteID).queue();
+                messages().MODERATION.ERRORS.noNoteFound(channel, performer, noteID).queue();
             else {
                 storage.removeNote(noteID);
                 messages().MODERATION.removeNote(channel, performer, noteID, entry).queue();

@@ -91,7 +91,7 @@ public class WarnListCommand extends BaseCommand {
         final OffsetDateTime dateTime = OffsetDateTime.now();
 
         if (!performer.hasPermission(WARN_PERMISSION))
-            messages().MODERATION.performerInsufficientPermissions(channel, performer, WARN_PERMISSION).queue();
+            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, WARN_PERMISSION).queue();
         else
             messages().MODERATION.warnList(channel, WarningStorage.get(getBot().getStorage(), guild)
                 .getWarnings()

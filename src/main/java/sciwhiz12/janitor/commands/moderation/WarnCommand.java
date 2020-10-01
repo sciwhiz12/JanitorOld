@@ -68,11 +68,11 @@ public class WarnCommand extends BaseCommand {
         else if (performer.equals(target))
             messages().GENERAL.cannotActionPerformer(channel, performer).queue();
         else if (!performer.hasPermission(WARN_PERMISSION))
-            messages().MODERATION.performerInsufficientPermissions(channel, performer, WARN_PERMISSION).queue();
+            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, WARN_PERMISSION).queue();
         else if (!performer.canInteract(target))
-            messages().MODERATION.cannotModerate(channel, performer, target).queue();
+            messages().MODERATION.ERRORS.cannotModerate(channel, performer, target).queue();
         else if (target.hasPermission(WARN_PERMISSION) && config().WARNINGS_PREVENT_WARNING_MODS.get())
-            messages().MODERATION.cannotWarnMods(channel, performer, target).queue();
+            messages().MODERATION.ERRORS.cannotWarnMods(channel, performer, target).queue();
         else
             target.getUser().openPrivateChannel()
                 .flatMap(dm -> messages().MODERATION.warnDM(dm, performer, target, reason, dateTime))

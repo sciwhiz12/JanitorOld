@@ -69,9 +69,9 @@ public class KickCommand extends BaseCommand {
         else if (!guild.getSelfMember().canInteract(target))
             messages().GENERAL.cannotInteract(channel, target).queue();
         else if (!performer.hasPermission(KICK_PERMISSION))
-            messages().MODERATION.performerInsufficientPermissions(channel, performer, KICK_PERMISSION).queue();
+            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, KICK_PERMISSION).queue();
         else if (!performer.canInteract(target))
-            messages().MODERATION.cannotModerate(channel, performer, target).queue();
+            messages().MODERATION.ERRORS.cannotModerate(channel, performer, target).queue();
         else
             target.getUser().openPrivateChannel()
                 .flatMap(dm -> messages().MODERATION.kickedDM(dm, performer, target, reason))

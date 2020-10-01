@@ -87,12 +87,12 @@ public class BanCommand extends BaseCommand {
         else if (!guild.getSelfMember().canInteract(target))
             messages().GENERAL.cannotInteract(channel, target).queue();
         else if (!performer.hasPermission(BAN_PERMISSION))
-            messages().MODERATION.performerInsufficientPermissions(channel, performer, BAN_PERMISSION).queue();
+            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, BAN_PERMISSION).queue();
         else if (!performer.canInteract(target))
-            messages().MODERATION.cannotModerate(channel, performer, target).queue();
+            messages().MODERATION.ERRORS.cannotModerate(channel, performer, target).queue();
         else
             target.getUser().openPrivateChannel()
-                .flatMap(dm -> messages().MODERATION.bannedDM(dm, performer, target, reason))
+                .flatMap(dm -> messages().MODERATION.bannedDM(dm, performer, reason))
                 .mapToResult()
                 .flatMap(res -> ModerationHelper.banUser(target.getGuild(), performer, target, days, reason)
                     .flatMap(
