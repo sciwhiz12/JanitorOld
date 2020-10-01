@@ -35,7 +35,7 @@ public final class Moderation {
     }
 
     private String translate(String key, Object... args) {
-        return translate(key, args);
+        return messages.translate(key, args);
     }
 
     public EmbedBuilder moderationEmbed() {
