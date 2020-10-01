@@ -31,6 +31,9 @@ public class BotConfig {
     public final CommentedConfigSpec.BooleanValue WARNINGS_PREVENT_WARNING_MODS;
     public final CommentedConfigSpec.BooleanValue WARNINGS_REMOVE_SELF_WARNINGS;
 
+    public final CommentedConfigSpec.IntValue NOTES_MAX_AMOUNT_PER_MOD;
+    public final CommentedConfigSpec.BooleanValue NOTES_ENABLE;
+
     private final BotOptions options;
     private final Path configPath;
     private final CommentedConfigSpec spec;
@@ -86,6 +89,15 @@ public class BotConfig {
             WARNINGS_REMOVE_SELF_WARNINGS = builder
                 .comment("Whether to allow moderators to remove warnings from themselves.")
                 .define("remove_self_warnings", false);
+            builder.pop();
+
+            builder.comment("Settings for the notes system").push("notes");
+            NOTES_ENABLE = builder
+                .comment("Whether to enable the notes system. If disabled, the related commands are force-disabled.")
+                .define("enable", true);
+            NOTES_MAX_AMOUNT_PER_MOD = builder
+                .comment("The max amount of notes for a user per moderator.")
+                .defineInRange("max_amount", Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
             builder.pop();
         }
         builder.pop();

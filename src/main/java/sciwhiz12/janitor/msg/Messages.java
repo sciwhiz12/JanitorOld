@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import sciwhiz12.janitor.JanitorBot;
+import sciwhiz12.janitor.moderation.notes.NoteEntry;
 import sciwhiz12.janitor.moderation.warns.WarningEntry;
 
 import java.time.Clock;
@@ -326,7 +327,8 @@ public class Messages {
             return channel.sendMessage(embed.build());
         }
 
-        public MessageAction cannotRemoveHigherModerated(MessageChannel channel, Member performer, int caseID, WarningEntry entry) {
+        public MessageAction cannotRemoveHigherModerated(MessageChannel channel, Member performer, int caseID,
+            WarningEntry entry) {
             final EmbedBuilder embed = new EmbedBuilder()
                 .setTitle(translate("moderation.unwarn.cannot_remove_higher_mod.title"), null)
                 .setColor(General.FAILURE_COLOR)
@@ -337,6 +339,81 @@ public class Messages {
                 .addField(translate("moderation.unwarn.cannot_remove_higher_mod.field.original_performer"),
                     entry.getPerformer().getAsMention(), true)
                 .addField(translate("moderation.unwarn.cannot_remove_higher_mod.field.case_id"), String.valueOf(caseID), true);
+            return channel.sendMessage(embed.build());
+        }
+
+        public MessageAction maxAmountOfNotes(MessageChannel channel, Member performer, Member target, int amount) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setTitle(translate("moderation.note.max_amount_of_notes.title"), null)
+                .setColor(General.FAILURE_COLOR)
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
+                .setDescription(translate("moderation.note.max_amount_of_notes.desc"))
+                .addField(translate("moderation.note.max_amount_of_notes.field.performer"), performer.getAsMention(), true)
+                .addField(translate("moderation.note.max_amount_of_notes.field.target"), target.getAsMention(), true)
+                .addField(translate("moderation.note.max_amount_of_notes.field.amount"), String.valueOf(amount), true);
+            return channel.sendMessage(embed.build());
+        }
+
+        public MessageAction noNoteFound(MessageChannel channel, Member performer, int noteID) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setTitle(translate("moderation.note.no_note_found.title"), null)
+                .setColor(General.FAILURE_COLOR)
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
+                .setDescription(translate("moderation.note.no_note_found.desc"))
+                .addField(translate("moderation.note.no_note_found.field.performer"), performer.getAsMention(), true)
+                .addField(translate("moderation.note.no_note_found.field.note_id"), String.valueOf(noteID), true);
+            return channel.sendMessage(embed.build());
+        }
+
+        public MessageAction addNote(MessageChannel channel, Member performer, Member target, String contents,
+            OffsetDateTime dateTime, int noteID) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setAuthor(translate("moderation.note.add.author"), null, GAVEL_ICON_URL)
+                .setColor(MODERATION_COLOR)
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
+                .addField(translate("moderation.note.add.field.performer"), performer.getUser().getAsMention(), true)
+                .addField(translate("moderation.note.add.field.target"), target.getUser().getAsMention(), true)
+                .addField(translate("moderation.note.add.field.note_id"), String.valueOf(noteID), true)
+                .addField(translate("moderation.note.add.field.date_time"), dateTime.format(RFC_1123_DATE_TIME), true)
+                .addField(translate("moderation.note.add.field.contents"), contents, false);
+            return channel.sendMessage(embed.build());
+        }
+
+        public MessageAction noteList(MessageChannel channel, Map<Integer, NoteEntry> displayNotes) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setAuthor(translate("moderation.note.list.author"), null, GAVEL_ICON_URL)
+                .setColor(MODERATION_COLOR)
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()));
+            String warningsDesc = displayNotes.size() > 0 ? displayNotes.entrySet().stream()
+                .sorted(Collections.reverseOrder(Comparator.comparingInt(Map.Entry::getKey)))
+                .limit(10)
+                .map(entry ->
+                    translate("moderation.note.list.entry",
+                        entry.getKey(),
+                        entry.getValue().getTarget().getAsMention(),
+                        entry.getValue().getPerformer().getAsMention(),
+                        entry.getValue().getDateTime().format(RFC_1123_DATE_TIME),
+                        entry.getValue().getContents())
+                )
+                .collect(Collectors.joining("\n"))
+                : translate("moderation.note.list.empty");
+            embed.setDescription(warningsDesc);
+            return channel.sendMessage(embed.build());
+        }
+
+        public MessageAction removeNote(MessageChannel channel, Member performer, int noteID, NoteEntry entry) {
+            final EmbedBuilder embed = new EmbedBuilder()
+                .setAuthor(translate("moderation.note.remove.author"), null, GAVEL_ICON_URL)
+                .setColor(MODERATION_COLOR)
+                .setTimestamp(OffsetDateTime.now(Clock.systemUTC()))
+                .addField(translate("moderation.note.remove.field.performer"), performer.getAsMention(), true)
+                .addField(translate("moderation.note.remove.field.note_id"), String.valueOf(noteID), true)
+                .addField(translate("moderation.note.remove.field.original_target"), entry.getTarget().getAsMention(), true)
+                .addField(translate("moderation.note.remove.field.original_performer"), entry.getPerformer().getAsMention(),
+                    true)
+                .addField(translate("moderation.note.remove.field.date_time"), entry.getDateTime().format(RFC_1123_DATE_TIME),
+                    true)
+                .addField(translate("moderation.note.remove.field.contents"), entry.getContents(), false);
             return channel.sendMessage(embed.build());
         }
     }

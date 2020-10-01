@@ -15,6 +15,7 @@ import sciwhiz12.janitor.commands.misc.OKCommand;
 import sciwhiz12.janitor.commands.misc.PingCommand;
 import sciwhiz12.janitor.commands.moderation.BanCommand;
 import sciwhiz12.janitor.commands.moderation.KickCommand;
+import sciwhiz12.janitor.commands.moderation.NoteCommand;
 import sciwhiz12.janitor.commands.moderation.UnbanCommand;
 import sciwhiz12.janitor.commands.moderation.UnwarnCommand;
 import sciwhiz12.janitor.commands.moderation.WarnCommand;
@@ -49,6 +50,7 @@ public class CommandRegistry implements EventListener {
         addCommand(new WarnListCommand(this));
         addCommand(new UnwarnCommand(this));
         addCommand(new ShutdownCommand(this));
+        addCommand(new NoteCommand(this));
     }
 
     public CommandDispatcher<MessageReceivedEvent> getDispatcher() {
