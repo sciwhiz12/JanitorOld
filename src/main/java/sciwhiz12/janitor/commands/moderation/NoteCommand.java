@@ -90,32 +90,36 @@ public class NoteCommand extends BaseCommand {
     }
 
     private int addNote(CommandContext<MessageReceivedEvent> ctx, String noteContents) throws CommandSyntaxException {
+        final MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(ctx.getSource().getChannel());
+            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
             return 1;
         }
         final Member performer = Objects.requireNonNull(ctx.getSource().getMember());
         final Guild guild = performer.getGuild();
-        final MessageChannel channel = ctx.getSource().getChannel();
         final List<Member> members = getMembers("target", ctx).fromGuild(guild);
         if (members.size() < 1) return 1;
         final Member target = members.get(0);
         final OffsetDateTime dateTime = OffsetDateTime.now(ZoneOffset.UTC);
 
         if (guild.getSelfMember().equals(target))
-            messages().GENERAL.cannotActionSelf(channel).queue();
+            channel.sendMessage(messages().GENERAL.cannotActionSelf(performer).build(getBot())).queue();
         else if (performer.equals(target))
-            messages().GENERAL.cannotActionPerformer(channel, performer).queue();
+            channel.sendMessage(messages().GENERAL.cannotActionPerformer(performer).build(getBot())).queue();
         else if (!performer.hasPermission(NOTE_PERMISSION))
-            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, NOTE_PERMISSION).queue();
+            channel.sendMessage(
+                messages().MODERATION.ERRORS.performerInsufficientPermissions(performer, NOTE_PERMISSION).build(getBot()))
+                .queue();
         else {
             final NoteStorage storage = NoteStorage.get(getBot().getStorage(), guild);
             final int maxAmount = config().NOTES_MAX_AMOUNT_PER_MOD.get();
             if (storage.getAmountOfNotes(target.getUser()) >= maxAmount) {
-                messages().MODERATION.ERRORS.maxAmountOfNotes(channel, performer, target, maxAmount).queue();
+                channel.sendMessage(messages().MODERATION.ERRORS.maxAmountOfNotes(performer, target, maxAmount).build(getBot()))
+                    .queue();
             } else {
-                int noteID = storage.addNote(new NoteEntry(performer.getUser(), target.getUser(), dateTime, noteContents));
-                messages().MODERATION.addNote(channel, performer, target, noteContents, dateTime, noteID).queue();
+                final NoteEntry entry = new NoteEntry(performer.getUser(), target.getUser(), dateTime, noteContents);
+                int noteID = storage.addNote(entry);
+                channel.sendMessage(messages().MODERATION.addNote(performer, noteID, entry).build(getBot())).queue();
             }
         }
         return 1;
@@ -127,9 +131,9 @@ public class NoteCommand extends BaseCommand {
 
     private int listNotes(CommandContext<MessageReceivedEvent> ctx, boolean filterTarget, ModeratorFilter modFilter)
         throws CommandSyntaxException {
-        MessageChannel channel = ctx.getSource().getChannel();
+        final MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(channel).queue();
+            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
             return 1;
         }
         final Guild guild = ctx.getSource().getGuild();
@@ -141,7 +145,7 @@ public class NoteCommand extends BaseCommand {
             if (members.size() < 1) return 1;
             final Member target = members.get(0);
             if (guild.getSelfMember().equals(target)) {
-                messages().GENERAL.cannotActionSelf(channel).queue();
+                channel.sendMessage(messages().GENERAL.cannotActionSelf(performer).build(getBot())).queue();
                 return 1;
             }
             predicate = predicate.and(e -> e.getValue().getTarget().getIdLong() == target.getIdLong());
@@ -161,21 +165,24 @@ public class NoteCommand extends BaseCommand {
         final OffsetDateTime dateTime = OffsetDateTime.now();
 
         if (!performer.hasPermission(NOTE_PERMISSION))
-            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, NOTE_PERMISSION).queue();
+            channel.sendMessage(
+                messages().MODERATION.ERRORS.performerInsufficientPermissions(performer, NOTE_PERMISSION).build(getBot()))
+                .queue();
         else
-            messages().MODERATION.noteList(channel, NoteStorage.get(getBot().getStorage(), guild)
-                .getNotes()
-                .entrySet().stream()
-                .filter(predicate)
-                .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue))
-            ).queue();
+            channel.sendMessage(messages().MODERATION.noteList(
+                NoteStorage.get(getBot().getStorage(), guild)
+                    .getNotes()
+                    .entrySet().stream()
+                    .filter(predicate)
+                    .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue))
+            ).build(getBot())).queue();
         return 1;
     }
 
     private int removeNote(CommandContext<MessageReceivedEvent> ctx, int noteID) {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(channel).queue();
+            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
             return 1;
         }
         final Guild guild = ctx.getSource().getGuild();
@@ -184,16 +191,18 @@ public class NoteCommand extends BaseCommand {
         final OffsetDateTime dateTime = OffsetDateTime.now();
 
         if (!performer.hasPermission(NOTE_PERMISSION))
-            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, NOTE_PERMISSION).queue();
+            channel.sendMessage(
+                messages().MODERATION.ERRORS.performerInsufficientPermissions(performer, NOTE_PERMISSION).build(getBot()))
+                .queue();
         else {
             final NoteStorage storage = NoteStorage.get(getBot().getStorage(), guild);
             @Nullable
             final NoteEntry entry = storage.getNote(noteID);
             if (entry == null)
-                messages().MODERATION.ERRORS.noNoteFound(channel, performer, noteID).queue();
+                channel.sendMessage(messages().MODERATION.ERRORS.noNoteFound(performer, noteID).build(getBot())).queue();
             else {
                 storage.removeNote(noteID);
-                messages().MODERATION.removeNote(channel, performer, noteID, entry).queue();
+                channel.sendMessage(messages().MODERATION.removeNote(performer, noteID, entry).build(getBot())).queue();
             }
         }
         return 1;

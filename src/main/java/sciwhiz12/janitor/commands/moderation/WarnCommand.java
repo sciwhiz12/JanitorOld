@@ -52,7 +52,7 @@ public class WarnCommand extends BaseCommand {
     void realRun(CommandContext<MessageReceivedEvent> ctx, String reason) throws CommandSyntaxException {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(channel).queue();
+            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
             return;
         }
         final Guild guild = ctx.getSource().getGuild();
@@ -64,24 +64,27 @@ public class WarnCommand extends BaseCommand {
 
         final OffsetDateTime dateTime = OffsetDateTime.now(ZoneOffset.UTC);
         if (guild.getSelfMember().equals(target))
-            messages().GENERAL.cannotActionSelf(channel).queue();
+            channel.sendMessage(messages().GENERAL.cannotActionSelf(performer).build(getBot())).queue();
         else if (performer.equals(target))
-            messages().GENERAL.cannotActionPerformer(channel, performer).queue();
+            channel.sendMessage(messages().GENERAL.cannotActionPerformer(performer).build(getBot())).queue();
         else if (!performer.hasPermission(WARN_PERMISSION))
-            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, WARN_PERMISSION).queue();
+            channel.sendMessage(
+                messages().MODERATION.ERRORS.performerInsufficientPermissions(performer, WARN_PERMISSION).build(getBot()))
+                .queue();
         else if (!performer.canInteract(target))
-            messages().MODERATION.ERRORS.cannotModerate(channel, performer, target).queue();
+            channel.sendMessage(messages().MODERATION.ERRORS.cannotInteract(performer, target).build(getBot())).queue();
         else if (target.hasPermission(WARN_PERMISSION) && config().WARNINGS_PREVENT_WARNING_MODS.get())
-            messages().MODERATION.ERRORS.cannotWarnMods(channel, performer, target).queue();
+            channel.sendMessage(messages().MODERATION.ERRORS.cannotWarnMods(performer, target).build(getBot())).queue();
         else
             target.getUser().openPrivateChannel()
-                .flatMap(dm -> messages().MODERATION.warnDM(dm, performer, target, reason, dateTime))
+                .flatMap(
+                    dm -> dm.sendMessage(messages().MODERATION.warnedDM(performer, target, reason, dateTime).build(getBot())))
                 .mapToResult()
                 .flatMap(res -> {
-                    int caseId = WarningStorage.get(getBot().getStorage(), guild)
-                        .addWarning(new WarningEntry(target.getUser(), performer.getUser(), dateTime, reason));
-                    return messages().MODERATION
-                        .warnUser(channel, performer, target, reason, dateTime, caseId, res.isSuccess());
+                    WarningEntry entry = new WarningEntry(target.getUser(), performer.getUser(), dateTime, reason);
+                    int caseId = WarningStorage.get(getBot().getStorage(), guild).addWarning(entry);
+                    return channel
+                        .sendMessage(messages().MODERATION.warnUser(performer, caseId, entry, res.isSuccess()).build(getBot()));
                 })
                 .queue();
     }

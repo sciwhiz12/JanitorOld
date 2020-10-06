@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.User;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.config.BotConfig;
 import sciwhiz12.janitor.msg.Messages;
+import sciwhiz12.janitor.msg.Substitutions;
 import sciwhiz12.janitor.msg.Translations;
 import sciwhiz12.janitor.utils.Util;
 
@@ -25,17 +26,19 @@ public class JanitorBot {
     private BotConsole console;
     private final GuildStorage storage;
     private final GuildStorage.SavingThread storageSavingThread;
-    private CommandRegistry cmdRegistry;
-    private Translations translations;
+    private final CommandRegistry cmdRegistry;
+    private final Translations translations;
+    private final Substitutions substitutions;
 
     public JanitorBot(JDA discord, BotConfig config) {
         this.config = config;
+        this.discord = discord;
         this.console = new BotConsole(this, System.in);
         this.storage = new GuildStorage(this, Path.of(config.STORAGE_PATH.get()));
         this.cmdRegistry = new CommandRegistry(this, config.getCommandPrefix());
-        this.discord = discord;
         this.translations = new Translations(this, config.getTranslationsFile());
         this.messages = new Messages(this);
+        this.substitutions = new Substitutions(this);
         discord.addEventListener(cmdRegistry);
         discord.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(" n' sweeping n' testing!"));
         discord.getGuilds().forEach(Guild::loadMembers);
@@ -100,5 +103,9 @@ public class JanitorBot {
         storageSavingThread.stopThread();
         storage.save();
         console.stop();
+    }
+
+    public Substitutions getSubstitutions() {
+        return substitutions;
     }
 }

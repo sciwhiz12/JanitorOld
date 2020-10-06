@@ -49,7 +49,7 @@ public class UnbanCommand extends BaseCommand {
     void realNamedRun(CommandContext<MessageReceivedEvent> ctx) {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(channel).queue();
+            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
             return;
         }
         final Guild guild = ctx.getSource().getGuild();
@@ -63,7 +63,7 @@ public class UnbanCommand extends BaseCommand {
                 .collect(Collectors.toList()))
             .queue(bans -> {
                 if (bans.size() > 1)
-                    messages().GENERAL.ambiguousMember(channel).queue();
+                    channel.sendMessage(messages().GENERAL.ambiguousMember(performer).build(getBot())).queue();
                 else if (bans.size() == 1)
                     tryUnban(channel, guild, performer, bans.get(0).getUser());
             });
@@ -77,7 +77,7 @@ public class UnbanCommand extends BaseCommand {
     void realIdRun(CommandContext<MessageReceivedEvent> ctx) {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(channel).queue();
+            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
             return;
         }
         final Guild guild = ctx.getSource().getGuild();
@@ -98,12 +98,15 @@ public class UnbanCommand extends BaseCommand {
 
     void tryUnban(MessageChannel channel, Guild guild, Member performer, User target) {
         if (!guild.getSelfMember().hasPermission(UNBAN_PERMISSION))
-            messages().GENERAL.insufficientPermissions(channel, UNBAN_PERMISSION).queue();
+            channel.sendMessage(messages().GENERAL.insufficientPermissions(performer, UNBAN_PERMISSION).build(getBot()))
+                .queue();
         else if (!performer.hasPermission(UNBAN_PERMISSION))
-            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, UNBAN_PERMISSION).queue();
+            channel.sendMessage(
+                messages().MODERATION.ERRORS.performerInsufficientPermissions(performer, UNBAN_PERMISSION).build(getBot()))
+                .queue();
         else
             ModerationHelper.unbanUser(guild, target)
-                .flatMap(v -> messages().MODERATION.unbanUser(channel, performer, target))
+                .flatMap(v -> channel.sendMessage(messages().MODERATION.unbanUser(performer, target).build(getBot())))
                 .queue();
     }
 }

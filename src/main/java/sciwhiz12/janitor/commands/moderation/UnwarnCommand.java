@@ -45,7 +45,7 @@ public class UnwarnCommand extends BaseCommand {
     void realRun(CommandContext<MessageReceivedEvent> ctx) {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(channel).queue();
+            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
             return;
         }
         final Guild guild = ctx.getSource().getGuild();
@@ -55,24 +55,28 @@ public class UnwarnCommand extends BaseCommand {
         final OffsetDateTime dateTime = OffsetDateTime.now();
 
         if (!performer.hasPermission(WARN_PERMISSION))
-            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, WARN_PERMISSION).queue();
+            channel.sendMessage(
+                messages().MODERATION.ERRORS.performerInsufficientPermissions(performer, WARN_PERMISSION).build(getBot()))
+                .queue();
         else {
             final WarningStorage storage = WarningStorage.get(getBot().getStorage(), guild);
             @Nullable
             final WarningEntry entry = storage.getWarning(caseID);
             Member temp;
             if (entry == null)
-                messages().MODERATION.ERRORS.noWarnWithID(channel, performer, caseID).queue();
+                channel.sendMessage(messages().MODERATION.ERRORS.noWarnWithID(performer, caseID).build(getBot())).queue();
             else if (entry.getWarned().getIdLong() == performer.getIdLong()
                 && !config().WARNINGS_REMOVE_SELF_WARNINGS.get())
-                messages().MODERATION.ERRORS.cannotUnwarnSelf(channel, performer, caseID, entry).queue();
+                channel.sendMessage(messages().MODERATION.ERRORS.cannotUnwarnSelf(performer, caseID, entry).build(getBot()))
+                    .queue();
             else if (config().WARNINGS_RESPECT_MOD_ROLES.get()
                 && (temp = guild.getMember(entry.getPerformer())) != null
                 && !performer.canInteract(temp))
-                messages().MODERATION.ERRORS.cannotRemoveHigherModerated(channel, performer, caseID, entry).queue();
+                channel.sendMessage(
+                    messages().MODERATION.ERRORS.cannotRemoveHigherModerated(performer, caseID, entry).build(getBot())).queue();
             else {
                 storage.removeWarning(caseID);
-                messages().MODERATION.unwarn(channel, performer, caseID, entry).queue();
+                channel.sendMessage(messages().MODERATION.unwarn(performer, caseID, entry).build(getBot())).queue();
             }
         }
     }

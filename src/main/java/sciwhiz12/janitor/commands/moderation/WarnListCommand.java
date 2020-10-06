@@ -64,7 +64,7 @@ public class WarnListCommand extends BaseCommand {
         throws CommandSyntaxException {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(channel).queue();
+            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
             return;
         }
         final Guild guild = ctx.getSource().getGuild();
@@ -76,7 +76,7 @@ public class WarnListCommand extends BaseCommand {
             if (members.size() < 1) return;
             final Member target = members.get(0);
             if (guild.getSelfMember().equals(target)) {
-                messages().GENERAL.cannotActionSelf(channel).queue();
+                channel.sendMessage(messages().GENERAL.cannotActionSelf(performer).build(getBot())).queue();
                 return;
             }
             predicate = predicate.and(e -> e.getValue().getWarned().getIdLong() == target.getIdLong());
@@ -91,13 +91,17 @@ public class WarnListCommand extends BaseCommand {
         final OffsetDateTime dateTime = OffsetDateTime.now();
 
         if (!performer.hasPermission(WARN_PERMISSION))
-            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, WARN_PERMISSION).queue();
+            channel.sendMessage(
+                messages().MODERATION.ERRORS.performerInsufficientPermissions(performer, WARN_PERMISSION).build(getBot()))
+                .queue();
         else
-            messages().MODERATION.warnList(channel, WarningStorage.get(getBot().getStorage(), guild)
-                .getWarnings()
-                .entrySet().stream()
-                .filter(predicate)
-                .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue))
-            ).queue();
+            channel.sendMessage(messages().MODERATION.warnList(
+                WarningStorage.get(getBot().getStorage(), guild)
+                    .getWarnings()
+                    .entrySet().stream()
+                    .filter(predicate)
+                    .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue))
+            ).build(getBot())).queue();
+
     }
 }

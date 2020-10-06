@@ -68,7 +68,7 @@ public class BanCommand extends BaseCommand {
     void realRun(CommandContext<MessageReceivedEvent> ctx, int days, @Nullable String reason) throws CommandSyntaxException {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(channel).queue();
+            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
             return;
         }
         final Guild guild = ctx.getSource().getGuild();
@@ -79,24 +79,26 @@ public class BanCommand extends BaseCommand {
         final Member target = members.get(0);
 
         if (guild.getSelfMember().equals(target))
-            messages().GENERAL.cannotActionSelf(channel).queue();
+            channel.sendMessage(messages().GENERAL.cannotActionSelf(performer).build(getBot())).queue();
         else if (performer.equals(target))
-            messages().GENERAL.cannotActionPerformer(channel, performer).queue();
+            channel.sendMessage(messages().GENERAL.cannotActionPerformer(performer).build(getBot())).queue();
         else if (!guild.getSelfMember().hasPermission(BAN_PERMISSION))
-            messages().GENERAL.insufficientPermissions(channel, BAN_PERMISSION).queue();
+            channel.sendMessage(messages().GENERAL.insufficientPermissions(performer, BAN_PERMISSION).build(getBot())).queue();
         else if (!guild.getSelfMember().canInteract(target))
-            messages().GENERAL.cannotInteract(channel, target).queue();
+            channel.sendMessage(messages().GENERAL.cannotInteract(performer, target).build(getBot())).queue();
         else if (!performer.hasPermission(BAN_PERMISSION))
-            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, BAN_PERMISSION).queue();
+            channel.sendMessage(
+                messages().MODERATION.ERRORS.performerInsufficientPermissions(performer, BAN_PERMISSION).build(getBot()))
+                .queue();
         else if (!performer.canInteract(target))
-            messages().MODERATION.ERRORS.cannotModerate(channel, performer, target).queue();
+            channel.sendMessage(messages().MODERATION.ERRORS.cannotInteract(performer, target).build(getBot())).queue();
         else
             target.getUser().openPrivateChannel()
-                .flatMap(dm -> messages().MODERATION.bannedDM(dm, performer, reason))
+                .flatMap(dm -> dm.sendMessage(messages().MODERATION.bannedDM(performer, target, reason).build(getBot())))
                 .mapToResult()
                 .flatMap(res -> ModerationHelper.banUser(target.getGuild(), performer, target, days, reason)
-                    .flatMap(
-                        v -> messages().MODERATION.banUser(channel, performer, target, reason, days, res.isSuccess())))
+                    .flatMap(v -> channel.sendMessage(
+                        messages().MODERATION.banUser(performer, target, reason, days, res.isSuccess()).build(getBot()))))
                 .queue();
     }
 }
