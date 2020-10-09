@@ -4,11 +4,11 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import javax.annotation.Nullable;
 
 import static sciwhiz12.janitor.utils.Util.nameFor;
 

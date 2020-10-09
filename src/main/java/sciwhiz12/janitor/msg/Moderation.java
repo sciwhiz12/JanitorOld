@@ -3,7 +3,6 @@ package sciwhiz12.janitor.msg;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import sciwhiz12.janitor.moderation.notes.NoteEntry;
 import sciwhiz12.janitor.moderation.warns.WarningEntry;
 
@@ -12,6 +11,7 @@ import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 

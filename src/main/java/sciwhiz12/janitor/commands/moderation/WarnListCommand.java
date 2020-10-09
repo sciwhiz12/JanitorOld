@@ -14,7 +14,6 @@ import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.moderation.warns.WarningEntry;
 import sciwhiz12.janitor.moderation.warns.WarningStorage;
 
-import java.time.OffsetDateTime;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -87,8 +86,6 @@ public class WarnListCommand extends BaseCommand {
             final Member mod = members.get(0);
             predicate = predicate.and(e -> e.getValue().getPerformer().getIdLong() == mod.getIdLong());
         }
-
-        final OffsetDateTime dateTime = OffsetDateTime.now();
 
         if (!performer.hasPermission(WARN_PERMISSION))
             channel.sendMessage(

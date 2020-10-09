@@ -4,11 +4,11 @@ import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.file.FileNotFoundAction;
 import com.electronwill.nightconfig.core.file.FileWatcher;
 import com.electronwill.nightconfig.toml.TomlFormat;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 import static sciwhiz12.janitor.Logging.CONFIG;
 import static sciwhiz12.janitor.Logging.JANITOR;

@@ -9,7 +9,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.moderation.notes.NoteEntry;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
@@ -160,9 +160,8 @@ public class NoteCommand extends BaseCommand {
             case PERFORMER: {
                 predicate = predicate.and(e -> e.getValue().getPerformer().getIdLong() == performer.getIdLong());
             }
+            case NONE: {}
         }
-
-        final OffsetDateTime dateTime = OffsetDateTime.now();
 
         if (!performer.hasPermission(NOTE_PERMISSION))
             channel.sendMessage(
@@ -187,8 +186,6 @@ public class NoteCommand extends BaseCommand {
         }
         final Guild guild = ctx.getSource().getGuild();
         final Member performer = Objects.requireNonNull(ctx.getSource().getMember());
-
-        final OffsetDateTime dateTime = OffsetDateTime.now();
 
         if (!performer.hasPermission(NOTE_PERMISSION))
             channel.sendMessage(

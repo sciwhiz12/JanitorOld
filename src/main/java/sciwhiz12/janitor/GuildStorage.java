@@ -1,8 +1,6 @@
 package sciwhiz12.janitor;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import sciwhiz12.janitor.storage.IStorage;
 
@@ -19,8 +17,6 @@ import java.util.function.Supplier;
 import static java.nio.file.StandardOpenOption.*;
 
 public class GuildStorage {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-
     private final JanitorBot bot;
     private final Path mainFolder;
     private final Map<Guild, Map<String, IStorage>> guildStorage = new IdentityHashMap<>();
@@ -35,9 +31,9 @@ public class GuildStorage {
         return bot;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends IStorage> T getOrCreate(Guild guild, String key, Supplier<T> defaultSupplier) {
         final Map<String, IStorage> storageMap = guildStorage.computeIfAbsent(guild, g -> new HashMap<>());
-        //noinspection unchecked
         return (T) storageMap.computeIfAbsent(key, k -> load(guild, key, defaultSupplier.get()));
     }
 

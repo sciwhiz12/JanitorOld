@@ -37,8 +37,6 @@ public class StringReaderUtil {
     }
 
     private static final char SYNTAX_ESCAPE = '\\';
-    private static final char SYNTAX_DOUBLE_QUOTE = '"';
-    private static final char SYNTAX_SINGLE_QUOTE = '\'';
     public static String readStringUntil(StringReader reader, char terminator) throws CommandSyntaxException {
         final StringBuilder result = new StringBuilder();
         boolean escaped = false;

@@ -1,13 +1,11 @@
 package sciwhiz12.janitor.msg;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Resources;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import sciwhiz12.janitor.JanitorBot;
 
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -18,13 +16,13 @@ import static sciwhiz12.janitor.Logging.JANITOR;
 import static sciwhiz12.janitor.Logging.TRANSLATIONS;
 
 public class Translations {
-    private static final Gson GSON = new GsonBuilder().create();
     private static final String DEFAULT_TRANSLATIONS_RESOURCE = "english.json";
-    private static final Type MAP_TYPE = new TypeToken<Map<String, String>>() {}.getType();
+    private static final TypeReference<Map<String, String>> MAP_TYPE = new TypeReference<>() {};
 
     private final JanitorBot bot;
     private final Path translationsFile;
     private final Map<String, String> translations = new HashMap<>();
+    private final ObjectMapper jsonMapper = new ObjectMapper();
 
     public Translations(JanitorBot bot, Path translationsFile) {
         this.bot = bot;
@@ -40,7 +38,7 @@ public class Translations {
         }
         try {
             JANITOR.debug(TRANSLATIONS, "Loading translations from file {}", translationsFile);
-            Map<String, String> trans = GSON.fromJson(Files.newBufferedReader(translationsFile), MAP_TYPE);
+            Map<String, String> trans = jsonMapper.readValue(Files.newBufferedReader(translationsFile), MAP_TYPE);
             translations.clear();
             translations.putAll(trans);
             JANITOR.info(TRANSLATIONS, "Loaded {} translations from file {}", translations.size(), translationsFile);
@@ -55,7 +53,7 @@ public class Translations {
         try {
             JANITOR.debug(TRANSLATIONS, "Loading default english translations");
             // noinspection UnstableApiUsage
-            Map<String, String> trans = GSON.fromJson(
+            Map<String, String> trans = jsonMapper.readValue(
                 new InputStreamReader(Resources.getResource(DEFAULT_TRANSLATIONS_RESOURCE).openStream()),
                 MAP_TYPE);
             translations.clear();

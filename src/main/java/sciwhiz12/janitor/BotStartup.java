@@ -1,5 +1,6 @@
 package sciwhiz12.janitor;
 
+import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -12,7 +13,6 @@ import sciwhiz12.janitor.config.BotOptions;
 
 import java.util.EnumSet;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static sciwhiz12.janitor.Logging.JANITOR;
 
 public class BotStartup {
@@ -21,7 +21,7 @@ public class BotStartup {
 
         BotOptions options = new BotOptions(args);
         BotConfig config = new BotConfig(options);
-        checkArgument(!config.getToken().isEmpty(), "Supply a client token through config or command line");
+        Preconditions.checkArgument(!config.getToken().isEmpty(), "Supply a client token through config or command line");
 
         JANITOR.info("Building bot instance and connecting to Discord...");
 

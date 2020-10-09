@@ -1,40 +1,36 @@
 package sciwhiz12.janitor.moderation.notes;
 
 import com.electronwill.nightconfig.core.utils.ObservedMap;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import sciwhiz12.janitor.GuildStorage;
 import sciwhiz12.janitor.JanitorBot;
 import sciwhiz12.janitor.storage.JsonStorage;
 
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 public class NoteStorage extends JsonStorage {
-    private static final Type NOTE_MAP_TYPE = new TypeToken<Map<Integer, NoteEntry>>() {}.getType();
+    private static final TypeReference<Map<Integer, NoteEntry>> NOTE_MAP_TYPE = new TypeReference<>() {};
     public static final String STORAGE_KEY = "notes";
 
     public static NoteStorage get(GuildStorage storage, Guild guild) {
         return storage.getOrCreate(guild, STORAGE_KEY, () -> new NoteStorage(storage.getBot()));
     }
 
-    private final Gson gson;
     private final JanitorBot bot;
     private int lastID = 1;
     private final Map<Integer, NoteEntry> notes = new ObservedMap<>(new HashMap<>(), this::markDirty);
 
     public NoteStorage(JanitorBot bot) {
         this.bot = bot;
-        this.gson = new GsonBuilder()
-            .registerTypeAdapter(NoteEntry.class, new NoteEntry.Serializer(bot))
-            .create();
     }
 
     public JanitorBot getBot() {
@@ -52,8 +48,8 @@ public class NoteStorage extends JsonStorage {
         return notes.get(noteID);
     }
 
-    public NoteEntry removeNote(int noteID) {
-        return notes.remove(noteID);
+    public void removeNote(int noteID) {
+        notes.remove(noteID);
     }
 
     public int getAmountOfNotes(User target) {
@@ -67,18 +63,27 @@ public class NoteStorage extends JsonStorage {
     }
 
     @Override
-    public JsonElement save() {
-        JsonObject obj = new JsonObject();
-        obj.addProperty("lastNoteID", lastID);
-        obj.add("notes", gson.toJsonTree(notes));
+    protected void initialize(ObjectMapper mapper) {
+        super.initialize(mapper);
+        mapper.registerModule(
+            new SimpleModule()
+                .addSerializer(NoteEntry.class, new NoteEntry.Serializer())
+                .addDeserializer(NoteEntry.class, new NoteEntry.Deserializer(this::getBot))
+        );
+    }
+
+    @Override
+    public JsonNode save(ObjectMapper mapper) {
+        final ObjectNode obj = mapper.createObjectNode();
+        obj.put("lastNoteID", lastID);
+        obj.set("notes", mapper.valueToTree(notes));
         return obj;
     }
 
     @Override
-    public void load(JsonElement in) {
-        final JsonObject obj = in.getAsJsonObject();
-        lastID = obj.get("lastNoteID").getAsInt();
-        final Map<Integer, NoteEntry> loaded = gson.fromJson(obj.get("notes"), NOTE_MAP_TYPE);
+    public void load(JsonNode in, ObjectMapper mapper) throws IOException {
+        lastID = in.get("lastNoteID").asInt();
+        final Map<Integer, NoteEntry> loaded = mapper.readerFor(NOTE_MAP_TYPE).readValue(in.get("notes"));
         notes.clear();
         notes.putAll(loaded);
     }

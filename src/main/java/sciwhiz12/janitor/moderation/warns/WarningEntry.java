@@ -1,18 +1,19 @@
 package sciwhiz12.janitor.moderation.warns;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import net.dv8tion.jda.api.entities.User;
 import sciwhiz12.janitor.JanitorBot;
 
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 public class WarningEntry {
@@ -62,35 +63,42 @@ public class WarningEntry {
         return Objects.hash(getPerformer(), getWarned(), getDateTime(), getReason());
     }
 
-    public static class Serializer implements JsonDeserializer<WarningEntry>, JsonSerializer<WarningEntry> {
-        private final JanitorBot bot;
+    public static class Serializer extends StdSerializer<WarningEntry> {
+        private static final long serialVersionUID = 1L;
 
-        public Serializer(JanitorBot bot) {
+        public Serializer() {
+            super(WarningEntry.class);
+        }
+
+        @Override
+        public void serialize(WarningEntry value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeStartObject();
+            gen.writeNumberField("performer", value.getPerformer().getIdLong());
+            gen.writeNumberField("warned", value.getWarned().getIdLong());
+            gen.writeStringField("dateTime", value.getDateTime().toString());
+            gen.writeStringField("reason", value.getReason());
+            gen.writeEndObject();
+        }
+    }
+
+    public static class Deserializer extends StdDeserializer<WarningEntry> {
+        private static final long serialVersionUID = 1L;
+
+        private final Supplier<JanitorBot> bot;
+
+        public Deserializer(Supplier<JanitorBot> bot) {
+            super(WarningEntry.class);
             this.bot = bot;
         }
 
         @Override
-        public WarningEntry deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-            throws JsonParseException {
-            final JsonObject obj = json.getAsJsonObject();
-            final User warned = bot.getDiscord().retrieveUserById(obj.get("warned").getAsLong()).complete();
-            final User performer = bot.getDiscord().retrieveUserById(obj.get("performer").getAsLong()).complete();
-            final OffsetDateTime dateTime = OffsetDateTime.parse(obj.get("dateTime").getAsString());
-            @Nullable
-            final String reason = obj.has("reason") ? obj.get("reason").getAsString() : null;
-            return new WarningEntry(warned, performer, dateTime, reason);
-        }
-
-        @Override
-        public JsonElement serialize(WarningEntry src, Type typeOfSrc, JsonSerializationContext context) {
-            final JsonObject obj = new JsonObject();
-            obj.addProperty("warned", src.getWarned().getId());
-            obj.addProperty("performer", src.getPerformer().getId());
-            obj.addProperty("dateTime", src.getDateTime().toString());
-            if (src.getReason() != null) {
-                obj.addProperty("reason", src.getReason());
-            }
-            return obj;
+        public WarningEntry deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+            final JsonNode obj = ctx.readTree(p);
+            User performer = bot.get().getDiscord().retrieveUserById(obj.get("performer").asLong()).complete();
+            User warned = bot.get().getDiscord().retrieveUserById(obj.get("warned").asLong()).complete();
+            OffsetDateTime dateTime = OffsetDateTime.parse(obj.get("dateTime").asText());
+            String contents = obj.get("reason").asText();
+            return new WarningEntry(performer, warned, dateTime, contents);
         }
     }
 }

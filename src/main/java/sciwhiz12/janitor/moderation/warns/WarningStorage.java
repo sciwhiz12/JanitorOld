@@ -1,39 +1,35 @@
 package sciwhiz12.janitor.moderation.warns;
 
 import com.electronwill.nightconfig.core.utils.ObservedMap;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import net.dv8tion.jda.api.entities.Guild;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import sciwhiz12.janitor.GuildStorage;
 import sciwhiz12.janitor.JanitorBot;
 import sciwhiz12.janitor.storage.JsonStorage;
 
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 public class WarningStorage extends JsonStorage {
-    private static final Type WARNING_MAP_TYPE = new TypeToken<Map<Integer, WarningEntry>>() {}.getType();
+    private static final TypeReference<Map<Integer, WarningEntry>> WARNING_MAP_TYPE = new TypeReference<>() {};
     public static final String STORAGE_KEY = "warnings";
 
     public static WarningStorage get(GuildStorage storage, Guild guild) {
         return storage.getOrCreate(guild, STORAGE_KEY, () -> new WarningStorage(storage.getBot()));
     }
 
-    private final Gson gson;
     private final JanitorBot bot;
     private int lastID = 1;
     private final Map<Integer, WarningEntry> warnings = new ObservedMap<>(new HashMap<>(), this::markDirty);
 
     public WarningStorage(JanitorBot bot) {
         this.bot = bot;
-        this.gson = new GsonBuilder()
-            .registerTypeAdapter(WarningEntry.class, new WarningEntry.Serializer(bot))
-            .create();
     }
 
     public JanitorBot getBot() {
@@ -51,8 +47,8 @@ public class WarningStorage extends JsonStorage {
         return warnings.get(caseID);
     }
 
-    public WarningEntry removeWarning(int caseID) {
-        return warnings.remove(caseID);
+    public void removeWarning(int caseID) {
+        warnings.remove(caseID);
     }
 
     public Map<Integer, WarningEntry> getWarnings() {
@@ -60,18 +56,27 @@ public class WarningStorage extends JsonStorage {
     }
 
     @Override
-    public JsonElement save() {
-        JsonObject obj = new JsonObject();
-        obj.addProperty("lastCaseID", lastID);
-        obj.add("warnings", gson.toJsonTree(warnings));
+    protected void initialize(ObjectMapper mapper) {
+        super.initialize(mapper);
+        mapper.registerModule(
+            new SimpleModule()
+                .addSerializer(WarningEntry.class, new WarningEntry.Serializer())
+                .addDeserializer(WarningEntry.class, new WarningEntry.Deserializer(this::getBot))
+        );
+    }
+
+    @Override
+    public JsonNode save(ObjectMapper mapper) {
+        final ObjectNode obj = mapper.createObjectNode();
+        obj.put("lastCaseID", lastID);
+        obj.set("warnings", mapper.valueToTree(warnings));
         return obj;
     }
 
     @Override
-    public void load(JsonElement in) {
-        final JsonObject obj = in.getAsJsonObject();
-        lastID = obj.get("lastCaseID").getAsInt();
-        final Map<Integer, WarningEntry> loaded = gson.fromJson(obj.get("warnings"), WARNING_MAP_TYPE);
+    public void load(JsonNode in, ObjectMapper mapper) throws IOException {
+        lastID = in.get("lastCaseID").asInt();
+        final Map<Integer, WarningEntry> loaded = mapper.convertValue(in.get("warnings"), WARNING_MAP_TYPE);
         warnings.clear();
         warnings.putAll(loaded);
     }

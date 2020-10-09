@@ -25,7 +25,6 @@ public class MessageBuilder {
         this(new EmbedBuilder(), new HashMap<>());
     }
 
-    @SuppressWarnings("CopyConstructorMissesField")
     public MessageBuilder(MessageBuilder copy) {
         this(new EmbedBuilder(copy.embedBuilder), new HashMap<>(copy.substitutions));
     }

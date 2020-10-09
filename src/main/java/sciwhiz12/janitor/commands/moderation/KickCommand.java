@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.commands.util.CommandHelper;
@@ -17,6 +16,7 @@ import sciwhiz12.janitor.commands.util.ModerationHelper;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
