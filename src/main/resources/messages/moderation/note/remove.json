@@ -1,0 +1,39 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "<moderation.note.remove.author>",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "fields": [
+    {
+      "name": "<moderation.note.remove.field.performer>",
+      "value": "${performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.note.remove.field.original_performer>",
+      "value": "${note_entry.performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.note.remove.field.original_target>",
+      "value": "${note_entry.target.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.note.remove.field.note_id>",
+      "value": "${note_entry.note_id}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.note.remove.field.date_time>",
+      "value": "${note_entry.date_time}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.note.remove.field.contents>",
+      "value": "${note_entry.contents}",
+      "inline": false
+    }
+  ]
+}

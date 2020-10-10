@@ -23,6 +23,7 @@ public class BotConfig {
     public final CommentedConfigSpec.IntValue AUTOSAVE_INTERVAL;
 
     public final CommentedConfigSpec.ConfigValue<String> CUSTOM_TRANSLATION_FILE;
+    public final CommentedConfigSpec.ConfigValue<String> CUSTOM_MESSAGES_DIRECTORY;
 
     public final CommentedConfigSpec.ConfigValue<String> COMMAND_PREFIX;
 
@@ -67,6 +68,10 @@ public class BotConfig {
             .comment("A file which contains custom translation keys to load for messages.",
                 "If blank, no file shall be loaded.")
             .define("messages.custom_translations", "");
+        CUSTOM_MESSAGES_DIRECTORY = builder
+            .comment("A folder containing custom messages, with a 'messages.json' key file.",
+                "If blank, no folder shall be loaded and defaults will be used.")
+            .define("messages.custom_messages", "");
 
         COMMAND_PREFIX = builder
             .comment("The prefix for commands.")
@@ -115,8 +120,7 @@ public class BotConfig {
             spec.setConfig(config);
             // TODO: config spec
             FileWatcher.defaultInstance().addWatch(configPath, this::onFileChange);
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             JANITOR.error("Error while building config from file {}", configPath, ex);
         }
     }
@@ -131,6 +135,15 @@ public class BotConfig {
             or(() -> CUSTOM_TRANSLATION_FILE.get().isBlank() ?
                 Optional.empty() :
                 Optional.of(Path.of(CUSTOM_TRANSLATION_FILE.get())))
+            .orElse(null);
+    }
+
+    @Nullable
+    public Path getMessagesFolder() {
+        return options.getMessagesFolder().
+            or(() -> CUSTOM_MESSAGES_DIRECTORY.get().isBlank() ?
+                Optional.empty() :
+                Optional.of(Path.of(CUSTOM_MESSAGES_DIRECTORY.get())))
             .orElse(null);
     }
 
@@ -157,8 +170,7 @@ public class BotConfig {
             CONFIG.info("Reloading config due to file change {}", configPath);
             config.load();
             spec.setConfig(config);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             CONFIG.error("Error while reloading config from {}", configPath, ex);
         }
     }

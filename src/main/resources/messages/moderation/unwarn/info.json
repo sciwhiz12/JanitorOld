@@ -1,0 +1,39 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "<moderation.unwarn.info.author>",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "fields": [
+    {
+      "name": "<moderation.unwarn.info.field.performer>",
+      "value": "${performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.unwarn.info.field.original_target>",
+      "value": "${warning_entry.target.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.unwarn.info.field.original_performer>",
+      "value": "${warning_entry.performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.unwarn.info.field.case_id>",
+      "value": "${warning_entry.case_id}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.unwarn.info.field.date_time>",
+      "value": "${warning_entry.date_time}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.unwarn.info.field.reason.name>",
+      "value": "<moderation.unwarn.info.field.reason.value>",
+      "inline": false
+    }
+  ]
+}

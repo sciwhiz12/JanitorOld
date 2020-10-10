@@ -1,0 +1,20 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "${performer.guild.name}",
+    "icon_url": "${performer.guild.icon_url}"
+  },
+  "title": "<moderation.kick.dm.title>",
+  "fields": [
+    {
+      "name": "<moderation.kick.dm.field.performer>",
+      "value": "${performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.kick.dm.field.reason.name>",
+      "value": "<moderation.kick.dm.field.reason.value>",
+      "inline": true
+    }
+  ]
+}

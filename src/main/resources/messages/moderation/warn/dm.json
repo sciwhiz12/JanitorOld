@@ -1,0 +1,25 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "${performer.guild.name}",
+    "icon_url": "${performer.guild.icon_url}"
+  },
+  "title": "<moderation.warn.dm.title>",
+  "fields": [
+    {
+      "name": "<moderation.warn.dm.field.performer>",
+      "value": "${warning_entry.performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.warn.dm.field.date_time>",
+      "value": "${warning_entry.date_time}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.warn.dm.field.reason.name>",
+      "value": "<moderation.warn.dm.field.reason.value>",
+      "inline": false
+    }
+  ]
+}

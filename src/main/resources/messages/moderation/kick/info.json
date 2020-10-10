@@ -1,0 +1,29 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "<moderation.kick.info.author>",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "fields": [
+    {
+      "name": "<moderation.kick.info.field.performer>",
+      "value": "${performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.kick.info.field.target>",
+      "value": "${target.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.kick.info.field.private_message>",
+      "value": "${private_message}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.kick.info.field.reason.name>",
+      "value": "<moderation.kick.info.field.reason.value>",
+      "inline": false
+    }
+  ]
+}

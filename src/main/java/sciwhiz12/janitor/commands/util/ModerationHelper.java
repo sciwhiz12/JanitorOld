@@ -7,9 +7,9 @@ import net.dv8tion.jda.api.requests.restaction.AuditableRestAction;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import javax.annotation.Nullable;
 
+import static sciwhiz12.janitor.msg.MessageHelper.DATE_TIME_FORMAT;
 import static sciwhiz12.janitor.utils.Util.nameFor;
 
 public class ModerationHelper {
@@ -18,7 +18,7 @@ public class ModerationHelper {
         auditReason.append("Kicked by ")
             .append(nameFor(performer.getUser()))
             .append(" on ")
-            .append(Instant.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME));
+            .append(Instant.now().atOffset(ZoneOffset.UTC).format(DATE_TIME_FORMAT));
         if (reason != null)
             auditReason.append(" for reason: ").append(reason);
         return guild.kick(target, auditReason.toString());
@@ -30,7 +30,7 @@ public class ModerationHelper {
         auditReason.append("Banned by ")
             .append(nameFor(performer.getUser()))
             .append(" on ")
-            .append(Instant.now().atOffset(ZoneOffset.UTC).format(DateTimeFormatter.RFC_1123_DATE_TIME));
+            .append(Instant.now().atOffset(ZoneOffset.UTC).format(DATE_TIME_FORMAT));
         if (reason != null)
             auditReason.append(" for reason: ").append(reason);
         return guild.ban(target, deleteDuration, auditReason.toString());

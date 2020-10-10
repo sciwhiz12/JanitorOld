@@ -1,0 +1,34 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "<moderation.ban.info.author>",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "fields": [
+    {
+      "name": "<moderation.ban.info.field.performer>",
+      "value": "${performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.ban.info.field.target>",
+      "value": "${target.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.ban.info.field.private_message>",
+      "value": "${private_message}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.ban.info.field.delete_duration.name>",
+      "value": "<moderation.ban.info.field.delete_duration.value>",
+      "inline": true
+    },
+    {
+      "name": "<moderation.ban.info.field.reason.name>",
+      "value": "<moderation.ban.info.field.reason.value>",
+      "inline": false
+    }
+  ]
+}

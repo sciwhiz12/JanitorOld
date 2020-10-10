@@ -11,11 +11,16 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import static java.util.regex.Matcher.quoteReplacement;
+import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static sciwhiz12.janitor.Logging.JANITOR;
 import static sciwhiz12.janitor.Logging.TRANSLATIONS;
 
-public class Translations {
+public class TranslationMap {
+    public static final Pattern TRANSLATION_REGEX = Pattern.compile("<(.+?)>", CASE_INSENSITIVE);
     private static final String DEFAULT_TRANSLATIONS_RESOURCE = "english.json";
     private static final TypeReference<Map<String, String>> MAP_TYPE = new TypeReference<>() {};
 
@@ -24,7 +29,7 @@ public class Translations {
     private final Map<String, String> translations = new HashMap<>();
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
-    public Translations(JanitorBot bot, Path translationsFile) {
+    public TranslationMap(JanitorBot bot, Path translationsFile) {
         this.bot = bot;
         this.translationsFile = translationsFile;
         loadTranslations();
@@ -42,8 +47,7 @@ public class Translations {
             translations.clear();
             translations.putAll(trans);
             JANITOR.info(TRANSLATIONS, "Loaded {} translations from file {}", translations.size(), translationsFile);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             JANITOR.error(TRANSLATIONS, "Error while loading translations from file {}", translationsFile, e);
             loadDefaultTranslations();
         }
@@ -59,8 +63,7 @@ public class Translations {
             translations.clear();
             translations.putAll(trans);
             JANITOR.info(TRANSLATIONS, "Loaded {} default english translations", translations.size());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             JANITOR.error(TRANSLATIONS, "Error while loading default english translations", e);
         }
     }
@@ -69,7 +72,9 @@ public class Translations {
         return Collections.unmodifiableMap(translations);
     }
 
-    public String translate(String key, Object... args) {
-        return String.format(translations.getOrDefault(key, key), args);
+    public String translate(String text) {
+        final Matcher matcher = TRANSLATION_REGEX.matcher(text);
+        return matcher.replaceAll(
+            matchResult -> quoteReplacement(translations.getOrDefault(matchResult.group(1), matchResult.group(0))));
     }
 }

@@ -12,6 +12,7 @@ import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.moderation.warns.WarningEntry;
 import sciwhiz12.janitor.moderation.warns.WarningStorage;
+import sciwhiz12.janitor.msg.MessageHelper;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -44,48 +45,70 @@ public class WarnCommand extends BaseCommand {
             );
     }
 
-    public int run(CommandContext<MessageReceivedEvent> ctx, String reason) throws CommandSyntaxException {
-        realRun(ctx, reason);
-        return 1;
-    }
-
-    void realRun(CommandContext<MessageReceivedEvent> ctx, String reason) throws CommandSyntaxException {
+    int run(CommandContext<MessageReceivedEvent> ctx, String reason) throws CommandSyntaxException {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
-            return;
+            messages().getRegularMessage("general/error/guild_only_command")
+                .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
+                .send(getBot(), channel).queue();
+
+            return 1;
         }
         final Guild guild = ctx.getSource().getGuild();
         final Member performer = Objects.requireNonNull(ctx.getSource().getMember());
 
         final List<Member> members = getMembers("member", ctx).fromGuild(performer.getGuild());
-        if (members.size() < 1) return;
+        if (members.size() < 1) { return 1; }
         final Member target = members.get(0);
 
         final OffsetDateTime dateTime = OffsetDateTime.now(ZoneOffset.UTC);
-        if (guild.getSelfMember().equals(target))
-            channel.sendMessage(messages().GENERAL.cannotActionSelf(performer).build(getBot())).queue();
-        else if (performer.equals(target))
-            channel.sendMessage(messages().GENERAL.cannotActionPerformer(performer).build(getBot())).queue();
-        else if (!performer.hasPermission(WARN_PERMISSION))
-            channel.sendMessage(
-                messages().MODERATION.ERRORS.performerInsufficientPermissions(performer, WARN_PERMISSION).build(getBot()))
-                .queue();
-        else if (!performer.canInteract(target))
-            channel.sendMessage(messages().MODERATION.ERRORS.cannotInteract(performer, target).build(getBot())).queue();
-        else if (target.hasPermission(WARN_PERMISSION) && config().WARNINGS_PREVENT_WARNING_MODS.get())
-            channel.sendMessage(messages().MODERATION.ERRORS.cannotWarnMods(performer, target).build(getBot())).queue();
-        else
+        if (guild.getSelfMember().equals(target)) {
+            messages().getRegularMessage("general/error/cannot_action_self")
+                .apply(MessageHelper.member("performer", performer))
+                .send(getBot(), channel).queue();
+
+        } else if (performer.equals(target)) {
+            messages().getRegularMessage("general/error/cannot_action_performer")
+                .apply(MessageHelper.member("performer", performer))
+                .send(getBot(), channel).queue();
+
+        } else if (!performer.hasPermission(WARN_PERMISSION)) {
+            messages().getRegularMessage("moderation/error/insufficient_permissions")
+                .apply(MessageHelper.member("performer", performer))
+                .with("required_permissions", WARN_PERMISSION::toString)
+                .send(getBot(), channel).queue();
+
+        } else if (!performer.canInteract(target)) {
+            messages().getRegularMessage("moderation/error/cannot_interact")
+                .apply(MessageHelper.member("performer", performer))
+                .apply(MessageHelper.member("target", target))
+                .send(getBot(), channel).queue();
+
+        } else if (target.hasPermission(WARN_PERMISSION) && config().WARNINGS_PREVENT_WARNING_MODS.get()) {
+            messages().getRegularMessage("moderation/error/warn/cannot_warn_mods")
+                .apply(MessageHelper.member("performer", performer))
+                .apply(MessageHelper.member("target", target))
+                .send(getBot(), channel).queue();
+
+        } else {
+            WarningEntry entry = new WarningEntry(target.getUser(), performer.getUser(), dateTime, reason);
+            int caseId = WarningStorage.get(getBot().getStorage(), guild).addWarning(entry);
+
             target.getUser().openPrivateChannel()
-                .flatMap(
-                    dm -> dm.sendMessage(messages().MODERATION.warnedDM(performer, target, reason, dateTime).build(getBot())))
+                .flatMap(dm -> messages().getRegularMessage("moderation/warn/dm")
+                    .apply(MessageHelper.member("performer", performer))
+                    .apply(MessageHelper.warningEntry("warning_entry", caseId, entry))
+                    .send(getBot(), dm)
+                )
                 .mapToResult()
-                .flatMap(res -> {
-                    WarningEntry entry = new WarningEntry(target.getUser(), performer.getUser(), dateTime, reason);
-                    int caseId = WarningStorage.get(getBot().getStorage(), guild).addWarning(entry);
-                    return channel
-                        .sendMessage(messages().MODERATION.warnUser(performer, caseId, entry, res.isSuccess()).build(getBot()));
-                })
+                .flatMap(res -> messages().getRegularMessage("moderation/warn/info")
+                    .apply(MessageHelper.member("performer", performer))
+                    .apply(MessageHelper.warningEntry("warning_entry", caseId, entry))
+                    .with("private_message", () -> res.isSuccess() ? "✅" : "❌")
+                    .send(getBot(), channel)
+                )
                 .queue();
+        }
+        return 1;
     }
 }

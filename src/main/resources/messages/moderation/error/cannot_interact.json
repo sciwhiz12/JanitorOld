@@ -1,0 +1,17 @@
+{
+  "color": "${general.error.color}",
+  "title": "<moderation.cannot_interact.title>",
+  "description": "<moderation.cannot_interact.description>",
+  "fields": [
+    {
+      "name": "<moderation.cannot_interact.field.performer>",
+      "value": "${performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.cannot_interact.field.target>",
+      "value": "${target.mention}",
+      "inline": true
+    }
+  ]
+}

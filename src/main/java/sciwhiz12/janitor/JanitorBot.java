@@ -9,8 +9,8 @@ import net.dv8tion.jda.api.entities.User;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.config.BotConfig;
 import sciwhiz12.janitor.msg.Messages;
-import sciwhiz12.janitor.msg.Substitutions;
-import sciwhiz12.janitor.msg.Translations;
+import sciwhiz12.janitor.msg.TranslationMap;
+import sciwhiz12.janitor.msg.substitution.SubstitutionMap;
 import sciwhiz12.janitor.utils.Util;
 
 import java.nio.file.Path;
@@ -22,13 +22,13 @@ import static sciwhiz12.janitor.Logging.STATUS;
 public class JanitorBot {
     private final JDA discord;
     private final BotConfig config;
-    private final Messages messages;
-    private BotConsole console;
+    private final BotConsole console;
     private final GuildStorage storage;
     private final GuildStorage.SavingThread storageSavingThread;
     private final CommandRegistry cmdRegistry;
-    private final Translations translations;
-    private final Substitutions substitutions;
+    private final TranslationMap translations;
+    private final SubstitutionMap substitutions;
+    private final Messages messages;
 
     public JanitorBot(JDA discord, BotConfig config) {
         this.config = config;
@@ -36,9 +36,10 @@ public class JanitorBot {
         this.console = new BotConsole(this, System.in);
         this.storage = new GuildStorage(this, Path.of(config.STORAGE_PATH.get()));
         this.cmdRegistry = new CommandRegistry(this, config.getCommandPrefix());
-        this.translations = new Translations(this, config.getTranslationsFile());
-        this.messages = new Messages(this);
-        this.substitutions = new Substitutions(this);
+        this.translations = new TranslationMap(this, config.getTranslationsFile());
+        this.substitutions = new SubstitutionMap(this);
+        this.messages = new Messages(this, config.getTranslationsFile());
+        // TODO: find which of these can be loaded in parallel before the bot JDA is ready
         discord.addEventListener(cmdRegistry);
         discord.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(" n' sweeping n' testing!"));
         discord.getGuilds().forEach(Guild::loadMembers);
@@ -67,7 +68,9 @@ public class JanitorBot {
         return this.config;
     }
 
-    public Messages getMessages() { return this.messages; }
+    public Messages getMessages() {
+        return messages;
+    }
 
     public GuildStorage getStorage() { return this.storage; }
 
@@ -75,7 +78,7 @@ public class JanitorBot {
         return this.cmdRegistry;
     }
 
-    public Translations getTranslations() {
+    public TranslationMap getTranslations() {
         return this.translations;
     }
 
@@ -105,7 +108,7 @@ public class JanitorBot {
         console.stop();
     }
 
-    public Substitutions getSubstitutions() {
+    public SubstitutionMap getSubstitutions() {
         return substitutions;
     }
 }

@@ -1,97 +1,119 @@
 package sciwhiz12.janitor.msg;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.IMentionable;
-import net.dv8tion.jda.api.entities.ISnowflake;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import sciwhiz12.janitor.JanitorBot;
+import sciwhiz12.janitor.msg.json.RegularMessage;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
+import static com.google.common.io.Resources.getResource;
+import static sciwhiz12.janitor.Logging.JANITOR;
+import static sciwhiz12.janitor.Logging.MESSAGES;
 
 public class Messages {
-    public static final int FAILURE_COLOR = 0xF73132;
+    public static final String JSON_FILE_SUFFIX = ".json";
+    public static final String MESSAGES_FILENAME = "messages";
+    public static final String DEFAULT_MESSAGES_FOLDER = "messages/";
+    public static final TypeReference<List<String>> LIST_TYPE = new TypeReference<>() {};
 
     private final JanitorBot bot;
-    public final General GENERAL;
-    public final Moderation MODERATION;
+    private final Path messagesFolder;
+    private final Map<String, RegularMessage> regularMessages = new HashMap<>();
+    private final ObjectMapper jsonMapper = new ObjectMapper();
 
-    public Messages(JanitorBot bot) {
+    public Messages(JanitorBot bot, Path messagesFolder) {
         this.bot = bot;
-        this.GENERAL = new General(this);
-        this.MODERATION = new Moderation(this);
+        this.messagesFolder = messagesFolder;
+        loadMessages();
     }
 
-    public JanitorBot getBot() {
-        return bot;
+    public void loadMessages() {
+        boolean success = false;
+
+        if (messagesFolder != null) {
+            JANITOR.debug(MESSAGES, "Loading messages from folder {}", messagesFolder);
+            success = loadMessages(
+                path -> Files.newBufferedReader(messagesFolder.resolve(path + JSON_FILE_SUFFIX))
+            );
+        } else {
+            JANITOR.info(MESSAGES, "No custom messages folder specified");
+        }
+
+        if (!success) {
+            JANITOR.info(MESSAGES, "Loading default messages");
+            //noinspection UnstableApiUsage
+            loadMessages(
+                file -> new InputStreamReader(getResource(DEFAULT_MESSAGES_FOLDER + file + JSON_FILE_SUFFIX).openStream())
+            );
+        }
     }
 
-    public MessageBuilder message() {
-        final MessageBuilder builder = new MessageBuilder();
-        builder.embed()
-            .setTimestamp(OffsetDateTime.now(ZoneOffset.UTC));
-        return builder;
+    boolean loadMessages(FileOpener files) {
+        try (Reader keyReader = files.open(MESSAGES_FILENAME)) {
+            List<String> keysList = jsonMapper.readValue(keyReader, LIST_TYPE);
+            regularMessages.clear();
+            for (String messageKey : keysList) {
+                final String path = messageKey.replace("/", FileSystems.getDefault().getSeparator());
+                try (Reader reader = files.open(path)) {
+                    final JsonNode tree = jsonMapper.readTree(reader);
+                    if ("regular".equals(tree.path("type").asText("regular"))) {
+                        regularMessages.put(messageKey, jsonMapper.convertValue(tree, RegularMessage.class));
+                    } else {
+                        JANITOR.warn(MESSAGES, "Unknown message type {} for {}", tree.path("type").asText(), messageKey);
+                    }
+                } catch (Exception e) {
+                    JANITOR.error(MESSAGES, "Error while loading message {}", path, e);
+                }
+            }
+            JANITOR.info(MESSAGES, "Loaded {} messages", regularMessages.size());
+            return true;
+        } catch (Exception e) {
+            JANITOR.error(MESSAGES, "Error while loading messages", e);
+            return false;
+        }
     }
 
-    public MessageBuilder failure() {
-        final MessageBuilder builder = message();
-        builder.embed()
-            .setColor(FAILURE_COLOR);
-        return builder;
+    public Map<String, RegularMessage> getRegularMessages() {
+        return Collections.unmodifiableMap(regularMessages);
     }
 
-    public MessageBuilder snowflake(MessageBuilder builder, String head, ISnowflake snowflake) {
-        return builder
-            .with(head + ".id", snowflake::getId)
-            .with(head + ".creation_datetime", () -> snowflake.getTimeCreated().format(RFC_1123_DATE_TIME));
+    public RegularMessageBuilder getRegularMessage(String messageKey) {
+        final RegularMessage msg = regularMessages.get(messageKey);
+        if (msg == null) {
+            JANITOR.warn(MESSAGES, "Attempted to get unknown message with key {}", messageKey);
+            return new RegularMessageBuilder(UNKNOWN_MESSAGE).with("key", () -> messageKey);
+        }
+        return new RegularMessageBuilder(msg);
     }
 
-    public MessageBuilder mentionable(MessageBuilder builder, String head, IMentionable mentionable) {
-        return builder
-            .apply(b -> snowflake(b, head, mentionable))
-            .with(head + ".mention", mentionable::getAsMention);
+    interface FileOpener {
+        Reader open(String filePath) throws IOException;
     }
 
-    public MessageBuilder role(MessageBuilder builder, String head, Role role) {
-        return builder
-            .apply(b -> mentionable(b, head, role))
-            .with(head + ".color_hex", () -> Integer.toHexString(role.getColorRaw()))
-            .with(head + ".name", role::getName)
-            .with(head + ".permissions", role.getPermissions()::toString);
-    }
-
-    public MessageBuilder user(MessageBuilder builder, String head, User user) {
-        return builder
-            .apply(b -> mentionable(b, head, user))
-            .with(head + ".name", user::getName)
-            .with(head + ".discriminator", user::getDiscriminator)
-            .with(head + ".tag", user::getAsTag)
-            .with(head + ".flags", user.getFlags()::toString);
-    }
-
-    public MessageBuilder guild(MessageBuilder builder, String head, Guild guild) {
-        return builder
-            .apply(b -> snowflake(b, head, guild))
-            .with(head + ".name", guild::getName)
-            .with(head + ".description", guild::getDescription)
-            .with(head + ".voice_region", guild.getRegion()::toString)
-            .with(head + ".boost.tier", guild.getBoostTier()::toString)
-            .with(head + ".boost.count", () -> String.valueOf(guild.getBoostCount()))
-            .with(head + ".locale", guild.getLocale()::toString)
-            .with(head + ".verification_level", guild.getVerificationLevel()::toString);
-    }
-
-    public MessageBuilder member(MessageBuilder builder, String head, Member member) {
-        return builder
-            .apply(b -> user(b, head, member.getUser()))
-            .apply(b -> guild(b, head + ".guild", member.getGuild()))
-            .with(head + ".nickname", member::getNickname)
-            .with(head + ".effective_name", member::getEffectiveName)
-            .with(head + ".join_datetime", () -> member.getTimeJoined().format(RFC_1123_DATE_TIME))
-            .with(head + ".color", () -> String.valueOf(member.getColorRaw()));
-    }
+    public static final RegularMessage UNKNOWN_MESSAGE = new RegularMessage(
+        "UNKNOWN MESSAGE!",
+        null,
+        "A message was tried to be looked up, but was not found. Please report this to your bot maintainer/administrator.",
+        String.valueOf(0xFF0000),
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        Collections.singletonList(new MessageEmbed.Field("Message Key", "${key}", false))
+    );
 }

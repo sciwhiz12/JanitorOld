@@ -12,6 +12,7 @@ import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.moderation.warns.WarningEntry;
 import sciwhiz12.janitor.moderation.warns.WarningStorage;
+import sciwhiz12.janitor.msg.MessageHelper;
 
 import java.util.EnumSet;
 import java.util.Objects;
@@ -44,36 +45,54 @@ public class UnwarnCommand extends BaseCommand {
     void realRun(CommandContext<MessageReceivedEvent> ctx) {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
+            messages().getRegularMessage("general/error/guild_only_command")
+                .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
+                .send(getBot(), channel).queue();
+
             return;
         }
         final Guild guild = ctx.getSource().getGuild();
         final Member performer = Objects.requireNonNull(ctx.getSource().getMember());
         int caseID = IntegerArgumentType.getInteger(ctx, "caseId");
 
-        if (!performer.hasPermission(WARN_PERMISSION))
-            channel.sendMessage(
-                messages().MODERATION.ERRORS.performerInsufficientPermissions(performer, WARN_PERMISSION).build(getBot()))
-                .queue();
-        else {
+        if (!performer.hasPermission(WARN_PERMISSION)) {
+            messages().getRegularMessage("moderation/error/insufficient_permissions")
+                .apply(MessageHelper.member("performer", performer))
+                .with("required_permissions", WARN_PERMISSION::toString)
+                .send(getBot(), channel).queue();
+
+        } else {
             final WarningStorage storage = WarningStorage.get(getBot().getStorage(), guild);
             @Nullable
             final WarningEntry entry = storage.getWarning(caseID);
             Member temp;
-            if (entry == null)
-                channel.sendMessage(messages().MODERATION.ERRORS.noWarnWithID(performer, caseID).build(getBot())).queue();
-            else if (entry.getWarned().getIdLong() == performer.getIdLong()
-                && !config().WARNINGS_REMOVE_SELF_WARNINGS.get())
-                channel.sendMessage(messages().MODERATION.ERRORS.cannotUnwarnSelf(performer, caseID, entry).build(getBot()))
-                    .queue();
-            else if (config().WARNINGS_RESPECT_MOD_ROLES.get()
-                && (temp = guild.getMember(entry.getPerformer())) != null
-                && !performer.canInteract(temp))
-                channel.sendMessage(
-                    messages().MODERATION.ERRORS.cannotRemoveHigherModerated(performer, caseID, entry).build(getBot())).queue();
-            else {
+            if (entry == null) {
+                messages().getRegularMessage("moderation/error/unwarn/no_case_found")
+                    .apply(MessageHelper.member("performer", performer))
+                    .with("case_id", () -> String.valueOf(caseID))
+                    .send(getBot(), channel).queue();
+
+            } else if (entry.getWarned().getIdLong() == performer.getIdLong()
+                && !config().WARNINGS_REMOVE_SELF_WARNINGS.get()) {
+                messages().getRegularMessage("moderation/error/unwarn/cannot_unwarn_self")
+                    .apply(MessageHelper.member("performer", performer))
+                    .apply(MessageHelper.warningEntry("warning_entry", caseID, entry))
+                    .send(getBot(), channel).queue();
+
+            } else if (config().WARNINGS_RESPECT_MOD_ROLES.get()
+                && (temp = guild.getMember(entry.getPerformer())) != null && !performer.canInteract(temp)) {
+                messages().getRegularMessage("moderation/error/unwarn/cannot_remove_higher_mod")
+                    .apply(MessageHelper.member("performer", performer))
+                    .apply(MessageHelper.warningEntry("warning_entry", caseID, entry))
+                    .send(getBot(), channel).queue();
+
+            } else {
                 storage.removeWarning(caseID);
-                channel.sendMessage(messages().MODERATION.unwarn(performer, caseID, entry).build(getBot())).queue();
+                messages().getRegularMessage("moderation/unwarn/info")
+                    .apply(MessageHelper.member("performer", performer))
+                    .apply(MessageHelper.warningEntry("warning_entry", caseID, entry))
+                    .send(getBot(), channel).queue();
+
             }
         }
     }

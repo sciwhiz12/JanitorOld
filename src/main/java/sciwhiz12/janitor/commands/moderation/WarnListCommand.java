@@ -1,6 +1,5 @@
 package sciwhiz12.janitor.commands.moderation;
 
-import com.google.common.collect.ImmutableMap;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -12,7 +11,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.moderation.warns.WarningEntry;
-import sciwhiz12.janitor.moderation.warns.WarningStorage;
+import sciwhiz12.janitor.msg.MessageHelper;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -53,18 +52,15 @@ public class WarnListCommand extends BaseCommand {
             .executes(ctx -> this.run(ctx, false, false));
     }
 
-    public int run(CommandContext<MessageReceivedEvent> ctx, boolean filterTarget, boolean filterModerator)
-        throws CommandSyntaxException {
-        realRun(ctx, filterTarget, filterModerator);
-        return 1;
-    }
-
-    void realRun(CommandContext<MessageReceivedEvent> ctx, boolean filterTarget, boolean filterModerator)
+    int run(CommandContext<MessageReceivedEvent> ctx, boolean filterTarget, boolean filterModerator)
         throws CommandSyntaxException {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            channel.sendMessage(messages().GENERAL.guildOnlyCommand(ctx.getSource().getAuthor()).build(getBot())).queue();
-            return;
+            messages().getRegularMessage("general/error/guild_only_command")
+                .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
+                .send(getBot(), channel).queue();
+
+            return 1;
         }
         final Guild guild = ctx.getSource().getGuild();
         final Member performer = Objects.requireNonNull(ctx.getSource().getMember());
@@ -72,33 +68,42 @@ public class WarnListCommand extends BaseCommand {
 
         if (filterTarget) {
             final List<Member> members = getMembers("target", ctx).fromGuild(performer.getGuild());
-            if (members.size() < 1) return;
+            if (members.size() < 1) return 1;
             final Member target = members.get(0);
             if (guild.getSelfMember().equals(target)) {
-                channel.sendMessage(messages().GENERAL.cannotActionSelf(performer).build(getBot())).queue();
-                return;
+                messages().getRegularMessage("general/error/cannot_interact")
+                    .apply(MessageHelper.member("target", target))
+                    .send(getBot(), channel).queue();
+
+                return 1;
             }
             predicate = predicate.and(e -> e.getValue().getWarned().getIdLong() == target.getIdLong());
         }
         if (filterModerator) {
             final List<Member> members = getMembers("moderator", ctx).fromGuild(performer.getGuild());
-            if (members.size() < 1) return;
+            if (members.size() < 1) return 1;
             final Member mod = members.get(0);
             predicate = predicate.and(e -> e.getValue().getPerformer().getIdLong() == mod.getIdLong());
         }
 
-        if (!performer.hasPermission(WARN_PERMISSION))
-            channel.sendMessage(
-                messages().MODERATION.ERRORS.performerInsufficientPermissions(performer, WARN_PERMISSION).build(getBot()))
-                .queue();
-        else
-            channel.sendMessage(messages().MODERATION.warnList(
-                WarningStorage.get(getBot().getStorage(), guild)
-                    .getWarnings()
-                    .entrySet().stream()
-                    .filter(predicate)
-                    .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue))
-            ).build(getBot())).queue();
+        if (!performer.hasPermission(WARN_PERMISSION)) {
+            messages().getRegularMessage("moderation/error/insufficient_permissions")
+                .apply(MessageHelper.member("performer", performer))
+                .with("required_permissions", WARN_PERMISSION::toString)
+                .send(getBot(), channel).queue();
 
+        } else {
+            //            channel.sendMessage(messages().MODERATION.warnList(
+            //                WarningStorage.get(getBot().getStorage(), guild)
+            //                    .getWarnings()
+            //                    .entrySet().stream()
+            //                    .filter(predicate)
+            //                    .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue))
+            //            ).build(getBot())).queue();
+            messages().getRegularMessage("moderation/warn/list")
+                .send(getBot(), channel).queue();
+            // TODO: fix this
+        }
+        return 1;
     }
 }

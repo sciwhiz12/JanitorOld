@@ -1,0 +1,12 @@
+{
+  "color": "${general.error.color}",
+  "title": "<general.error.insufficient_permissions.title>",
+  "description": "<general.error.insufficient_permissions.description>",
+  "fields": [
+    {
+      "name": "<general.error.insufficient_permissions.field.permissions>",
+      "value": "${required_permissions}",
+      "inline": true
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "<moderation.unban.info.author>",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "fields": [
+    {
+      "name": "<moderation.unban.info.field.performer>",
+      "value": "${performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.unban.info.field.target>",
+      "value": "${target.mention}",
+      "inline": true
+    }
+  ]
+}

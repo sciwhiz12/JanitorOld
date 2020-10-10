@@ -1,0 +1,5 @@
+{
+  "color": "${general.error.color}",
+  "title": "<general.error.ambiguous_member.title>",
+  "description": "<general.error.ambiguous_member.description>"
+}
