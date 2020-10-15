@@ -9,9 +9,10 @@ import com.google.gson.reflect.TypeToken;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import sciwhiz12.janitor.GuildStorage;
 import sciwhiz12.janitor.JanitorBot;
+import sciwhiz12.janitor.storage.GuildStorage;
 import sciwhiz12.janitor.storage.JsonStorage;
+import sciwhiz12.janitor.storage.StorageKey;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -19,10 +20,10 @@ import java.util.Map;
 
 public class NoteStorage extends JsonStorage {
     private static final Type NOTE_MAP_TYPE = new TypeToken<Map<Integer, NoteEntry>>() {}.getType();
-    public static final String STORAGE_KEY = "notes";
+    public static final StorageKey<NoteStorage> KEY = new StorageKey<>("notes", NoteStorage.class);
 
     public static NoteStorage get(GuildStorage storage, Guild guild) {
-        return storage.getOrCreate(guild, STORAGE_KEY, () -> new NoteStorage(storage.getBot()));
+        return storage.getOrCreate(guild, KEY, () -> new NoteStorage(storage.getBot()));
     }
 
     private final Gson gson;
@@ -33,8 +34,8 @@ public class NoteStorage extends JsonStorage {
     public NoteStorage(JanitorBot bot) {
         this.bot = bot;
         this.gson = new GsonBuilder()
-            .registerTypeAdapter(NoteEntry.class, new NoteEntry.Serializer(bot))
-            .create();
+                .registerTypeAdapter(NoteEntry.class, new NoteEntry.Serializer(bot))
+                .create();
     }
 
     public JanitorBot getBot() {
@@ -58,8 +59,8 @@ public class NoteStorage extends JsonStorage {
 
     public int getAmountOfNotes(User target) {
         return (int) notes.values().stream()
-            .filter(entry -> entry.getTarget() == target)
-            .count();
+                .filter(entry -> entry.getTarget() == target)
+                .count();
     }
 
     public Map<Integer, NoteEntry> getNotes() {

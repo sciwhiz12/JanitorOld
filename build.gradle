@@ -30,6 +30,11 @@ archivesBaseName = 'janitor_bot'
 version = getVersion()
 println("Version: ${version}")
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+
 dependencies {
     implementation group: 'net.dv8tion', name: 'JDA', version: jda_version
     implementation group: 'com.electronwill.night-config', name: 'toml', version: nightconfig_version

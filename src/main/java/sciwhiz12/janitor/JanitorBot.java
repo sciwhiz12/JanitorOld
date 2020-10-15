@@ -10,6 +10,7 @@ import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.config.BotConfig;
 import sciwhiz12.janitor.msg.Messages;
 import sciwhiz12.janitor.msg.Translations;
+import sciwhiz12.janitor.storage.GuildStorage;
 import sciwhiz12.janitor.utils.Util;
 
 import java.nio.file.Path;

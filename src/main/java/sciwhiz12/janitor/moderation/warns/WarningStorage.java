@@ -8,9 +8,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import net.dv8tion.jda.api.entities.Guild;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import sciwhiz12.janitor.GuildStorage;
 import sciwhiz12.janitor.JanitorBot;
+import sciwhiz12.janitor.storage.GuildStorage;
 import sciwhiz12.janitor.storage.JsonStorage;
+import sciwhiz12.janitor.storage.StorageKey;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -18,10 +19,10 @@ import java.util.Map;
 
 public class WarningStorage extends JsonStorage {
     private static final Type WARNING_MAP_TYPE = new TypeToken<Map<Integer, WarningEntry>>() {}.getType();
-    public static final String STORAGE_KEY = "warnings";
+    public static final StorageKey<WarningStorage> KEY = new StorageKey<>("warnings", WarningStorage.class);
 
     public static WarningStorage get(GuildStorage storage, Guild guild) {
-        return storage.getOrCreate(guild, STORAGE_KEY, () -> new WarningStorage(storage.getBot()));
+        return storage.getOrCreate(guild, KEY, () -> new WarningStorage(storage.getBot()));
     }
 
     private final Gson gson;
@@ -32,8 +33,8 @@ public class WarningStorage extends JsonStorage {
     public WarningStorage(JanitorBot bot) {
         this.bot = bot;
         this.gson = new GsonBuilder()
-            .registerTypeAdapter(WarningEntry.class, new WarningEntry.Serializer(bot))
-            .create();
+                .registerTypeAdapter(WarningEntry.class, new WarningEntry.Serializer(bot))
+                .create();
     }
 
     public JanitorBot getBot() {
