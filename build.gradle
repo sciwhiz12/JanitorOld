@@ -51,7 +51,7 @@ dependencies {
 }
 
 application {
-    mainClassName = 'sciwhiz12.janitor.JanitorBot'
+    mainClassName = 'sciwhiz12.janitor.BotStartup'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
