@@ -49,6 +49,11 @@ public class BotConsole {
                             bot.getTranslations().loadTranslations();
                             break outer;
                         }
+                        case "messages": {
+                            CONSOLE.info("Reloading messages");
+                            bot.getMessages().loadMessages();
+                            break outer;
+                        }
                     }
             }
             default:
@@ -71,8 +76,7 @@ public class BotConsole {
                 while (!scanner.hasNextLine()) {
                     try {
                         Thread.sleep(150);
-                    }
-                    catch (InterruptedException e) {
+                    } catch (InterruptedException e) {
                         CONSOLE.warn("Console thread is interrupted");
                         continue outer;
                     }
@@ -84,8 +88,7 @@ public class BotConsole {
                     }
                     CONSOLE.debug("Received command: {}", input);
                     BotConsole.this.parseCommand(input);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     CONSOLE.error("Error while running console thread", e);
                 }
             }

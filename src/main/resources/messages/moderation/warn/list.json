@@ -1,0 +1,13 @@
+{
+  "type": "listing",
+  "color": "${moderation.color}",
+  "author": {
+    "name": "<moderation.warnlist.author>",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "entry": {
+    "type": "description",
+    "text": "<moderation.warnlist.entry>"
+  },
+  "empty": "<moderation.warnlist.empty>"
+}

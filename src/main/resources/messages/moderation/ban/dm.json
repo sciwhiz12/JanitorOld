@@ -1,0 +1,20 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "${performer.guild.name}",
+    "icon_url": "${performer.guild.icon_url}"
+  },
+  "title": "<moderation.ban.dm.title>",
+  "fields": [
+    {
+      "name": "<moderation.ban.dm.field.performer>",
+      "value": "${performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.ban.dm.field.reason.name>",
+      "value": "<moderation.ban.dm.field.reason.value>",
+      "inline": true
+    }
+  ]
+}

@@ -55,8 +55,8 @@ public class Util {
         return user.getName().concat("#").concat(user.getDiscriminator());
     }
 
-    public static <Success, Error> BiConsumer<Success, Error> handle(final Consumer<Success> success,
-        final Consumer<Error> exceptionally) {
+    public static <Success, Err> BiConsumer<Success, Err> handle(final Consumer<Success> success,
+        final Consumer<Err> exceptionally) {
         return (suc, ex) -> {
             if (ex == null) {
                 success.accept(suc);

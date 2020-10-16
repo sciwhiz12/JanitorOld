@@ -40,7 +40,9 @@ dependencies {
     implementation group: 'com.electronwill.night-config', name: 'toml', version: nightconfig_version
     implementation group: 'net.sf.jopt-simple', name: 'jopt-simple', version: jopt_version
     implementation group: 'com.google.guava', name: 'guava', version: guava_version
-    implementation group: 'com.google.code.gson', name: 'gson', version: gson_version
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
     implementation group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: log4j_bridge_version
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: logback_version
     implementation group: 'com.mojang', name: 'brigadier', version: brigadier_version

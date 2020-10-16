@@ -20,8 +20,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class GuildMemberArgument implements ArgumentType<GuildMemberArgument.IMemberProvider> {
-    public static final SimpleCommandExceptionType UNKNOWN_MEMBER_IDENTIFIER = new SimpleCommandExceptionType(new LiteralMessage("Unknown user identifier"));
-    public static final SimpleCommandExceptionType MULTIPLE_MEMBERS = new SimpleCommandExceptionType(new LiteralMessage("Too many users, when only one is needed"));
+    public static final SimpleCommandExceptionType UNKNOWN_MEMBER_IDENTIFIER = new SimpleCommandExceptionType(
+        new LiteralMessage("Unknown user identifier"));
+    public static final SimpleCommandExceptionType MULTIPLE_MEMBERS = new SimpleCommandExceptionType(
+        new LiteralMessage("Too many users, when only one is needed"));
 
     public static final Pattern USER_IDENTIFIER_PATTERN = Pattern.compile("<@!?([0-9]+)>");
 
@@ -105,7 +107,8 @@ public class GuildMemberArgument implements ArgumentType<GuildMemberArgument.IMe
         public List<Member> fromGuild(Guild guild) throws CommandSyntaxException {
             final String nameLowercase = name.toLowerCase(Locale.ROOT);
             final List<Member> members = guild.getMembers().stream()
-                .filter(member -> member.getUser().getAsTag().replaceAll("\\s", "").toLowerCase(Locale.ROOT).startsWith(nameLowercase))
+                .filter(member -> member.getUser().getAsTag().replaceAll("\\s", "").toLowerCase(Locale.ROOT)
+                    .startsWith(nameLowercase))
                 .collect(Collectors.toList());
             if (!multiple && members.size() > 1) {
                 throw MULTIPLE_MEMBERS.create();

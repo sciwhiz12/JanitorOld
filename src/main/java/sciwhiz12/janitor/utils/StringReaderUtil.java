@@ -37,8 +37,7 @@ public class StringReaderUtil {
     }
 
     private static final char SYNTAX_ESCAPE = '\\';
-    private static final char SYNTAX_DOUBLE_QUOTE = '"';
-    private static final char SYNTAX_SINGLE_QUOTE = '\'';
+
     public static String readStringUntil(StringReader reader, char terminator) throws CommandSyntaxException {
         final StringBuilder result = new StringBuilder();
         boolean escaped = false;
@@ -50,7 +49,8 @@ public class StringReaderUtil {
                     escaped = false;
                 } else {
                     reader.setCursor(reader.getCursor() - 1);
-                    throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidEscape().createWithContext(reader, String.valueOf(c));
+                    throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidEscape()
+                        .createWithContext(reader, String.valueOf(c));
                 }
             } else if (c == SYNTAX_ESCAPE) {
                 escaped = true;

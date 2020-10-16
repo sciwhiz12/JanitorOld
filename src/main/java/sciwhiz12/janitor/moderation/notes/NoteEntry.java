@@ -1,18 +1,19 @@
 package sciwhiz12.janitor.moderation.notes;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import net.dv8tion.jda.api.entities.User;
 import sciwhiz12.janitor.JanitorBot;
 
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class NoteEntry {
     private final User performer;
@@ -59,32 +60,42 @@ public class NoteEntry {
         return Objects.hash(getPerformer(), getTarget(), getDateTime(), getContents());
     }
 
-    public static class Serializer implements JsonDeserializer<NoteEntry>, JsonSerializer<NoteEntry> {
-        private final JanitorBot bot;
+    public static class Serializer extends StdSerializer<NoteEntry> {
+        private static final long serialVersionUID = 1L;
 
-        public Serializer(JanitorBot bot) {
+        public Serializer() {
+            super(NoteEntry.class);
+        }
+
+        @Override
+        public void serialize(NoteEntry value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+            gen.writeStartObject();
+            gen.writeNumberField("performer", value.getPerformer().getIdLong());
+            gen.writeNumberField("target", value.getTarget().getIdLong());
+            gen.writeStringField("dateTime", value.getDateTime().toString());
+            gen.writeStringField("contents", value.getContents());
+            gen.writeEndObject();
+        }
+    }
+
+    public static class Deserializer extends StdDeserializer<NoteEntry> {
+        private static final long serialVersionUID = 1L;
+
+        private final Supplier<JanitorBot> bot;
+
+        public Deserializer(Supplier<JanitorBot> bot) {
+            super(NoteEntry.class);
             this.bot = bot;
         }
 
         @Override
-        public NoteEntry deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-            throws JsonParseException {
-            final JsonObject obj = json.getAsJsonObject();
-            final User performer = bot.getDiscord().retrieveUserById(obj.get("performer").getAsLong()).complete();
-            final User target = bot.getDiscord().retrieveUserById(obj.get("target").getAsLong()).complete();
-            final OffsetDateTime dateTime = OffsetDateTime.parse(obj.get("dateTime").getAsString());
-            final String reason = obj.get("contents").getAsString();
-            return new NoteEntry(performer, target, dateTime, reason);
-        }
-
-        @Override
-        public JsonElement serialize(NoteEntry src, Type typeOfSrc, JsonSerializationContext context) {
-            final JsonObject obj = new JsonObject();
-            obj.addProperty("performer", src.getPerformer().getId());
-            obj.addProperty("target", src.getTarget().getId());
-            obj.addProperty("dateTime", src.getDateTime().toString());
-            obj.addProperty("contents", src.getContents());
-            return obj;
+        public NoteEntry deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+            final JsonNode obj = ctx.readTree(p);
+            User performer = bot.get().getDiscord().retrieveUserById(obj.get("performer").asLong()).complete();
+            User target = bot.get().getDiscord().retrieveUserById(obj.get("target").asLong()).complete();
+            OffsetDateTime dateTime = OffsetDateTime.parse(obj.get("dateTime").asText());
+            String contents = obj.get("contents").asText();
+            return new NoteEntry(performer, target, dateTime, contents);
         }
     }
 }

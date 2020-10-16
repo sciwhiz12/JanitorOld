@@ -26,7 +26,8 @@ public class OKCommand extends BaseCommand {
             .addReaction("\uD83D\uDC4C")
             .queue(
                 success -> JANITOR.debug("Reacted :ok_hand: to {}'s message", Util.toString(ctx.getSource().getAuthor())),
-                err -> JANITOR.error("Error while reacting :ok_hand: to {}'s message", Util.toString(ctx.getSource().getAuthor()))
+                err -> JANITOR
+                    .error("Error while reacting :ok_hand: to {}'s message", Util.toString(ctx.getSource().getAuthor()))
             );
         return 1;
     }

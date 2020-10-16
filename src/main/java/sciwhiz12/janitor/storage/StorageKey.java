@@ -57,7 +57,7 @@ public class StorageKey<S extends IStorage> {
         if (o == null || getClass() != o.getClass()) return false;
         StorageKey<?> that = (StorageKey<?>) o;
         return storageID.equals(that.storageID) &&
-                type.equals(that.type);
+            type.equals(that.type);
     }
 
     @Override

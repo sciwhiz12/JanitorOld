@@ -1,0 +1,17 @@
+{
+  "color": "${general.error.color}",
+  "title": "<moderation.insufficient_permissions.title>",
+  "description": "<moderation.insufficient_permissions.description>",
+  "fields": [
+    {
+      "name": "<moderation.insufficient_permissions.field.performer>",
+      "value": "${performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.insufficient_permissions.field.permissions>",
+      "value": "${required_permissions}",
+      "inline": true
+    }
+  ]
+}

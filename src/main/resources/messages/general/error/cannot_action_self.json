@@ -1,0 +1,5 @@
+{
+  "color": "${general.error.color}",
+  "title": "<general.error.cannot_action_self.title>",
+  "description": "<general.error.cannot_action_self.description>"
+}

@@ -9,6 +9,7 @@ public class Logging {
     public static final Marker STATUS = MarkerFactory.getMarker("STATUS");
     public static final Marker COMMANDS = MarkerFactory.getMarker("COMMANDS");
     public static final Marker TRANSLATIONS = MarkerFactory.getMarker("TRANSLATIONS");
+    public static final Marker MESSAGES = MarkerFactory.getMarker("MESSAGES");
     public static final Marker STORAGE = MarkerFactory.getMarker("STORAGE");
 
     public static final Logger JANITOR = LoggerFactory.getLogger("janitor");

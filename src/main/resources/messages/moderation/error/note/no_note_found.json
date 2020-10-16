@@ -1,0 +1,17 @@
+{
+  "color": "${general.error.color}",
+  "title": "<moderation.note.no_note_found.title>",
+  "description": "<moderation.note.no_note_found.description>",
+  "fields": [
+    {
+      "name": "<moderation.note.no_note_found.field.performer>",
+      "value": "${performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.note.no_note_found.field.note_id>",
+      "value": "${note_id}",
+      "inline": true
+    }
+  ]
+}

@@ -134,8 +134,7 @@ public class CommentedConfigSpec extends UnmodifiableConfigWrapper<UnmodifiableC
         try {
             isCorrecting = true;
             ret = correct(this.config, config, parentPath, Collections.unmodifiableList(parentPath), listener, false);
-        }
-        finally {
+        } finally {
             isCorrecting = false;
         }
         return ret;
@@ -420,8 +419,7 @@ public class CommentedConfigSpec extends UnmodifiableConfigWrapper<UnmodifiableC
                 try {
                     //noinspection SuspiciousMethodCalls
                     return acceptableValues.contains(converter.get(obj, defaultValue.getClass()));
-                }
-                catch (IllegalArgumentException | ClassCastException e) {
+                } catch (IllegalArgumentException | ClassCastException e) {
                     return false;
                 }
             });

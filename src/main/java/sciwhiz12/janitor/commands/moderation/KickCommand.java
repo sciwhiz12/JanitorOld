@@ -8,15 +8,16 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.commands.util.CommandHelper;
 import sciwhiz12.janitor.commands.util.ModerationHelper;
+import sciwhiz12.janitor.msg.MessageHelper;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
@@ -50,36 +51,72 @@ public class KickCommand extends BaseCommand {
     private int runWithReason(CommandContext<MessageReceivedEvent> ctx, @Nullable String reason) throws CommandSyntaxException {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(channel).queue();
+            messages().getRegularMessage("general/error/guild_only_command")
+                .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
+                .send(getBot(), channel).queue();
+
             return 1;
         }
         final Guild guild = ctx.getSource().getGuild();
         final Member performer = Objects.requireNonNull(ctx.getSource().getMember());
+
         final List<Member> members = getMembers("member", ctx).fromGuild(performer.getGuild());
-        if (members.size() < 1) {
-            return 1;
-        }
+        if (members.size() < 1) { return 1; }
         final Member target = members.get(0);
-        if (guild.getSelfMember().equals(target))
-            messages().GENERAL.cannotActionSelf(channel).queue();
-        else if (performer.equals(target))
-            messages().GENERAL.cannotActionPerformer(channel, performer).queue();
-        else if (!guild.getSelfMember().hasPermission(KICK_PERMISSION))
-            messages().GENERAL.insufficientPermissions(channel, KICK_PERMISSION).queue();
-        else if (!guild.getSelfMember().canInteract(target))
-            messages().GENERAL.cannotInteract(channel, target).queue();
-        else if (!performer.hasPermission(KICK_PERMISSION))
-            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, KICK_PERMISSION).queue();
-        else if (!performer.canInteract(target))
-            messages().MODERATION.ERRORS.cannotModerate(channel, performer, target).queue();
-        else
+
+        if (guild.getSelfMember().equals(target)) {
+            messages().getRegularMessage("general/error/cannot_action_self")
+                .apply(MessageHelper.member("performer", performer))
+                .send(getBot(), channel).queue();
+
+        } else if (performer.equals(target)) {
+            messages().getRegularMessage("general/error/cannot_action_performer")
+                .apply(MessageHelper.member("performer", performer))
+                .send(getBot(), channel).queue();
+
+        } else if (!guild.getSelfMember().hasPermission(KICK_PERMISSION)) {
+            messages().getRegularMessage("general/error/insufficient_permissions")
+                .apply(MessageHelper.member("performer", performer))
+                .with("required_permissions", KICK_PERMISSION::toString)
+                .send(getBot(), channel).queue();
+
+        } else if (!guild.getSelfMember().canInteract(target)) {
+            messages().getRegularMessage("general/error/cannot_interact")
+                .apply(MessageHelper.member("target", target))
+                .send(getBot(), channel).queue();
+
+        } else if (!performer.hasPermission(KICK_PERMISSION)) {
+            messages().getRegularMessage("moderation/error/insufficient_permissions")
+                .apply(MessageHelper.member("performer", performer))
+                .with("required_permissions", KICK_PERMISSION::toString)
+                .send(getBot(), channel).queue();
+
+        } else if (!performer.canInteract(target)) {
+            messages().getRegularMessage("moderation/error/cannot_interact")
+                .apply(MessageHelper.member("performer", performer))
+                .apply(MessageHelper.member("target", target))
+                .send(getBot(), channel).queue();
+
+        } else {
             target.getUser().openPrivateChannel()
-                .flatMap(dm -> messages().MODERATION.kickedDM(dm, performer, target, reason))
+                .flatMap(dm -> messages().getRegularMessage("moderation/kick/dm")
+                    .apply(MessageHelper.member("performer", performer))
+                    .apply(MessageHelper.member("target", target))
+                    .with("reason", () -> reason)
+                    .send(getBot(), dm)
+                )
                 .mapToResult()
                 .flatMap(res -> ModerationHelper.kickUser(target.getGuild(), performer, target, reason)
-                    .flatMap(
-                        v -> messages().MODERATION.kickUser(channel, performer, target, reason, res.isSuccess())))
+                    .flatMap(v -> messages().getRegularMessage("moderation/kick/info")
+                        .apply(MessageHelper.member("performer", performer))
+                        .apply(MessageHelper.member("target", target))
+                        .with("private_message", () -> res.isSuccess() ? "✅" : "❌")
+                        .with("reason", () -> reason)
+                        .send(getBot(), channel)
+                    )
+                )
                 .queue();
+        }
         return 1;
     }
 }

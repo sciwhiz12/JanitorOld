@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.commands.util.ModerationHelper;
+import sciwhiz12.janitor.msg.MessageHelper;
 
 import java.util.EnumSet;
 import java.util.Locale;
@@ -49,7 +50,10 @@ public class UnbanCommand extends BaseCommand {
     void realNamedRun(CommandContext<MessageReceivedEvent> ctx) {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(channel).queue();
+            messages().getRegularMessage("general/error/guild_only_command")
+                .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
+                .send(getBot(), channel).queue();
+
             return;
         }
         final Guild guild = ctx.getSource().getGuild();
@@ -62,10 +66,14 @@ public class UnbanCommand extends BaseCommand {
                     .startsWith(username))
                 .collect(Collectors.toList()))
             .queue(bans -> {
-                if (bans.size() > 1)
-                    messages().GENERAL.ambiguousMember(channel).queue();
-                else if (bans.size() == 1)
+                if (bans.size() > 1) {
+                    messages().getRegularMessage("general/error/ambiguous_member")
+                        .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
+                        .send(getBot(), channel).queue();
+
+                } else if (bans.size() == 1) {
                     tryUnban(channel, guild, performer, bans.get(0).getUser());
+                }
             });
     }
 
@@ -77,7 +85,10 @@ public class UnbanCommand extends BaseCommand {
     void realIdRun(CommandContext<MessageReceivedEvent> ctx) {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
-            messages().GENERAL.guildOnlyCommand(channel).queue();
+            messages().getRegularMessage("general/error/guild_only_command")
+                .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
+                .send(getBot(), channel).queue();
+
             return;
         }
         final Guild guild = ctx.getSource().getGuild();
@@ -97,13 +108,26 @@ public class UnbanCommand extends BaseCommand {
     }
 
     void tryUnban(MessageChannel channel, Guild guild, Member performer, User target) {
-        if (!guild.getSelfMember().hasPermission(UNBAN_PERMISSION))
-            messages().GENERAL.insufficientPermissions(channel, UNBAN_PERMISSION).queue();
-        else if (!performer.hasPermission(UNBAN_PERMISSION))
-            messages().MODERATION.ERRORS.performerInsufficientPermissions(channel, performer, UNBAN_PERMISSION).queue();
-        else
+        if (!guild.getSelfMember().hasPermission(UNBAN_PERMISSION)) {
+            messages().getRegularMessage("general/error/insufficient_permissions")
+                .apply(MessageHelper.member("performer", performer))
+                .with("required_permissions", UNBAN_PERMISSION::toString)
+                .send(getBot(), channel).queue();
+
+        } else if (!performer.hasPermission(UNBAN_PERMISSION)) {
+            messages().getRegularMessage("moderation/error/insufficient_permissions")
+                .apply(MessageHelper.member("performer", performer))
+                .with("required_permissions", UNBAN_PERMISSION::toString)
+                .send(getBot(), channel).queue();
+
+        } else {
             ModerationHelper.unbanUser(guild, target)
-                .flatMap(v -> messages().MODERATION.unbanUser(channel, performer, target))
+                .flatMap(v -> messages().getRegularMessage("moderation/unban/info")
+                    .apply(MessageHelper.member("performer", performer))
+                    .apply(MessageHelper.user("target", target))
+                    .send(getBot(), channel)
+                )
                 .queue();
+        }
     }
 }

@@ -1,0 +1,22 @@
+{
+  "color": "${general.error.color}",
+  "title": "<moderation.note.max_amount_of_notes.title>",
+  "description": "<moderation.note.max_amount_of_notes.description>",
+  "fields": [
+    {
+      "name": "<moderation.note.max_amount_of_notes.field.performer>",
+      "value": "${performer.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.note.max_amount_of_notes.field.target>",
+      "value": "${target.mention}",
+      "inline": true
+    },
+    {
+      "name": "<moderation.note.max_amount_of_notes.field.amount>",
+      "value": "${notes_amount}",
+      "inline": true
+    }
+  ]
+}

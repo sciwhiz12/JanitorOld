@@ -9,7 +9,9 @@ import net.dv8tion.jda.api.entities.User;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.config.BotConfig;
 import sciwhiz12.janitor.msg.Messages;
-import sciwhiz12.janitor.msg.Translations;
+import sciwhiz12.janitor.msg.TranslationMap;
+import sciwhiz12.janitor.msg.emote.ReactionManager;
+import sciwhiz12.janitor.msg.substitution.SubstitutionMap;
 import sciwhiz12.janitor.storage.GuildStorage;
 import sciwhiz12.janitor.utils.Util;
 
@@ -22,22 +24,27 @@ import static sciwhiz12.janitor.Logging.STATUS;
 public class JanitorBot {
     private final JDA discord;
     private final BotConfig config;
-    private final Messages messages;
-    private BotConsole console;
+    private final BotConsole console;
     private final GuildStorage storage;
     private final GuildStorage.SavingThread storageSavingThread;
-    private CommandRegistry cmdRegistry;
-    private Translations translations;
+    private final CommandRegistry cmdRegistry;
+    private final TranslationMap translations;
+    private final SubstitutionMap substitutions;
+    private final Messages messages;
+    private final ReactionManager reactions;
 
     public JanitorBot(JDA discord, BotConfig config) {
         this.config = config;
+        this.discord = discord;
         this.console = new BotConsole(this, System.in);
         this.storage = new GuildStorage(this, Path.of(config.STORAGE_PATH.get()));
         this.cmdRegistry = new CommandRegistry(this, config.getCommandPrefix());
-        this.discord = discord;
-        this.translations = new Translations(this, config.getTranslationsFile());
-        this.messages = new Messages(this);
-        discord.addEventListener(cmdRegistry);
+        this.translations = new TranslationMap(this, config.getTranslationsFile());
+        this.substitutions = new SubstitutionMap(this);
+        this.messages = new Messages(this, config.getTranslationsFile());
+        this.reactions = new ReactionManager(this);
+        // TODO: find which of these can be loaded in parallel before the bot JDA is ready
+        discord.addEventListener(cmdRegistry, reactions);
         discord.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(" n' sweeping n' testing!"));
         discord.getGuilds().forEach(Guild::loadMembers);
         JANITOR.info("Ready!");
@@ -65,7 +72,9 @@ public class JanitorBot {
         return this.config;
     }
 
-    public Messages getMessages() { return this.messages; }
+    public Messages getMessages() {
+        return messages;
+    }
 
     public GuildStorage getStorage() { return this.storage; }
 
@@ -73,8 +82,12 @@ public class JanitorBot {
         return this.cmdRegistry;
     }
 
-    public Translations getTranslations() {
+    public TranslationMap getTranslations() {
         return this.translations;
+    }
+
+    public ReactionManager getReactionManager() {
+        return this.reactions;
     }
 
     public void shutdown() {
@@ -101,5 +114,9 @@ public class JanitorBot {
         storageSavingThread.stopThread();
         storage.save();
         console.stop();
+    }
+
+    public SubstitutionMap getSubstitutions() {
+        return substitutions;
     }
 }

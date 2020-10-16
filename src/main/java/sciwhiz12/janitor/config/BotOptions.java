@@ -14,6 +14,7 @@ public class BotOptions {
     private final OptionSet options;
     private final ArgumentAcceptingOptionSpec<Path> configPath;
     private final ArgumentAcceptingOptionSpec<Path> translationsPath;
+    private final ArgumentAcceptingOptionSpec<Path> messagesFolder;
     private final ArgumentAcceptingOptionSpec<String> token;
     private final ArgumentAcceptingOptionSpec<String> prefix;
     private final ArgumentAcceptingOptionSpec<Long> owner;
@@ -28,6 +29,10 @@ public class BotOptions {
             .accepts("translations", "The path to the translations file")
             .withRequiredArg()
             .withValuesConvertedBy(new PathConverter(FILE_EXISTING, READABLE));
+        this.messagesFolder = parser
+            .accepts("translations", "The path to the custom messages folder")
+            .withRequiredArg()
+            .withValuesConvertedBy(new PathConverter(DIRECTORY_EXISTING, READABLE));
         this.token = parser
             .accepts("token", "The Discord token for the bot user")
             .withRequiredArg();
@@ -47,6 +52,10 @@ public class BotOptions {
 
     public Optional<Path> getTranslationsFile() {
         return translationsPath.valueOptional(options);
+    }
+
+    public Optional<Path> getMessagesFolder() {
+        return messagesFolder.valueOptional(options);
     }
 
     public Optional<String> getToken() {

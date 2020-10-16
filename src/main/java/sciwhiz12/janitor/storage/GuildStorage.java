@@ -1,8 +1,6 @@
 package sciwhiz12.janitor.storage;
 
 import com.google.common.base.Preconditions;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import sciwhiz12.janitor.JanitorBot;
 import sciwhiz12.janitor.Logging;
@@ -22,8 +20,6 @@ import static java.nio.file.StandardOpenOption.*;
  * A storage system for guild-specific data.
  */
 public class GuildStorage {
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-
     private final JanitorBot bot;
     private final Path mainFolder;
     private final Map<Long, Map<String, InnerStorage<?>>> guildStorages = new HashMap<>();
@@ -45,7 +41,7 @@ public class GuildStorage {
     public <S extends IStorage> S getOrCreate(long guildID, StorageKey<S> key, Supplier<S> defaultSupplier) {
         final Map<String, InnerStorage<?>> storageMappy = guildStorages.computeIfAbsent(guildID, id -> new HashMap<>());
         return key.getType().cast(storageMappy.computeIfAbsent(key.getStorageID(),
-                k -> new InnerStorage<>(key, load(guildID, key.getStorageID(), defaultSupplier.get()))).getStorage());
+            k -> new InnerStorage<>(key, load(guildID, key.getStorageID(), defaultSupplier.get()))).getStorage());
     }
 
     private Path getFile(long guildID, String key) {
@@ -85,7 +81,7 @@ public class GuildStorage {
                         if (Files.notExists(file.getParent())) Files.createDirectories(file.getParent());
                         if (Files.notExists(file)) Files.createFile(file);
                         try (Writer writer = Files
-                                .newBufferedWriter(file, CREATE, WRITE, TRUNCATE_EXISTING)) {
+                            .newBufferedWriter(file, CREATE, WRITE, TRUNCATE_EXISTING)) {
                             inner.getStorage().write(writer);
                             anySaved = true;
                         }

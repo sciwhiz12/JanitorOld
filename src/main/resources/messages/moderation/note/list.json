@@ -1,0 +1,13 @@
+{
+  "type": "listing",
+  "color": "${moderation.color}",
+  "author": {
+    "name": "<moderation.note.list.author>",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "entry": {
+    "type": "description",
+    "text": "<moderation.note.list.entry>"
+  },
+  "empty": "<moderation.note.list.empty>"
+}

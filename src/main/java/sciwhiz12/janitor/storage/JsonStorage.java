@@ -1,30 +1,35 @@
 package sciwhiz12.janitor.storage;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
+import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 
 public abstract class JsonStorage extends AbstractStorage {
-    public static final Gson GSON = new GsonBuilder()
-        .serializeNulls()
-        .setPrettyPrinting()
-        .create();
+    protected final ObjectMapper jsonMapper = new ObjectMapper()
+        .enable(SerializationFeature.INDENT_OUTPUT)
+        .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS);
 
-    public abstract JsonElement save();
+    protected JsonStorage() {
+        initialize(jsonMapper);
+    }
 
-    public abstract void load(JsonElement object);
+    protected void initialize(ObjectMapper mapper) {}
+
+    public abstract JsonNode save(ObjectMapper mapper);
+
+    public abstract void load(JsonNode object, ObjectMapper mapper) throws IOException;
 
     @Override
-    public void write(Writer input) {
-        GSON.toJson(save(), input);
+    public void write(Writer input) throws IOException {
+        jsonMapper.writeTree(jsonMapper.createGenerator(input), save(jsonMapper));
     }
 
     @Override
-    public void read(Reader input) {
-        load(JsonParser.parseReader(input));
+    public void read(Reader input) throws IOException {
+        load(jsonMapper.readTree(input), jsonMapper);
     }
 }
