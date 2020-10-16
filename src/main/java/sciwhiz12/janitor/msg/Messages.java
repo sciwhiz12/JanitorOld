@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import sciwhiz12.janitor.JanitorBot;
+import sciwhiz12.janitor.msg.json.ListingMessage;
 import sciwhiz12.janitor.msg.json.RegularMessage;
 
 import java.io.IOException;
@@ -31,6 +32,7 @@ public class Messages {
     private final JanitorBot bot;
     private final Path messagesFolder;
     private final Map<String, RegularMessage> regularMessages = new HashMap<>();
+    private final Map<String, ListingMessage> listingMessages = new HashMap<>();
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
     public Messages(JanitorBot bot, Path messagesFolder) {
@@ -39,13 +41,17 @@ public class Messages {
         loadMessages();
     }
 
+    public JanitorBot getBot() {
+        return bot;
+    }
+
     public void loadMessages() {
         boolean success = false;
 
         if (messagesFolder != null) {
             JANITOR.debug(MESSAGES, "Loading messages from folder {}", messagesFolder);
             success = loadMessages(
-                path -> Files.newBufferedReader(messagesFolder.resolve(path + JSON_FILE_SUFFIX))
+                    path -> Files.newBufferedReader(messagesFolder.resolve(path + JSON_FILE_SUFFIX))
             );
         } else {
             JANITOR.info(MESSAGES, "No custom messages folder specified");
@@ -55,7 +61,7 @@ public class Messages {
             JANITOR.info(MESSAGES, "Loading default messages");
             //noinspection UnstableApiUsage
             loadMessages(
-                file -> new InputStreamReader(getResource(DEFAULT_MESSAGES_FOLDER + file + JSON_FILE_SUFFIX).openStream())
+                    file -> new InputStreamReader(getResource(DEFAULT_MESSAGES_FOLDER + file + JSON_FILE_SUFFIX).openStream())
             );
         }
     }
@@ -68,8 +74,11 @@ public class Messages {
                 final String path = messageKey.replace("/", FileSystems.getDefault().getSeparator());
                 try (Reader reader = files.open(path)) {
                     final JsonNode tree = jsonMapper.readTree(reader);
-                    if ("regular".equals(tree.path("type").asText("regular"))) {
+                    final String type = tree.path("type").asText("regular");
+                    if ("regular".equals(type)) {
                         regularMessages.put(messageKey, jsonMapper.convertValue(tree, RegularMessage.class));
+                    } else if ("listing".equals(type)) {
+                        listingMessages.put(messageKey, jsonMapper.convertValue(tree, ListingMessage.class));
                     } else {
                         JANITOR.warn(MESSAGES, "Unknown message type {} for {}", tree.path("type").asText(), messageKey);
                     }
@@ -92,28 +101,61 @@ public class Messages {
     public RegularMessageBuilder getRegularMessage(String messageKey) {
         final RegularMessage msg = regularMessages.get(messageKey);
         if (msg == null) {
-            JANITOR.warn(MESSAGES, "Attempted to get unknown message with key {}", messageKey);
-            return new RegularMessageBuilder(UNKNOWN_MESSAGE).with("key", () -> messageKey);
+            JANITOR.warn(MESSAGES, "Attempted to get unknown regular message with key {}", messageKey);
+            return new RegularMessageBuilder(UNKNOWN_REGULAR_MESSAGE).with("key", () -> messageKey);
         }
         return new RegularMessageBuilder(msg);
+    }
+
+    public Map<String, ListingMessage> getListingMessages() {
+        return listingMessages;
+    }
+
+    public <T> ListingMessageBuilder<T> getListingMessage(String messageKey) {
+        final ListingMessage msg = listingMessages.get(messageKey);
+        if (msg == null) {
+            JANITOR.warn(MESSAGES, "Attempted to get unknown listing message with key {}", messageKey);
+            return new ListingMessageBuilder<T>(UNKNOWN_LISTING_MESSAGE).with("key", () -> messageKey);
+        }
+        return new ListingMessageBuilder<>(msg);
     }
 
     interface FileOpener {
         Reader open(String filePath) throws IOException;
     }
 
-    public static final RegularMessage UNKNOWN_MESSAGE = new RegularMessage(
-        "UNKNOWN MESSAGE!",
-        null,
-        "A message was tried to be looked up, but was not found. Please report this to your bot maintainer/administrator.",
-        String.valueOf(0xFF0000),
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        Collections.singletonList(new MessageEmbed.Field("Message Key", "${key}", false))
+    public static final RegularMessage UNKNOWN_REGULAR_MESSAGE = new RegularMessage(
+            "UNKNOWN MESSAGE!",
+            null,
+            "A regular message was tried to be looked up, but was not found. Please report this to your bot " +
+                    "maintainer/administrator.",
+            String.valueOf(0xFF0000),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            Collections.singletonList(new MessageEmbed.Field("Message Key", "${key}", false))
+    );
+
+    public static final ListingMessage UNKNOWN_LISTING_MESSAGE = new ListingMessage(
+            "UNKNOWN MESSAGE!",
+            null,
+            "A listing message was tried to be looked up, but was not found. " +
+                    "Please report this to your bot maintainer/administrator.",
+            String.valueOf(0xFF0000),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            new ListingMessage.DescriptionEntry(null, ""),
+            Collections.singletonList(new MessageEmbed.Field("Message Key", "${key}", false)),
+            Collections.emptyList()
     );
 }

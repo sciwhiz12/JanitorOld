@@ -77,4 +77,8 @@ public class TranslationMap {
         return matcher.replaceAll(
             matchResult -> quoteReplacement(translations.getOrDefault(matchResult.group(1), matchResult.group(0))));
     }
+
+    public JanitorBot getBot() {
+        return bot;
+    }
 }

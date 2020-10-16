@@ -14,6 +14,7 @@
   "moderation/unban/info",
   "moderation/warn/info",
   "moderation/warn/dm",
+  "moderation/warn/list",
   "moderation/unwarn/info",
   "moderation/error/unwarn/no_case_found",
   "moderation/error/unwarn/cannot_unwarn_self",
@@ -22,5 +23,6 @@
   "moderation/error/note/max_amount_of_notes",
   "moderation/error/note/no_note_found",
   "moderation/note/add",
-  "moderation/note/remove"
+  "moderation/note/remove",
+  "moderation/note/list"
 ]

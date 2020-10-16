@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import sciwhiz12.janitor.moderation.notes.NoteEntry;
 import sciwhiz12.janitor.moderation.warns.WarningEntry;
+import sciwhiz12.janitor.msg.substitution.IHasCustomSubstitutions;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -18,19 +19,19 @@ import static java.time.temporal.ChronoField.*;
 public class MessageHelper {
     private MessageHelper() {}
 
-    public static Consumer<RegularMessageBuilder> snowflake(String head, ISnowflake snowflake) {
+    public static <T extends IHasCustomSubstitutions<?>> Consumer<T> snowflake(String head, ISnowflake snowflake) {
         return builder -> builder
             .with(head + ".id", snowflake::getId)
             .with(head + ".creation_datetime", () -> snowflake.getTimeCreated().format(DATE_TIME_FORMAT));
     }
 
-    public static Consumer<RegularMessageBuilder> mentionable(String head, IMentionable mentionable) {
+    public static <T extends IHasCustomSubstitutions<?>> Consumer<T> mentionable(String head, IMentionable mentionable) {
         return builder -> builder
             .apply(snowflake(head, mentionable))
             .with(head + ".mention", mentionable::getAsMention);
     }
 
-    public static Consumer<RegularMessageBuilder> role(String head, Role role) {
+    public static <T extends IHasCustomSubstitutions<?>> Consumer<T> role(String head, Role role) {
         return builder -> builder
             .apply(mentionable(head, role))
             .with(head + ".color_hex", () -> Integer.toHexString(role.getColorRaw()))
@@ -38,7 +39,7 @@ public class MessageHelper {
             .with(head + ".permissions", role.getPermissions()::toString);
     }
 
-    public static Consumer<RegularMessageBuilder> user(String head, User user) {
+    public static <T extends IHasCustomSubstitutions<?>> Consumer<T> user(String head, User user) {
         return builder -> builder
             .apply(mentionable(head, user))
             .with(head + ".name", user::getName)
@@ -47,7 +48,7 @@ public class MessageHelper {
             .with(head + ".flags", user.getFlags()::toString);
     }
 
-    public static Consumer<RegularMessageBuilder> guild(String head, Guild guild) {
+    public static <T extends IHasCustomSubstitutions<?>> Consumer<T> guild(String head, Guild guild) {
         return builder -> builder
             .apply(snowflake(head, guild))
             .with(head + ".name", guild::getName)
@@ -60,7 +61,7 @@ public class MessageHelper {
             .with(head + ".icon_url", guild::getIconUrl);
     }
 
-    public static Consumer<RegularMessageBuilder> member(String head, Member member) {
+    public static <T extends IHasCustomSubstitutions<?>> Consumer<T> member(String head, Member member) {
         return builder -> builder
             .apply(user(head, member.getUser()))
             .apply(guild(head + ".guild", member.getGuild()))
@@ -70,7 +71,7 @@ public class MessageHelper {
             .with(head + ".color", () -> String.valueOf(member.getColorRaw()));
     }
 
-    public static Consumer<RegularMessageBuilder> warningEntry(String head, int caseID, WarningEntry entry) {
+    public static <T extends IHasCustomSubstitutions<?>> Consumer<T> warningEntry(String head, int caseID, WarningEntry entry) {
         return builder -> builder
             .with(head + ".case_id", () -> String.valueOf(caseID))
             .apply(user(head + ".performer", entry.getPerformer()))
@@ -79,7 +80,7 @@ public class MessageHelper {
             .with(head + ".reason", entry::getReason);
     }
 
-    public static Consumer<RegularMessageBuilder> noteEntry(String head, int noteID, NoteEntry entry) {
+    public static <T extends IHasCustomSubstitutions<?>> Consumer<T> noteEntry(String head, int noteID, NoteEntry entry) {
         return builder -> builder
             .with(head + ".note_id", () -> String.valueOf(noteID))
             .apply(user(head + ".performer", entry.getPerformer()))

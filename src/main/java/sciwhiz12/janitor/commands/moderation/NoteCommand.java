@@ -1,5 +1,6 @@
 package sciwhiz12.janitor.commands.moderation;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -16,6 +17,7 @@ import sciwhiz12.janitor.msg.MessageHelper;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,7 @@ import static sciwhiz12.janitor.commands.arguments.GuildMemberArgument.member;
 import static sciwhiz12.janitor.commands.moderation.NoteCommand.ModeratorFilter.*;
 import static sciwhiz12.janitor.commands.util.CommandHelper.argument;
 import static sciwhiz12.janitor.commands.util.CommandHelper.literal;
+import static sciwhiz12.janitor.msg.MessageHelper.*;
 
 public class NoteCommand extends BaseCommand {
     public static EnumSet<Permission> NOTE_PERMISSION = EnumSet.of(Permission.KICK_MEMBERS);
@@ -93,7 +96,7 @@ public class NoteCommand extends BaseCommand {
         final MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
-                .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
+                .apply(user("performer", ctx.getSource().getAuthor()))
                 .send(getBot(), channel).queue();
 
             return 1;
@@ -137,7 +140,7 @@ public class NoteCommand extends BaseCommand {
 
                 messages().getRegularMessage("moderation/note/add")
                     .apply(MessageHelper.member("performer", performer))
-                    .apply(MessageHelper.noteEntry("note_entry", noteID, entry))
+                    .apply(noteEntry("note_entry", noteID, entry))
                     .send(getBot(), channel).queue();
 
             }
@@ -154,7 +157,7 @@ public class NoteCommand extends BaseCommand {
         final MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
-                .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
+                .apply(user("performer", ctx.getSource().getAuthor()))
                 .send(getBot(), channel).queue();
 
             return 1;
@@ -196,16 +199,24 @@ public class NoteCommand extends BaseCommand {
                 .send(getBot(), channel).queue();
 
         } else {
-            //            channel.sendMessage(messages().MODERATION.noteList(
-            //                NoteStorage.get(getBot().getStorage(), guild)
-            //                    .getNotes()
-            //                    .entrySet().stream()
-            //                    .filter(predicate)
-            //                    .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue))
-            //            ).build(getBot())).queue();
-            messages().getRegularMessage("moderation/note/list")
-                .send(getBot(), channel).queue();
-            // TODO: fix this
+            messages().<Map.Entry<Integer, NoteEntry>>getListingMessage("moderation/note/list")
+                .apply(MessageHelper.member("performer", performer))
+                .amountPerPage(8)
+                .setEntryApplier((entry, subs) -> subs
+                    .with("note_entry.note_id", () -> String.valueOf(entry.getKey()))
+                    .apply(user("note_entry.performer", entry.getValue().getPerformer()))
+                    .apply(user("note_entry.target", entry.getValue().getTarget()))
+                    .with("note_entry.date_time", () -> entry.getValue().getDateTime().format(DATE_TIME_FORMAT))
+                    .with("note_entry.contents", entry.getValue()::getContents)
+                )
+                .build(channel, getBot(), ctx.getSource().getMessage(),
+                    NoteStorage.get(getBot().getStorage(), guild)
+                        .getNotes()
+                        .entrySet().stream()
+                        .filter(predicate)
+                        .sorted(Comparator.<Map.Entry<Integer, NoteEntry>>comparingInt(Map.Entry::getKey).reversed())
+                        .collect(ImmutableList.toImmutableList())
+                );
         }
         return 1;
     }
@@ -214,7 +225,7 @@ public class NoteCommand extends BaseCommand {
         MessageChannel channel = ctx.getSource().getChannel();
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
-                .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
+                .apply(user("performer", ctx.getSource().getAuthor()))
                 .send(getBot(), channel).queue();
 
             return 1;
@@ -243,7 +254,7 @@ public class NoteCommand extends BaseCommand {
 
                 messages().getRegularMessage("moderation/note/remove")
                     .apply(MessageHelper.member("performer", performer))
-                    .apply(MessageHelper.noteEntry("note_entry", noteID, entry))
+                    .apply(noteEntry("note_entry", noteID, entry))
                     .send(getBot(), channel).queue();
             }
         }

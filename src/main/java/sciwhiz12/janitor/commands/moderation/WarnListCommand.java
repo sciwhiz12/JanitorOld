@@ -1,5 +1,6 @@
 package sciwhiz12.janitor.commands.moderation;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -11,8 +12,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.moderation.warns.WarningEntry;
+import sciwhiz12.janitor.moderation.warns.WarningStorage;
 import sciwhiz12.janitor.msg.MessageHelper;
 
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,8 @@ import static sciwhiz12.janitor.commands.arguments.GuildMemberArgument.getMember
 import static sciwhiz12.janitor.commands.arguments.GuildMemberArgument.member;
 import static sciwhiz12.janitor.commands.util.CommandHelper.argument;
 import static sciwhiz12.janitor.commands.util.CommandHelper.literal;
+import static sciwhiz12.janitor.msg.MessageHelper.DATE_TIME_FORMAT;
+import static sciwhiz12.janitor.msg.MessageHelper.user;
 
 public class WarnListCommand extends BaseCommand {
     public static final EnumSet<Permission> WARN_PERMISSION = EnumSet.of(Permission.KICK_MEMBERS);
@@ -93,16 +98,24 @@ public class WarnListCommand extends BaseCommand {
                 .send(getBot(), channel).queue();
 
         } else {
-            //            channel.sendMessage(messages().MODERATION.warnList(
-            //                WarningStorage.get(getBot().getStorage(), guild)
-            //                    .getWarnings()
-            //                    .entrySet().stream()
-            //                    .filter(predicate)
-            //                    .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey, Map.Entry::getValue))
-            //            ).build(getBot())).queue();
-            messages().getRegularMessage("moderation/warn/list")
-                .send(getBot(), channel).queue();
-            // TODO: fix this
+            messages().<Map.Entry<Integer, WarningEntry>>getListingMessage("moderation/warn/list")
+                .apply(MessageHelper.member("performer", performer))
+                .amountPerPage(8)
+                .setEntryApplier((entry, subs) -> subs
+                    .with("warning_entry.case_id", () -> String.valueOf(entry.getKey()))
+                    .apply(user("warning_entry.performer", entry.getValue().getPerformer()))
+                    .apply(user("warning_entry.warned", entry.getValue().getWarned()))
+                    .with("warning_entry.date_time", () -> entry.getValue().getDateTime().format(DATE_TIME_FORMAT))
+                    .with("warning_entry.reason", entry.getValue()::getReason)
+                )
+                .build(channel, getBot(), ctx.getSource().getMessage(),
+                    WarningStorage.get(getBot().getStorage(), guild)
+                        .getWarnings()
+                        .entrySet().stream()
+                        .filter(predicate)
+                        .sorted(Comparator.<Map.Entry<Integer, WarningEntry>>comparingInt(Map.Entry::getKey).reversed())
+                        .collect(ImmutableList.toImmutableList())
+                );
         }
         return 1;
     }

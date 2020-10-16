@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import sciwhiz12.janitor.JanitorBot;
 import sciwhiz12.janitor.msg.json.RegularMessage;
+import sciwhiz12.janitor.msg.substitution.IHasCustomSubstitutions;
 import sciwhiz12.janitor.msg.substitution.SubstitutionMap;
 
 import java.util.HashMap;
@@ -12,7 +13,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class RegularMessageBuilder {
+public class RegularMessageBuilder implements IHasCustomSubstitutions<RegularMessageBuilder> {
     private final RegularMessage message;
     private final Map<String, Supplier<String>> customSubstitutions;
 

@@ -110,9 +110,8 @@
   "moderation.note.remove.field.contents": "Text",
   "moderation.warnlist.author": "Listing of Warnings",
   "moderation.warnlist.empty": "**_No warnings logged matching your query._**",
-  "moderation.warnlist.entry": "**Case #%1$s**: Warned %2$s by %3$s %n - _Date & Time:_ %4$s %n - _Reason:_ %5$s",
-  "moderation.warnlist.entry.no_reason": "_no reason specified_",
-  "moderation.note.list.author": "Listing of Notes",
+  "moderation.warnlist.entry": "**Case #${warning_entry.case_id}**: Warned ${warning_entry.warned.mention} by ${warning_entry.performer.mention} \n - _Date & Time:_ ${warning_entry.date_time} \n - _Reason:_ ${nullcheck;warning_entry.reason;_No reason specified._}",
+  "moderation.note.list.author": "Listing of Notes (Page ${page.current}/${page.max})",
   "moderation.note.list.empty": "**_No recorded notes matching your query._**",
-  "moderation.note.list.entry": "**#%1$s**: for %2$s by %3$s %n - _Date & Time:_ %4$s %n - _Text:_ %5$s"
+  "moderation.note.list.entry": "**#${note_entry.note_id}**: for ${note_entry.target.mention} by ${note_entry.performer.mention} \n - _Date & Time:_ ${note_entry.date_time} \n - _Text:_ ${note_entry.contents}"
 }

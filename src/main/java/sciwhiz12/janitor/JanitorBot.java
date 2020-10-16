@@ -10,6 +10,7 @@ import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.config.BotConfig;
 import sciwhiz12.janitor.msg.Messages;
 import sciwhiz12.janitor.msg.TranslationMap;
+import sciwhiz12.janitor.msg.emote.ReactionManager;
 import sciwhiz12.janitor.msg.substitution.SubstitutionMap;
 import sciwhiz12.janitor.utils.Util;
 
@@ -29,6 +30,7 @@ public class JanitorBot {
     private final TranslationMap translations;
     private final SubstitutionMap substitutions;
     private final Messages messages;
+    private final ReactionManager reactions;
 
     public JanitorBot(JDA discord, BotConfig config) {
         this.config = config;
@@ -39,8 +41,9 @@ public class JanitorBot {
         this.translations = new TranslationMap(this, config.getTranslationsFile());
         this.substitutions = new SubstitutionMap(this);
         this.messages = new Messages(this, config.getTranslationsFile());
+        this.reactions = new ReactionManager(this);
         // TODO: find which of these can be loaded in parallel before the bot JDA is ready
-        discord.addEventListener(cmdRegistry);
+        discord.addEventListener(cmdRegistry, reactions);
         discord.getPresence().setPresence(OnlineStatus.ONLINE, Activity.playing(" n' sweeping n' testing!"));
         discord.getGuilds().forEach(Guild::loadMembers);
         JANITOR.info("Ready!");
@@ -80,6 +83,10 @@ public class JanitorBot {
 
     public TranslationMap getTranslations() {
         return this.translations;
+    }
+
+    public ReactionManager getReactionManager() {
+        return this.reactions;
     }
 
     public void shutdown() {

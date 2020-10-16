@@ -6,8 +6,8 @@ import joptsimple.internal.Strings;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
-import sciwhiz12.janitor.msg.substitution.ISubstitutor;
 import sciwhiz12.janitor.msg.TranslationMap;
+import sciwhiz12.janitor.msg.substitution.ISubstitutor;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -20,7 +20,7 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 
 @JsonDeserialize(using = RegularMessageDeserializer.class)
-public class RegularMessage implements IMessage {
+public class RegularMessage {
     @Nullable
     protected final String title;
     @Nullable
@@ -176,7 +176,6 @@ public class RegularMessage implements IMessage {
                 thumbnailUrl, fields);
     }
 
-    @Override
     public EmbedBuilder create(TranslationMap translations, ISubstitutor substitutions) {
         final Function<String, String> func = str -> str != null ? substitutions.substitute(translations.translate(str)) : null;
         final EmbedBuilder builder = new EmbedBuilder();
