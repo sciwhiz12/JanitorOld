@@ -1,7 +1,7 @@
 Janitor
 =======
 
-**Janitor** is my personal testing and housekeeping bot. It is under heavy development; the codebase may and will change
+**Janitor** is a personal testing and housekeeping bot. It is under heavy development; the codebase may and will change
 massively between any two versions.
 
 Licensing
