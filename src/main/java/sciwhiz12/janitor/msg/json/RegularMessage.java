@@ -6,7 +6,6 @@ import joptsimple.internal.Strings;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
-import sciwhiz12.janitor.msg.TranslationMap;
 import sciwhiz12.janitor.msg.substitution.ISubstitutor;
 
 import java.time.OffsetDateTime;
@@ -16,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.StringJoiner;
-import java.util.function.Function;
 import javax.annotation.Nullable;
 
 @JsonDeserialize(using = RegularMessageDeserializer.class)
@@ -176,19 +174,18 @@ public class RegularMessage {
                 thumbnailUrl, fields);
     }
 
-    public EmbedBuilder create(TranslationMap translations, ISubstitutor substitutions) {
-        final Function<String, String> func = str -> str != null ? substitutions.substitute(translations.translate(str)) : null;
+    public EmbedBuilder create(ISubstitutor subs) {
         final EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle(func.apply(title), func.apply(url));
-        builder.setColor(parseColor(substitutions.substitute(color)));
-        builder.setAuthor(func.apply(authorName), func.apply(authorUrl), func.apply(authorIconUrl));
-        builder.setDescription(func.apply(description));
-        builder.setImage(func.apply(imageUrl));
-        builder.setThumbnail(func.apply(thumbnailUrl));
+        builder.setTitle(subs.substitute(title), subs.substitute(url));
+        builder.setColor(parseColor(subs.substitute(color)));
+        builder.setAuthor(subs.substitute(authorName), subs.substitute(authorUrl), subs.substitute(authorIconUrl));
+        builder.setDescription(subs.substitute(description));
+        builder.setImage(subs.substitute(imageUrl));
+        builder.setThumbnail(subs.substitute(thumbnailUrl));
         builder.setTimestamp(OffsetDateTime.now(ZoneOffset.UTC));
-        builder.setFooter(func.apply(footerText), func.apply(footerIconUrl));
+        builder.setFooter(subs.substitute(footerText), subs.substitute(footerIconUrl));
         for (MessageEmbed.Field field : fields) {
-            builder.addField(func.apply(field.getName()), func.apply(field.getValue()), field.isInline());
+            builder.addField(subs.substitute(field.getName()), subs.substitute(field.getValue()), field.isInline());
         }
         return builder;
     }

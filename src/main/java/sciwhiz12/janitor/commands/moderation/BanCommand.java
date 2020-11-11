@@ -124,7 +124,7 @@ public class BanCommand extends BaseCommand {
                         .flatMap(v -> messages().getRegularMessage("moderation/ban/info")
                             .apply(MessageHelper.member("performer", performer))
                             .apply(MessageHelper.member("target", target))
-                            .with("private_message", () -> res.isSuccess() ? "✅" : "❌")
+                            .with("private_message", () -> res.isSuccess() ? "\u2705" : "\u274C")
                             .with("delete_duration", () -> String.valueOf(days))
                             .with("reason", () -> reason)
                             .send(getBot(), channel)

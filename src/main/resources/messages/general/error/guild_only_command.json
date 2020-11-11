@@ -1,5 +1,4 @@
 {
   "color": "${general.error.color}",
-  "title": "<general.error.guild_only_command.title>",
-  "description": "<general.error.guild_only_command.description>"
+  "title": "Guild only command!"
 }

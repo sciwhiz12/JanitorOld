@@ -1,37 +1,37 @@
 {
   "color": "${moderation.color}",
   "author": {
-    "name": "<moderation.note.remove.author>",
+    "name": "Removed note.",
     "icon_url": "${moderation.icon_url}"
   },
   "fields": [
     {
-      "name": "<moderation.note.remove.field.performer>",
+      "name": "Performer",
       "value": "${performer.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.note.remove.field.original_performer>",
+      "name": "Original Performer",
       "value": "${note_entry.performer.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.note.remove.field.original_target>",
+      "name": "Original Target",
       "value": "${note_entry.target.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.note.remove.field.note_id>",
+      "name": "Note ID",
       "value": "${note_entry.note_id}",
       "inline": true
     },
     {
-      "name": "<moderation.note.remove.field.date_time>",
+      "name": "Date & Time",
       "value": "${note_entry.date_time}",
       "inline": true
     },
     {
-      "name": "<moderation.note.remove.field.contents>",
+      "name": "Text",
       "value": "${note_entry.contents}",
       "inline": false
     }

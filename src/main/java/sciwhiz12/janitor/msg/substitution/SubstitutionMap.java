@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 
-import static java.util.regex.Matcher.quoteReplacement;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static sciwhiz12.janitor.msg.MessageHelper.DATE_TIME_FORMAT;
 
@@ -20,18 +20,24 @@ public class SubstitutionMap implements ISubstitutor {
     public static final Pattern ARGUMENT_REGEX = Pattern.compile("\\$\\{(.+?)}", CASE_INSENSITIVE);
     public static final Pattern NULL_ARGUMENT_REGEX = Pattern.compile("nullcheck;(.+?);(.+)", CASE_INSENSITIVE);
 
-    public static String substitute(String text, Map<String, Supplier<String>> arguments) {
+    private static String quote(@Nullable String input) {
+        return input != null ? Matcher.quoteReplacement(input) : "";
+    }
+
+    @Nullable
+    public static String substitute(@Nullable String text, Map<String, Supplier<String>> arguments) {
+        if (text == null || text.isBlank()) return null;
         final Matcher matcher = ARGUMENT_REGEX.matcher(text);
         return matcher.replaceAll(matchResult -> {
             final Matcher nullMatcher = NULL_ARGUMENT_REGEX.matcher(matchResult.group(1));
             if (nullMatcher.matches()) {
                 final String grp1 = nullMatcher.group(1);
-                final String str = arguments.containsKey(grp1) ? arguments.get(grp1).get() : null;
-                return str != null ?
-                    quoteReplacement(str) :
-                    quoteReplacement(arguments.getOrDefault(nullMatcher.group(2), () -> nullMatcher.group(2)).get());
+                return quote(arguments.getOrDefault(
+                    grp1,
+                    () -> arguments.getOrDefault(nullMatcher.group(2), () -> nullMatcher.group(2)).get()
+                ).get());
             }
-            return quoteReplacement(arguments.getOrDefault(matchResult.group(1), () -> matchResult.group(0)).get());
+            return quote(arguments.getOrDefault(matchResult.group(1), () -> matchResult.group(0)).get());
         });
     }
 
@@ -51,7 +57,8 @@ public class SubstitutionMap implements ISubstitutor {
         return bot;
     }
 
-    public String substitute(String text) {
+    @Nullable
+    public String substitute(@Nullable String text) {
         return SubstitutionMap.substitute(text, defaultSubstitutions);
     }
 

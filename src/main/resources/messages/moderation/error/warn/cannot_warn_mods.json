@@ -1,15 +1,9 @@
 {
   "color": "${general.error.color}",
-  "title": "<moderation.warn.cannot_warn_mods.title>",
-  "description": "<moderation.warn.cannot_warn_mods.description>",
+  "title": "Cannot warn other moderators.",
   "fields": [
     {
-      "name": "<moderation.warn.cannot_warn_mods.field.performer>",
-      "value": "${performer.mention}",
-      "inline": true
-    },
-    {
-      "name": "<moderation.warn.cannot_warn_mods.field.target>",
+      "name": "Target",
       "value": "${target.mention}",
       "inline": true
     }

@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
+import sciwhiz12.janitor.config.GuildConfig;
 import sciwhiz12.janitor.moderation.warns.WarningEntry;
 import sciwhiz12.janitor.moderation.warns.WarningStorage;
 import sciwhiz12.janitor.msg.MessageHelper;
@@ -26,6 +27,7 @@ import static sciwhiz12.janitor.commands.arguments.GuildMemberArgument.getMember
 import static sciwhiz12.janitor.commands.arguments.GuildMemberArgument.member;
 import static sciwhiz12.janitor.commands.util.CommandHelper.argument;
 import static sciwhiz12.janitor.commands.util.CommandHelper.literal;
+import static sciwhiz12.janitor.config.GuildConfig.ALLOW_WARN_OTHER_MODERATORS;
 
 public class WarnCommand extends BaseCommand {
     public static final EnumSet<Permission> WARN_PERMISSION = EnumSet.of(Permission.KICK_MEMBERS);
@@ -37,7 +39,7 @@ public class WarnCommand extends BaseCommand {
     @Override
     public LiteralArgumentBuilder<MessageReceivedEvent> getNode() {
         return literal("warn")
-            .requires(ctx -> getBot().getConfig().WARNINGS_ENABLE.get())
+            .requires(ctx -> config(ctx).forGuild(GuildConfig.ENABLE_WARNS))
             .then(argument("member", member())
                 .then(argument("reason", greedyString())
                     .executes(ctx -> this.run(ctx, getString(ctx, "reason")))
@@ -84,7 +86,7 @@ public class WarnCommand extends BaseCommand {
                 .apply(MessageHelper.member("target", target))
                 .send(getBot(), channel).queue();
 
-        } else if (target.hasPermission(WARN_PERMISSION) && config().WARNINGS_PREVENT_WARNING_MODS.get()) {
+        } else if (target.hasPermission(WARN_PERMISSION) && config(guild).forGuild(ALLOW_WARN_OTHER_MODERATORS)) {
             messages().getRegularMessage("moderation/error/warn/cannot_warn_mods")
                 .apply(MessageHelper.member("performer", performer))
                 .apply(MessageHelper.member("target", target))
@@ -104,7 +106,7 @@ public class WarnCommand extends BaseCommand {
                 .flatMap(res -> messages().getRegularMessage("moderation/warn/info")
                     .apply(MessageHelper.member("performer", performer))
                     .apply(MessageHelper.warningEntry("warning_entry", caseId, entry))
-                    .with("private_message", () -> res.isSuccess() ? "✅" : "❌")
+                    .with("private_message", () -> res.isSuccess() ? "\u2705" : "\u274C")
                     .send(getBot(), channel)
                 )
                 .queue();

@@ -4,16 +4,16 @@
     "name": "${performer.guild.name}",
     "icon_url": "${performer.guild.icon_url}"
   },
-  "title": "<moderation.kick.dm.title>",
+  "title": "You were kicked from this server.",
   "fields": [
     {
-      "name": "<moderation.kick.dm.field.performer>",
+      "name": "Moderator",
       "value": "${performer.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.kick.dm.field.reason.name>",
-      "value": "<moderation.kick.dm.field.reason.value>",
+      "name": "Reason",
+      "value": "${nullcheck;reason;_No reason specified._}",
       "inline": true
     }
   ]

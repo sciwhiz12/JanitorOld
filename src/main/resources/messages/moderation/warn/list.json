@@ -2,12 +2,12 @@
   "type": "listing",
   "color": "${moderation.color}",
   "author": {
-    "name": "<moderation.warnlist.author>",
+    "name": "Listing of Warnings (Page ${page.current}/${page.max})",
     "icon_url": "${moderation.icon_url}"
   },
   "entry": {
     "type": "description",
-    "text": "<moderation.warnlist.entry>"
+    "text": "**Case #${warning_entry.case_id}**: Warned ${warning_entry.target.mention} by ${warning_entry.performer.mention} \n - _Date & Time:_ ${warning_entry.date_time} \n - _Reason:_ ${warning_entry.reason}"
   },
-  "empty": "<moderation.warnlist.empty>"
+  "empty": "**_No warnings logged matching your query._**"
 }

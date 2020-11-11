@@ -26,8 +26,7 @@ import static sciwhiz12.janitor.commands.arguments.GuildMemberArgument.getMember
 import static sciwhiz12.janitor.commands.arguments.GuildMemberArgument.member;
 import static sciwhiz12.janitor.commands.util.CommandHelper.argument;
 import static sciwhiz12.janitor.commands.util.CommandHelper.literal;
-import static sciwhiz12.janitor.msg.MessageHelper.DATE_TIME_FORMAT;
-import static sciwhiz12.janitor.msg.MessageHelper.user;
+import static sciwhiz12.janitor.config.GuildConfig.ENABLE_WARNS;
 
 public class WarnListCommand extends BaseCommand {
     public static final EnumSet<Permission> WARN_PERMISSION = EnumSet.of(Permission.KICK_MEMBERS);
@@ -39,7 +38,7 @@ public class WarnListCommand extends BaseCommand {
     @Override
     public LiteralArgumentBuilder<MessageReceivedEvent> getNode() {
         return literal("warnlist")
-            .requires(ctx -> getBot().getConfig().WARNINGS_ENABLE.get())
+            .requires(ctx -> config(ctx).forGuild(ENABLE_WARNS))
             .then(literal("target")
                 .then(argument("target", member())
                     .then(literal("mod")
@@ -100,13 +99,8 @@ public class WarnListCommand extends BaseCommand {
         } else {
             messages().<Map.Entry<Integer, WarningEntry>>getListingMessage("moderation/warn/list")
                 .apply(MessageHelper.member("performer", performer))
-                .amountPerPage(8)
-                .setEntryApplier((entry, subs) -> subs
-                    .with("warning_entry.case_id", () -> String.valueOf(entry.getKey()))
-                    .apply(user("warning_entry.performer", entry.getValue().getPerformer()))
-                    .apply(user("warning_entry.warned", entry.getValue().getWarned()))
-                    .with("warning_entry.date_time", () -> entry.getValue().getDateTime().format(DATE_TIME_FORMAT))
-                    .with("warning_entry.reason", entry.getValue()::getReason)
+                .setEntryApplier((entry, subs) ->
+                    subs.apply(MessageHelper.warningEntry("warning_entry", entry.getKey(), entry.getValue()))
                 )
                 .build(channel, getBot(), ctx.getSource().getMessage(),
                     WarningStorage.get(getBot().getStorage(), guild)

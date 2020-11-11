@@ -1,10 +1,9 @@
 {
   "color": "${general.error.color}",
-  "title": "<general.error.cannot_interact.title>",
-  "description": "<general.error.cannot_interact.description>",
+  "description": "Cannot perform action on the given member, likely due to me being lower in the role hierarchy.",
   "fields": [
     {
-      "name": "<general.error.cannot_interact.field.target>",
+      "name": "Target",
       "value": "${target.mention}",
       "inline": true
     }

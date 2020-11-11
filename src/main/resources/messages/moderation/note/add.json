@@ -1,32 +1,32 @@
 {
   "color": "${moderation.color}",
   "author": {
-    "name": "<moderation.note.add.author>",
+    "name": "Recorded note for user.",
     "icon_url": "${moderation.icon_url}"
   },
   "fields": [
     {
-      "name": "<moderation.note.add.field.performer>",
+      "name": "Performer",
       "value": "${note_entry.performer.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.note.add.field.target>",
+      "name": "Target",
       "value": "${note_entry.target.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.note.add.field.note_id>",
+      "name": "Note ID",
       "value": "${note_entry.note_id}",
       "inline": true
     },
     {
-      "name": "<moderation.note.add.field.date_time>",
+      "name": "Date & Time",
       "value": "${note_entry.date_time}",
       "inline": true
     },
     {
-      "name": "<moderation.note.add.field.contents>",
+      "name": "Text",
       "value": "${note_entry.contents}",
       "inline": false
     }

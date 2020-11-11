@@ -1,33 +1,33 @@
 {
   "color": "${moderation.color}",
   "author": {
-    "name": "<moderation.ban.info.author>",
+    "name": "Banned user from server.",
     "icon_url": "${moderation.icon_url}"
   },
   "fields": [
     {
-      "name": "<moderation.ban.info.field.performer>",
+      "name": "Performer",
       "value": "${performer.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.ban.info.field.target>",
+      "name": "Target",
       "value": "${target.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.ban.info.field.private_message>",
+      "name": "Sent DM",
       "value": "${private_message}",
       "inline": true
     },
     {
-      "name": "<moderation.ban.info.field.delete_duration.name>",
-      "value": "<moderation.ban.info.field.delete_duration.value>",
+      "name": "Message Deletion",
+      "value": "${delete_duration} day(s)",
       "inline": true
     },
     {
-      "name": "<moderation.ban.info.field.reason.name>",
-      "value": "<moderation.ban.info.field.reason.value>",
+      "name": "Reason",
+      "value": "${nullcheck;reason;_No reason specified._}",
       "inline": false
     }
   ]

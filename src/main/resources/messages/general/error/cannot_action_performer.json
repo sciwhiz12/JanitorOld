@@ -1,12 +1,4 @@
 {
   "color": "${general.error.color}",
-  "title": "<general.error.cannot_action_performer.title>",
-  "description": "<general.error.cannot_action_performer.description>",
-  "fields": [
-    {
-      "name": "<general.error.cannot_action_performer.field.performer>",
-      "value": "${performer.mention}",
-      "inline": true
-    }
-  ]
+  "title": "Performer cannot act against self."
 }

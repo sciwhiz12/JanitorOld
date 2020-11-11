@@ -1,10 +1,9 @@
 {
   "color": "${general.error.color}",
-  "title": "<general.error.insufficient_permissions.title>",
-  "description": "<general.error.insufficient_permissions.description>",
+  "description": "I do not have sufficient permissions to carry out this action.\nPlease contact your server administrators if you believe this is in error.",
   "fields": [
     {
-      "name": "<general.error.insufficient_permissions.field.permissions>",
+      "name": "Required permissions",
       "value": "${required_permissions}",
       "inline": true
     }

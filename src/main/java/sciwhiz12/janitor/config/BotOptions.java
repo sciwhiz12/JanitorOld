@@ -13,8 +13,8 @@ import static joptsimple.util.PathProperties.*;
 public class BotOptions {
     private final OptionSet options;
     private final ArgumentAcceptingOptionSpec<Path> configPath;
-    private final ArgumentAcceptingOptionSpec<Path> translationsPath;
     private final ArgumentAcceptingOptionSpec<Path> messagesFolder;
+    private final ArgumentAcceptingOptionSpec<Path> configsFolder;
     private final ArgumentAcceptingOptionSpec<String> token;
     private final ArgumentAcceptingOptionSpec<String> prefix;
     private final ArgumentAcceptingOptionSpec<Long> owner;
@@ -25,12 +25,12 @@ public class BotOptions {
             .accepts("config", "The path to the config file; defaults to 'config.toml'")
             .withRequiredArg()
             .withValuesConvertedBy(new PathConverter(FILE_EXISTING, READABLE, WRITABLE));
-        this.translationsPath = parser
-            .accepts("translations", "The path to the translations file")
-            .withRequiredArg()
-            .withValuesConvertedBy(new PathConverter(FILE_EXISTING, READABLE));
         this.messagesFolder = parser
-            .accepts("translations", "The path to the custom messages folder")
+            .accepts("messages", "The path to the custom messages folder")
+            .withRequiredArg()
+            .withValuesConvertedBy(new PathConverter(DIRECTORY_EXISTING, READABLE));
+        this.configsFolder = parser
+            .accepts("guildConfigs", "The path to the guild configs folder")
             .withRequiredArg()
             .withValuesConvertedBy(new PathConverter(DIRECTORY_EXISTING, READABLE));
         this.token = parser
@@ -50,12 +50,12 @@ public class BotOptions {
         return configPath.valueOptional(options);
     }
 
-    public Optional<Path> getTranslationsFile() {
-        return translationsPath.valueOptional(options);
-    }
-
     public Optional<Path> getMessagesFolder() {
         return messagesFolder.valueOptional(options);
+    }
+
+    public Optional<Path> getConfigsFolder() {
+        return configsFolder.valueOptional(options);
     }
 
     public Optional<String> getToken() {

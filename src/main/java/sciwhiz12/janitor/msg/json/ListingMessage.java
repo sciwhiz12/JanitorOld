@@ -6,7 +6,6 @@ import joptsimple.internal.Strings;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
-import sciwhiz12.janitor.msg.TranslationMap;
 import sciwhiz12.janitor.msg.substitution.CustomSubstitutions;
 import sciwhiz12.janitor.msg.substitution.ISubstitutor;
 
@@ -142,27 +141,25 @@ public class ListingMessage {
     }
 
     public <T> EmbedBuilder create(
-        TranslationMap translations,
         ISubstitutor global,
         Iterable<T> iterable,
         BiConsumer<T, CustomSubstitutions> entryApplier
     ) {
-        final Function<String, String> func = str -> str != null ? global.substitute(translations.translate(str)) : null;
         final EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle(func.apply(title), func.apply(url));
+        builder.setTitle(global.substitute(title), global.substitute(url));
         builder.setColor(parseColor(global.substitute(color)));
-        builder.setAuthor(func.apply(authorName), func.apply(authorUrl), func.apply(authorIconUrl));
-        builder.setDescription(func.apply(description));
-        builder.setImage(func.apply(imageUrl));
-        builder.setThumbnail(func.apply(thumbnailUrl));
+        builder.setAuthor(global.substitute(authorName), global.substitute(authorUrl), global.substitute(authorIconUrl));
+        builder.setDescription(global.substitute(description));
+        builder.setImage(global.substitute(imageUrl));
+        builder.setThumbnail(global.substitute(thumbnailUrl));
         builder.setTimestamp(OffsetDateTime.now(ZoneOffset.UTC));
-        builder.setFooter(func.apply(footerText), func.apply(footerIconUrl));
+        builder.setFooter(global.substitute(footerText), global.substitute(footerIconUrl));
         for (MessageEmbed.Field field : beforeFields) {
-            builder.addField(func.apply(field.getName()), func.apply(field.getValue()), field.isInline());
+            builder.addField(global.substitute(field.getName()), global.substitute(field.getValue()), field.isInline());
         }
 
         final CustomSubstitutions entrySubs = new CustomSubstitutions();
-        final Function<String, String> entryFunc = str -> str != null ? entrySubs.substitute(func.apply(str)) : null;
+        final Function<String, String> entryFunc = str -> str != null ? entrySubs.substitute(global.substitute(str)) : null;
         int count = 0;
         for (T listEntry : iterable) {
             entryApplier.accept(listEntry, entrySubs);
@@ -181,11 +178,11 @@ public class ListingMessage {
             count++;
         }
         if (count < 1) {
-            builder.getDescriptionBuilder().append(func.apply(emptyText));
+            builder.getDescriptionBuilder().append(global.substitute(emptyText));
         }
 
         for (MessageEmbed.Field field : afterFields) {
-            builder.addField(func.apply(field.getName()), func.apply(field.getValue()), field.isInline());
+            builder.addField(global.substitute(field.getName()), global.substitute(field.getValue()), field.isInline());
         }
         return builder;
     }

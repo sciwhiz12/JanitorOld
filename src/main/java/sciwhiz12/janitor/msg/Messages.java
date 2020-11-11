@@ -127,8 +127,8 @@ public class Messages {
     public static final RegularMessage UNKNOWN_REGULAR_MESSAGE = new RegularMessage(
         "UNKNOWN MESSAGE!",
         null,
-        "A regular message was tried to be looked up, but was not found. Please report this to your bot " +
-            "maintainer/administrator.",
+        "A regular message was tried to be looked up, but was not found. " +
+            "Please report this to your bot maintainer/administrator.",
         String.valueOf(0xFF0000),
         null,
         null,

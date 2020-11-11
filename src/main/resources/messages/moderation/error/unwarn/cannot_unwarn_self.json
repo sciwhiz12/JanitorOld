@@ -1,21 +1,15 @@
 {
   "color": "${general.error.color}",
-  "title": "<moderation.unwarn.cannot_unwarn_self.title>",
-  "description": "<moderation.unwarn.cannot_unwarn_self.description>",
+  "title": "Cannot remove warning from self.",
   "fields": [
     {
-      "name": "<moderation.unwarn.cannot_unwarn_self.field.performer>",
+      "name": "Performer/Target",
       "value": "${performer.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.unwarn.cannot_unwarn_self.field.original_performer>",
+      "name": "Issuer",
       "value": "${warning_entry.performer.mention}",
-      "inline": true
-    },
-    {
-      "name": "<moderation.unwarn.cannot_unwarn_self.field.case_id>",
-      "value": "${warning_entry.case_id}",
       "inline": true
     }
   ]

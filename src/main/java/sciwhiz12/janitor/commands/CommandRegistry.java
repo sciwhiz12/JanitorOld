@@ -20,6 +20,7 @@ import sciwhiz12.janitor.commands.moderation.UnbanCommand;
 import sciwhiz12.janitor.commands.moderation.UnwarnCommand;
 import sciwhiz12.janitor.commands.moderation.WarnCommand;
 import sciwhiz12.janitor.commands.moderation.WarnListCommand;
+import sciwhiz12.janitor.config.GuildConfig;
 import sciwhiz12.janitor.utils.Util;
 
 import java.util.HashMap;
@@ -30,13 +31,11 @@ import static sciwhiz12.janitor.Logging.JANITOR;
 
 public class CommandRegistry implements EventListener {
     private final JanitorBot bot;
-    private final String prefix;
     private final Map<String, BaseCommand> registry = new HashMap<>();
     private final CommandDispatcher<MessageReceivedEvent> dispatcher;
 
-    public CommandRegistry(JanitorBot bot, String prefix) {
+    public CommandRegistry(JanitorBot bot) {
         this.bot = bot;
-        this.prefix = prefix;
         this.dispatcher = new CommandDispatcher<>();
 
         addCommand(new PingCommand(this, "ping", "Pong!"));
@@ -69,17 +68,28 @@ public class CommandRegistry implements EventListener {
     public void onEvent(@NotNull GenericEvent genericEvent) {
         if (!(genericEvent instanceof MessageReceivedEvent)) return;
         MessageReceivedEvent event = (MessageReceivedEvent) genericEvent;
+        if (event.getAuthor().isBot()) return;
+        final String prefix;
+        if (event.isFromGuild()) {
+            prefix = getBot().getConfigManager().getConfig(event.getGuild().getIdLong())
+                .forGuild(GuildConfig.COMMAND_PREFIX);
+        } else {
+            prefix = getBot().getConfig().getCommandPrefix();
+        }
+
         String msg = event.getMessage().getContentRaw();
-        if (!msg.startsWith(this.prefix)) return;
+        if (!msg.startsWith(prefix)) return;
         JANITOR.debug(COMMANDS, "Received message starting with valid command prefix. Author: {}, full message: {}",
             Util.toString(event.getAuthor()), msg);
         try {
-            StringReader command = new StringReader(msg.substring(this.prefix.length()));
+            StringReader command = new StringReader(msg.substring(prefix.length()));
             ParseResults<MessageReceivedEvent> parseResults = this.dispatcher.parse(command, event);
             if (parseResults.getReader().canRead()) {
-                // Parsing did not succeed, i.e. command not found
-                // TODO: add separate code path when insufficient permissions / requires fails
-                JANITOR.error(COMMANDS, "Error while parsing command: {}", parseResults.getExceptions().values());
+                if (parseResults.getExceptions().isEmpty()) {
+                    JANITOR.info(COMMANDS, "Command not found.");
+                } else {
+                    JANITOR.error(COMMANDS, "Error while parsing command: {}", parseResults.getExceptions().values());
+                }
                 return;
             }
             JANITOR.debug(COMMANDS, "Executing command.");

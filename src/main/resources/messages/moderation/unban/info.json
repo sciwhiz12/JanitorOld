@@ -1,17 +1,17 @@
 {
   "color": "${moderation.color}",
   "author": {
-    "name": "<moderation.unban.info.author>",
+    "name": "Unbanned user from server.",
     "icon_url": "${moderation.icon_url}"
   },
   "fields": [
     {
-      "name": "<moderation.unban.info.field.performer>",
+      "name": "Performer",
       "value": "${performer.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.unban.info.field.target>",
+      "name": "Target",
       "value": "${target.mention}",
       "inline": true
     }

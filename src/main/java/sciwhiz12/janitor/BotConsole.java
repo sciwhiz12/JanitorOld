@@ -44,11 +44,6 @@ public class BotConsole {
             case "reload": {
                 if (parts.length >= 2)
                     switch (parts[1]) {
-                        case "translations": {
-                            CONSOLE.info("Reloading translations");
-                            bot.getTranslations().loadTranslations();
-                            break outer;
-                        }
                         case "messages": {
                             CONSOLE.info("Reloading messages");
                             bot.getMessages().loadMessages();

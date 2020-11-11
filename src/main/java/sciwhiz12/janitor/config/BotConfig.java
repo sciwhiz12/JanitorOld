@@ -19,21 +19,14 @@ public class BotConfig {
     private final CommentedConfigSpec.ConfigValue<String> CLIENT_TOKEN;
     private final CommentedConfigSpec.LongValue OWNER_ID;
 
+    public final CommentedConfigSpec.ConfigValue<String> CONFIGS_PATH;
+
     public final CommentedConfigSpec.ConfigValue<String> STORAGE_PATH;
     public final CommentedConfigSpec.IntValue AUTOSAVE_INTERVAL;
 
-    public final CommentedConfigSpec.ConfigValue<String> CUSTOM_TRANSLATION_FILE;
     public final CommentedConfigSpec.ConfigValue<String> CUSTOM_MESSAGES_DIRECTORY;
 
     public final CommentedConfigSpec.ConfigValue<String> COMMAND_PREFIX;
-
-    public final CommentedConfigSpec.BooleanValue WARNINGS_ENABLE;
-    public final CommentedConfigSpec.BooleanValue WARNINGS_RESPECT_MOD_ROLES;
-    public final CommentedConfigSpec.BooleanValue WARNINGS_PREVENT_WARNING_MODS;
-    public final CommentedConfigSpec.BooleanValue WARNINGS_REMOVE_SELF_WARNINGS;
-
-    public final CommentedConfigSpec.IntValue NOTES_MAX_AMOUNT_PER_MOD;
-    public final CommentedConfigSpec.BooleanValue NOTES_ENABLE;
 
     private final BotOptions options;
     private final Path configPath;
@@ -55,6 +48,10 @@ public class BotConfig {
             .defineInRange("owner_id", 0L, Long.MIN_VALUE, Long.MAX_VALUE);
         builder.pop();
 
+        CONFIGS_PATH = builder
+            .comment("The folder where guild configs are kept.")
+            .define("configs_path", "configs");
+
         builder.push("storage");
         STORAGE_PATH = builder
             .comment("The folder where per-guild storage is kept.")
@@ -64,10 +61,6 @@ public class BotConfig {
             .defineInRange("autosave_internal", 20, 1, Integer.MAX_VALUE);
         builder.pop();
 
-        CUSTOM_TRANSLATION_FILE = builder
-            .comment("A file which contains custom translation keys to load for messages.",
-                "If blank, no file shall be loaded.")
-            .define("messages.custom_translations", "");
         CUSTOM_MESSAGES_DIRECTORY = builder
             .comment("A folder containing custom messages, with a 'messages.json' key file.",
                 "If blank, no folder shall be loaded and defaults will be used.")
@@ -76,36 +69,6 @@ public class BotConfig {
         COMMAND_PREFIX = builder
             .comment("The prefix for commands.")
             .define("commands.prefix", "!");
-
-        builder.comment("Moderation settings").push("moderation");
-        {
-            builder.comment("Settings for the warnings system").push("warnings");
-            WARNINGS_ENABLE = builder
-                .comment("Whether to enable the warnings system. If disabled, the related commands are force-disabled.")
-                .define("enable", true);
-            WARNINGS_RESPECT_MOD_ROLES = builder
-                .comment(
-                    "Whether to prevent lower-ranked moderators (in the role hierarchy) from removing warnings issued by " +
-                        "higher-ranked moderators.")
-                .define("respect_mod_roles", false);
-            WARNINGS_PREVENT_WARNING_MODS = builder
-                .comment("Whether to prevent moderators from issuing warnings against other moderators.")
-                .define("warn_other_moderators", false);
-            WARNINGS_REMOVE_SELF_WARNINGS = builder
-                .comment("Whether to allow moderators to remove warnings from themselves.")
-                .define("remove_self_warnings", false);
-            builder.pop();
-
-            builder.comment("Settings for the notes system").push("notes");
-            NOTES_ENABLE = builder
-                .comment("Whether to enable the notes system. If disabled, the related commands are force-disabled.")
-                .define("enable", true);
-            NOTES_MAX_AMOUNT_PER_MOD = builder
-                .comment("The max amount of notes for a user per moderator.")
-                .defineInRange("max_amount", Integer.MAX_VALUE, 0, Integer.MAX_VALUE);
-            builder.pop();
-        }
-        builder.pop();
 
         spec = builder.build();
 
@@ -130,20 +93,20 @@ public class BotConfig {
     }
 
     @Nullable
-    public Path getTranslationsFile() {
-        return options.getTranslationsFile().
-            or(() -> CUSTOM_TRANSLATION_FILE.get().isBlank() ?
-                Optional.empty() :
-                Optional.of(Path.of(CUSTOM_TRANSLATION_FILE.get())))
-            .orElse(null);
-    }
-
-    @Nullable
     public Path getMessagesFolder() {
         return options.getMessagesFolder().
             or(() -> CUSTOM_MESSAGES_DIRECTORY.get().isBlank() ?
                 Optional.empty() :
                 Optional.of(Path.of(CUSTOM_MESSAGES_DIRECTORY.get())))
+            .orElse(null);
+    }
+
+    @Nullable
+    public Path getConfigsFolder() {
+        return options.getConfigsFolder().
+            or(() -> CONFIGS_PATH.get().isBlank() ?
+                Optional.empty() :
+                Optional.of(Path.of(CONFIGS_PATH.get())))
             .orElse(null);
     }
 

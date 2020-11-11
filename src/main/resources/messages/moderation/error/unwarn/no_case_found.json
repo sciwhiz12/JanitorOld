@@ -1,17 +1,4 @@
 {
   "color": "${general.error.color}",
-  "title": "<moderation.unwarn.no_case_found.title>",
-  "description": "<moderation.unwarn.no_case_found.description>",
-  "fields": [
-    {
-      "name": "<moderation.unwarn.no_case_found.field.performer>",
-      "value": "${performer.mention}",
-      "inline": true
-    },
-    {
-      "name": "<moderation.unwarn.no_case_found.field.case_id>",
-      "value": "${case_id}",
-      "inline": true
-    }
-  ]
+  "description": "No warning with that case ID was found."
 }

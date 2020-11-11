@@ -1,21 +1,15 @@
 {
   "color": "${general.error.color}",
-  "title": "<moderation.warn.cannot_remove_higher_mod.title>",
-  "description": "<moderation.warn.cannot_remove_higher_mod.description>",
+  "title": "Cannot remove warning issued by higher-ranked moderator.",
   "fields": [
     {
-      "name": "<moderation.warn.cannot_remove_higher_mod.field.performer>",
+      "name": "Performer",
       "value": "${performer.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.warn.cannot_remove_higher_mod.field.original_performer>",
+      "name": "Issuer",
       "value": "${warning_entry.performer.mention}",
-      "inline": true
-    },
-    {
-      "name": "<moderation.warn.cannot_remove_higher_mod.field.case_id>",
-      "value": "${warning_entry.case_id}",
       "inline": true
     }
   ]

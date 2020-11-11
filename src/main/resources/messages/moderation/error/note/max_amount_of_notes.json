@@ -1,20 +1,14 @@
 {
   "color": "${general.error.color}",
-  "title": "<moderation.note.max_amount_of_notes.title>",
-  "description": "<moderation.note.max_amount_of_notes.description>",
+  "description": "The performer has reached the maximum amount of notes for the target user.",
   "fields": [
     {
-      "name": "<moderation.note.max_amount_of_notes.field.performer>",
-      "value": "${performer.mention}",
-      "inline": true
-    },
-    {
-      "name": "<moderation.note.max_amount_of_notes.field.target>",
+      "name": "Target",
       "value": "${target.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.note.max_amount_of_notes.field.amount>",
+      "name": "(Max.) Amount",
       "value": "${notes_amount}",
       "inline": true
     }

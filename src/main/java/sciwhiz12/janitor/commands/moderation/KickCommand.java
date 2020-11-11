@@ -110,7 +110,7 @@ public class KickCommand extends BaseCommand {
                     .flatMap(v -> messages().getRegularMessage("moderation/kick/info")
                         .apply(MessageHelper.member("performer", performer))
                         .apply(MessageHelper.member("target", target))
-                        .with("private_message", () -> res.isSuccess() ? "✅" : "❌")
+                        .with("private_message", () -> res.isSuccess() ? "\u2705" : "\u274C")
                         .with("reason", () -> reason)
                         .send(getBot(), channel)
                     )

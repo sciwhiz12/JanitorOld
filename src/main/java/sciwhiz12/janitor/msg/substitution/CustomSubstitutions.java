@@ -7,8 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
-public class CustomSubstitutions implements ISubstitutor, IHasCustomSubstitutions<CustomSubstitutions> {
+public class CustomSubstitutions implements ISubstitutor, ICustomSubstitutions<CustomSubstitutions> {
     private final Map<String, Supplier<String>> map;
 
     public CustomSubstitutions(Map<String, Supplier<String>> map) {
@@ -20,7 +21,8 @@ public class CustomSubstitutions implements ISubstitutor, IHasCustomSubstitution
     }
 
     @Override
-    public String substitute(String text) {
+    @Nullable
+    public String substitute(@Nullable String text) {
         return SubstitutionMap.substitute(text, map);
     }
 

@@ -1,38 +1,38 @@
 {
   "color": "${moderation.color}",
   "author": {
-    "name": "<moderation.warn.info.author>",
+    "name": "Warned user.",
     "icon_url": "${moderation.icon_url}"
   },
   "fields": [
     {
-      "name": "<moderation.warn.info.field.performer>",
+      "name": "Performer",
       "value": "${warning_entry.performer.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.warn.info.field.target>",
+      "name": "Target",
       "value": "${warning_entry.target.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.warn.info.field.case_id>",
+      "name": "Case ID",
       "value": "${warning_entry.case_id}",
       "inline": true
     },
     {
-      "name": "<moderation.warn.info.field.private_message>",
+      "name": "Sent DM",
       "value": "${private_message}",
       "inline": true
     },
     {
-      "name": "<moderation.warn.info.field.date_time>",
+      "name": "Date & Time",
       "value": "${warning_entry.date_time}",
       "inline": true
     },
     {
-      "name": "<moderation.warn.info.field.reason.name>",
-      "value": "<moderation.warn.info.field.reason.value>",
+      "name": "Reason",
+      "value": "${nullcheck;warning_entry.reason;_No reason specified._}",
       "inline": false
     }
   ]

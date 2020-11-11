@@ -1,15 +1,9 @@
 {
   "color": "${general.error.color}",
-  "title": "<moderation.cannot_interact.title>",
-  "description": "<moderation.cannot_interact.description>",
+  "description": "The performer of this command cannot moderate the target user, likely due to being lower in the role hierarchy.",
   "fields": [
     {
-      "name": "<moderation.cannot_interact.field.performer>",
-      "value": "${performer.mention}",
-      "inline": true
-    },
-    {
-      "name": "<moderation.cannot_interact.field.target>",
+      "name": "Target",
       "value": "${target.mention}",
       "inline": true
     }

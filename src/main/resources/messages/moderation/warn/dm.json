@@ -4,21 +4,21 @@
     "name": "${performer.guild.name}",
     "icon_url": "${performer.guild.icon_url}"
   },
-  "title": "<moderation.warn.dm.title>",
+  "title": "You were warned by a moderator.",
   "fields": [
     {
-      "name": "<moderation.warn.dm.field.performer>",
+      "name": "Moderator",
       "value": "${warning_entry.performer.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.warn.dm.field.date_time>",
+      "name": "Date & Time",
       "value": "${warning_entry.date_time}",
       "inline": true
     },
     {
-      "name": "<moderation.warn.dm.field.reason.name>",
-      "value": "<moderation.warn.dm.field.reason.value>",
+      "name": "Reason",
+      "value": "${nullcheck;warning_entry.reason;_No reason specified._}",
       "inline": false
     }
   ]

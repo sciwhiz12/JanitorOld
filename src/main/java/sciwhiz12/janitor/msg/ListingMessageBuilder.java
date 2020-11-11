@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import sciwhiz12.janitor.JanitorBot;
 import sciwhiz12.janitor.msg.json.ListingMessage;
 import sciwhiz12.janitor.msg.substitution.CustomSubstitutions;
-import sciwhiz12.janitor.msg.substitution.IHasCustomSubstitutions;
+import sciwhiz12.janitor.msg.substitution.ICustomSubstitutions;
 import sciwhiz12.janitor.msg.substitution.SubstitutionMap;
 
 import java.util.HashMap;
@@ -20,10 +20,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class ListingMessageBuilder<T> implements IHasCustomSubstitutions<ListingMessageBuilder<T>> {
+public class ListingMessageBuilder<T> implements ICustomSubstitutions<ListingMessageBuilder<T>> {
     private final ListingMessage message;
     private final Map<String, Supplier<String>> customSubstitutions;
-    private int amountPerPage = 10;
+    private int amountPerPage = 6;
     private BiConsumer<T, CustomSubstitutions> entryApplier = (entry, sub) -> {};
 
     public ListingMessageBuilder(ListingMessage message, Map<String, Supplier<String>> customSubstitutions) {
@@ -55,22 +55,24 @@ public class ListingMessageBuilder<T> implements IHasCustomSubstitutions<Listing
         return this;
     }
 
-    public void build(MessageChannel channel, TranslationMap translations, SubstitutionMap globalSubstitutions,
-        Message triggerMessage, List<T> entries) {
+    public void build(MessageChannel channel,
+        SubstitutionMap globalSubstitutions,
+        Message triggerMessage,
+        List<T> entries) {
 
         final CustomSubstitutions customSubs = globalSubstitutions.with(customSubstitutions);
         final ImmutableList<T> list = ImmutableList.copyOf(entries);
         final PagedMessage pagedMessage = new PagedMessage(message, list, amountPerPage);
 
-        channel.sendMessage(pagedMessage.createMessage(translations, customSubs, entryApplier))
-            .queue(listMsg -> translations.getBot().getReactionManager().newMessage(listMsg)
+        channel.sendMessage(pagedMessage.createMessage(customSubs, entryApplier))
+            .queue(listMsg -> globalSubstitutions.getBot().getReactionManager().newMessage(listMsg)
                 .owner(triggerMessage.getAuthor().getIdLong())
                 .removeEmotes(true)
                 .add("\u2b05", (msg, event) -> { // PREVIOUS
                     if (pagedMessage.advancePage(PageDirection.PREVIOUS)) {
                         event.retrieveMessage()
                             .flatMap(eventMsg -> eventMsg.editMessage(
-                                pagedMessage.createMessage(translations, customSubs, entryApplier))
+                                pagedMessage.createMessage(customSubs, entryApplier))
                             )
                             .queue();
                     }
@@ -88,7 +90,7 @@ public class ListingMessageBuilder<T> implements IHasCustomSubstitutions<Listing
                     if (pagedMessage.advancePage(PageDirection.NEXT)) {
                         event.retrieveMessage()
                             .flatMap(eventMsg -> eventMsg.editMessage(
-                                pagedMessage.createMessage(translations, customSubs, entryApplier))
+                                pagedMessage.createMessage(customSubs, entryApplier))
                             )
                             .queue();
                     }
@@ -98,7 +100,7 @@ public class ListingMessageBuilder<T> implements IHasCustomSubstitutions<Listing
     }
 
     public void build(MessageChannel channel, JanitorBot bot, Message triggerMessage, List<T> entries) {
-        build(channel, bot.getTranslations(), bot.getSubstitutions(), triggerMessage, entries);
+        build(channel, bot.getSubstitutions(), triggerMessage, entries);
     }
 
     class PagedMessage {
@@ -136,11 +138,10 @@ public class ListingMessageBuilder<T> implements IHasCustomSubstitutions<Listing
             return false;
         }
 
-        public MessageEmbed createMessage(TranslationMap translations, CustomSubstitutions substitutions,
+        public MessageEmbed createMessage(CustomSubstitutions substitutions,
             BiConsumer<T, CustomSubstitutions> applier) {
             if (currentPage != lastPage) {
                 cachedMessage = message.create(
-                    translations,
                     substitutions.with(new HashMap<>())
                         .with("page.max", () -> String.valueOf(maxPages + 1))
                         .with("page.current", () -> String.valueOf(currentPage + 1)),

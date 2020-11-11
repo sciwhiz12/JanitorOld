@@ -4,16 +4,16 @@
     "name": "${performer.guild.name}",
     "icon_url": "${performer.guild.icon_url}"
   },
-  "title": "<moderation.ban.dm.title>",
+  "title": "You were banned from this server.",
   "fields": [
     {
-      "name": "<moderation.ban.dm.field.performer>",
+      "name": "Moderator",
       "value": "${performer.mention}",
       "inline": true
     },
     {
-      "name": "<moderation.ban.dm.field.reason.name>",
-      "value": "<moderation.ban.dm.field.reason.value>",
+      "name": "Reason",
+      "value": "${nullcheck;reason;_No reason specified._}",
       "inline": true
     }
   ]

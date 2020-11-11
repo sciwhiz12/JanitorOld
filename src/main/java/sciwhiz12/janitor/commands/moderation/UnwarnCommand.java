@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import sciwhiz12.janitor.commands.BaseCommand;
 import sciwhiz12.janitor.commands.CommandRegistry;
+import sciwhiz12.janitor.config.GuildConfig;
 import sciwhiz12.janitor.moderation.warns.WarningEntry;
 import sciwhiz12.janitor.moderation.warns.WarningStorage;
 import sciwhiz12.janitor.msg.MessageHelper;
@@ -20,6 +21,7 @@ import javax.annotation.Nullable;
 
 import static sciwhiz12.janitor.commands.util.CommandHelper.argument;
 import static sciwhiz12.janitor.commands.util.CommandHelper.literal;
+import static sciwhiz12.janitor.config.GuildConfig.*;
 
 public class UnwarnCommand extends BaseCommand {
     public static final EnumSet<Permission> WARN_PERMISSION = EnumSet.of(Permission.KICK_MEMBERS);
@@ -31,7 +33,7 @@ public class UnwarnCommand extends BaseCommand {
     @Override
     public LiteralArgumentBuilder<MessageReceivedEvent> getNode() {
         return literal("unwarn")
-            .requires(ctx -> getBot().getConfig().WARNINGS_ENABLE.get())
+            .requires(ctx -> config(ctx).forGuild(ENABLE_WARNS))
             .then(argument("caseId", IntegerArgumentType.integer(1))
                 .executes(this::run)
             );
@@ -73,13 +75,13 @@ public class UnwarnCommand extends BaseCommand {
                     .send(getBot(), channel).queue();
 
             } else if (entry.getWarned().getIdLong() == performer.getIdLong()
-                && !config().WARNINGS_REMOVE_SELF_WARNINGS.get()) {
+                && !config(guild).forGuild(ALLOW_REMOVE_SELF_WARNINGS)) {
                 messages().getRegularMessage("moderation/error/unwarn/cannot_unwarn_self")
                     .apply(MessageHelper.member("performer", performer))
                     .apply(MessageHelper.warningEntry("warning_entry", caseID, entry))
                     .send(getBot(), channel).queue();
 
-            } else if (config().WARNINGS_RESPECT_MOD_ROLES.get()
+            } else if (config(guild).forGuild(WARNS_RESPECT_MOD_ROLES)
                 && (temp = guild.getMember(entry.getPerformer())) != null && !performer.canInteract(temp)) {
                 messages().getRegularMessage("moderation/error/unwarn/cannot_remove_higher_mod")
                     .apply(MessageHelper.member("performer", performer))

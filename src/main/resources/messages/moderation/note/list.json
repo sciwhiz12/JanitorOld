@@ -2,12 +2,12 @@
   "type": "listing",
   "color": "${moderation.color}",
   "author": {
-    "name": "<moderation.note.list.author>",
+    "name": "Listing of Notes (Page ${page.current}/${page.max})",
     "icon_url": "${moderation.icon_url}"
   },
   "entry": {
     "type": "description",
-    "text": "<moderation.note.list.entry>"
+    "text": "**#${note_entry.note_id}**:   ${note_entry.target.mention} by ${note_entry.performer.mention}\n  - _${note_entry.date_time}_\n${note_entry.contents}"
   },
-  "empty": "<moderation.note.list.empty>"
+  "empty": "**_No recorded notes matching your query._**"
 }

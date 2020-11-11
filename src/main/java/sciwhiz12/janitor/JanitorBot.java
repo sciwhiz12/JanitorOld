@@ -8,8 +8,8 @@ import net.dv8tion.jda.api.entities.PrivateChannel;
 import net.dv8tion.jda.api.entities.User;
 import sciwhiz12.janitor.commands.CommandRegistry;
 import sciwhiz12.janitor.config.BotConfig;
+import sciwhiz12.janitor.config.ConfigManager;
 import sciwhiz12.janitor.msg.Messages;
-import sciwhiz12.janitor.msg.TranslationMap;
 import sciwhiz12.janitor.msg.emote.ReactionManager;
 import sciwhiz12.janitor.msg.substitution.SubstitutionMap;
 import sciwhiz12.janitor.storage.GuildStorage;
@@ -27,8 +27,8 @@ public class JanitorBot {
     private final BotConsole console;
     private final GuildStorage storage;
     private final GuildStorage.SavingThread storageSavingThread;
+    private final ConfigManager configManager;
     private final CommandRegistry cmdRegistry;
-    private final TranslationMap translations;
     private final SubstitutionMap substitutions;
     private final Messages messages;
     private final ReactionManager reactions;
@@ -38,10 +38,10 @@ public class JanitorBot {
         this.discord = discord;
         this.console = new BotConsole(this, System.in);
         this.storage = new GuildStorage(this, Path.of(config.STORAGE_PATH.get()));
-        this.cmdRegistry = new CommandRegistry(this, config.getCommandPrefix());
-        this.translations = new TranslationMap(this, config.getTranslationsFile());
+        this.configManager = new ConfigManager(this, config.getConfigsFolder());
+        this.cmdRegistry = new CommandRegistry(this);
         this.substitutions = new SubstitutionMap(this);
-        this.messages = new Messages(this, config.getTranslationsFile());
+        this.messages = new Messages(this, config.getMessagesFolder());
         this.reactions = new ReactionManager(this);
         // TODO: find which of these can be loaded in parallel before the bot JDA is ready
         discord.addEventListener(cmdRegistry, reactions);
@@ -78,12 +78,10 @@ public class JanitorBot {
 
     public GuildStorage getStorage() { return this.storage; }
 
+    public ConfigManager getConfigManager() { return configManager; }
+
     public CommandRegistry getCommandRegistry() {
         return this.cmdRegistry;
-    }
-
-    public TranslationMap getTranslations() {
-        return this.translations;
     }
 
     public ReactionManager getReactionManager() {
@@ -113,6 +111,8 @@ public class JanitorBot {
         discord.shutdown();
         storageSavingThread.stopThread();
         storage.save();
+        configManager.save();
+        configManager.close();
         console.stop();
     }
 

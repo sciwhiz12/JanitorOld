@@ -34,6 +34,8 @@ import static sciwhiz12.janitor.commands.arguments.GuildMemberArgument.member;
 import static sciwhiz12.janitor.commands.moderation.NoteCommand.ModeratorFilter.*;
 import static sciwhiz12.janitor.commands.util.CommandHelper.argument;
 import static sciwhiz12.janitor.commands.util.CommandHelper.literal;
+import static sciwhiz12.janitor.config.GuildConfig.ENABLE_NOTES;
+import static sciwhiz12.janitor.config.GuildConfig.MAX_NOTES_PER_MOD;
 import static sciwhiz12.janitor.msg.MessageHelper.*;
 
 public class NoteCommand extends BaseCommand {
@@ -46,7 +48,7 @@ public class NoteCommand extends BaseCommand {
     @Override
     public LiteralArgumentBuilder<MessageReceivedEvent> getNode() {
         return literal("note")
-            .requires(ctx -> config().NOTES_ENABLE.get())
+            .requires(event -> config(event).forGuild(ENABLE_NOTES))
             .then(literal("add")
                 .then(argument("target", member())
                     .then(argument("contents", greedyString())
@@ -126,7 +128,7 @@ public class NoteCommand extends BaseCommand {
 
         } else {
             final NoteStorage storage = NoteStorage.get(getBot().getStorage(), guild);
-            final int maxAmount = config().NOTES_MAX_AMOUNT_PER_MOD.get();
+            final int maxAmount = config(ctx.getSource()).forGuild(MAX_NOTES_PER_MOD);
             if (storage.getAmountOfNotes(target.getUser()) >= maxAmount) {
                 messages().getRegularMessage("moderation/error/insufficient_permissions")
                     .apply(MessageHelper.member("performer", performer))
@@ -201,13 +203,8 @@ public class NoteCommand extends BaseCommand {
         } else {
             messages().<Map.Entry<Integer, NoteEntry>>getListingMessage("moderation/note/list")
                 .apply(MessageHelper.member("performer", performer))
-                .amountPerPage(8)
                 .setEntryApplier((entry, subs) -> subs
-                    .with("note_entry.note_id", () -> String.valueOf(entry.getKey()))
-                    .apply(user("note_entry.performer", entry.getValue().getPerformer()))
-                    .apply(user("note_entry.target", entry.getValue().getTarget()))
-                    .with("note_entry.date_time", () -> entry.getValue().getDateTime().format(DATE_TIME_FORMAT))
-                    .with("note_entry.contents", entry.getValue()::getContents)
+                    .apply(noteEntry("note_entry", entry.getKey(), entry.getValue()))
                 )
                 .build(channel, getBot(), ctx.getSource().getMessage(),
                     NoteStorage.get(getBot().getStorage(), guild)
