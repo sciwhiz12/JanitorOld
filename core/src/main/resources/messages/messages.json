@@ -1,0 +1,8 @@
+[
+  "general/error/ambiguous_member",
+  "general/error/guild_only_command",
+  "general/error/insufficient_permissions",
+  "general/error/cannot_interact",
+  "general/error/cannot_action_self",
+  "general/error/cannot_action_performer"
+]

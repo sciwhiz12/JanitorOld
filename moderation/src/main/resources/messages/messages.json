@@ -1,0 +1,22 @@
+[
+  "moderation/error/cannot_interact",
+  "moderation/error/insufficient_permissions",
+  "moderation/kick/info",
+  "moderation/kick/dm",
+  "moderation/ban/info",
+  "moderation/ban/dm",
+  "moderation/unban/info",
+  "moderation/warn/info",
+  "moderation/warn/dm",
+  "moderation/warn/list",
+  "moderation/unwarn/info",
+  "moderation/error/unwarn/no_case_found",
+  "moderation/error/unwarn/cannot_unwarn_self",
+  "moderation/error/unwarn/cannot_remove_higher_mod",
+  "moderation/error/warn/cannot_warn_mods",
+  "moderation/error/note/max_amount_of_notes",
+  "moderation/error/note/no_note_found",
+  "moderation/note/add",
+  "moderation/note/remove",
+  "moderation/note/list"
+]

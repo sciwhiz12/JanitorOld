@@ -1,6 +1,5 @@
 package sciwhiz12.janitor;
 
-import com.google.common.base.Preconditions;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -8,20 +7,19 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.jetbrains.annotations.NotNull;
-import sciwhiz12.janitor.config.BotConfig;
+import sciwhiz12.janitor.config.BotConfigImpl;
 import sciwhiz12.janitor.config.BotOptions;
 
 import java.util.EnumSet;
 
-import static sciwhiz12.janitor.Logging.JANITOR;
+import static sciwhiz12.janitor.api.Logging.JANITOR;
 
 public class BotStartup {
     public static void main(String[] args) {
         JANITOR.info("Starting...");
 
         BotOptions options = new BotOptions(args);
-        BotConfig config = new BotConfig(options);
-        Preconditions.checkArgument(!config.getToken().isEmpty(), "Supply a client token through config or command line");
+        BotConfigImpl config = new BotConfigImpl(options);
 
         JANITOR.info("Building bot instance and connecting to Discord...");
 
@@ -33,12 +31,13 @@ public class BotStartup {
                 .addEventListeners(new ListenerAdapter() {
                     @Override
                     public void onReady(@NotNull ReadyEvent event) {
-                        new JanitorBot(event.getJDA(), config);
+                        new JanitorBotImpl(event.getJDA(), config);
                     }
                 })
                 .build();
         } catch (Exception ex) {
             JANITOR.error("Error while building Discord connection", ex);
+            System.exit(1);
         }
     }
 }
