@@ -3,6 +3,7 @@ package sciwhiz12.janitor.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -27,7 +28,7 @@ import static sciwhiz12.janitor.api.Logging.JANITOR;
 
 public class CommandRegistryImpl implements CommandRegistry, EventListener {
     private final JanitorBotImpl bot;
-    private final Map<String, Command> registry = new HashMap<>();
+    final Map<String, Command> registry = new HashMap<>();
     private final CommandDispatcher<MessageReceivedEvent> dispatcher;
 
     public CommandRegistryImpl(JanitorBotImpl bot) {
@@ -39,6 +40,7 @@ public class CommandRegistryImpl implements CommandRegistry, EventListener {
         addCommand(OKCommand::new);
         addCommand(HelloCommand::new);
         addCommand(ShutdownCommand::new);
+        addCommand((reg) -> new CmdListCommand((CommandRegistryImpl) reg));
     }
 
     @Override
@@ -52,8 +54,15 @@ public class CommandRegistryImpl implements CommandRegistry, EventListener {
     }
 
     @Override
-    public void addCommand(Function<CommandRegistry, Command> command) {
-        dispatcher.register(command.apply(this).getNode());
+    public void addCommand(Function<CommandRegistry, Command> commandCreate) {
+        final Command command = commandCreate.apply(this);
+        final LiteralArgumentBuilder<MessageReceivedEvent> node = command.getNode();
+        final String literal = node.getLiteral();
+        if (registry.containsKey(literal)) {
+            throw new IllegalArgumentException("Command " + literal + " already exists");
+        }
+        dispatcher.register(node);
+        registry.put(literal, command);
     }
 
     @Override
