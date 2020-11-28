@@ -1,4 +1,5 @@
 [
+  "general/about",
   "general/commands_listing",
   "general/error/ambiguous_member",
   "general/error/guild_only_command",

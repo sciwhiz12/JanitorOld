@@ -3,6 +3,8 @@ package sciwhiz12.janitor.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.dv8tion.jda.api.events.GenericEvent;
@@ -13,6 +15,7 @@ import sciwhiz12.janitor.JanitorBotImpl;
 import sciwhiz12.janitor.api.command.Command;
 import sciwhiz12.janitor.api.command.CommandRegistry;
 import sciwhiz12.janitor.api.config.CoreConfigs;
+import sciwhiz12.janitor.commands.bot.AboutCommand;
 import sciwhiz12.janitor.commands.bot.ShutdownCommand;
 import sciwhiz12.janitor.commands.misc.HelloCommand;
 import sciwhiz12.janitor.commands.misc.OKCommand;
@@ -25,6 +28,8 @@ import java.util.function.Function;
 
 import static sciwhiz12.janitor.api.Logging.COMMANDS;
 import static sciwhiz12.janitor.api.Logging.JANITOR;
+import static sciwhiz12.janitor.api.utils.CommandHelper.argument;
+import static sciwhiz12.janitor.api.utils.CommandHelper.literal;
 
 public class CommandRegistryImpl implements CommandRegistry, EventListener {
     private final JanitorBotImpl bot;
@@ -40,6 +45,7 @@ public class CommandRegistryImpl implements CommandRegistry, EventListener {
         addCommand(OKCommand::new);
         addCommand(HelloCommand::new);
         addCommand(ShutdownCommand::new);
+        addCommand(AboutCommand::new);
         addCommand((reg) -> new CmdListCommand((CommandRegistryImpl) reg));
     }
 

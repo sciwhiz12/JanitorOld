@@ -44,6 +44,7 @@ public final class MessageHelper {
             .with(head + ".name", user::getName)
             .with(head + ".discriminator", user::getDiscriminator)
             .with(head + ".tag", user::getAsTag)
+            .with(head + ".avatar", user::getAvatarUrl)
             .with(head + ".flags", user.getFlags()::toString);
     }
 

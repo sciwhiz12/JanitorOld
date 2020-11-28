@@ -10,7 +10,7 @@ import sciwhiz12.janitor.moderation.warns.WarningStorage;
 
 public interface ModerationModule extends Module {
     Logger LOGGER = LoggerFactory.getLogger("janitor.moderation");
-    ModuleKey<ModerationModule> ID = new ModuleKey<>("moderation", ModerationModule.class);
+    ModuleKey<ModerationModule> ID = new ModuleKey<>("moderation", "Moderation", ModerationModule.class);
 
     NoteStorage getNotes(Guild guild);
 

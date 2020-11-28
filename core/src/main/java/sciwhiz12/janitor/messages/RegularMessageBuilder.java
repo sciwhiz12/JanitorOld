@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 public class RegularMessageBuilder implements RegularMessage.Builder<RegularMessageBuilder> {
     private final RegularMessage message;
@@ -74,7 +75,7 @@ public class RegularMessageBuilder implements RegularMessage.Builder<RegularMess
         return builder;
     }
 
-    private static int parseColor(String str) {
+    private static int parseColor(@Nullable String str) {
         if (Strings.isNullOrEmpty(str)) return Role.DEFAULT_COLOR_RAW;
         if (str.startsWith("0x")) {
             // noinspection UnstableApiUsage
