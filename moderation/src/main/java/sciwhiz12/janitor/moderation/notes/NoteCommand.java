@@ -214,7 +214,8 @@ public class NoteCommand extends ModBaseCommand {
                         .filter(predicate)
                         .sorted(Comparator.<Map.Entry<Integer, NoteEntry>>comparingInt(Map.Entry::getKey).reversed())
                         .collect(ImmutableList.toImmutableList())
-                );
+                )
+                .queue();
         }
         return 1;
     }

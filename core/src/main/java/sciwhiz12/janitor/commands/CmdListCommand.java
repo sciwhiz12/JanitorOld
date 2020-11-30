@@ -22,7 +22,8 @@ public class CmdListCommand extends BaseCommand {
                     .with("commands_prefix", () -> config(ctx.getSource()).forGuild(COMMAND_PREFIX))
                     .setEntryApplier((command, subs) -> subs.with("command", () -> command))
                     .build(ctx.getSource().getChannel(), getBot(), ctx.getSource().getMessage(),
-                        Lists.newArrayList(getRegistry().registry.keySet()));
+                        Lists.newArrayList(getRegistry().registry.keySet()))
+                    .queue();
                 return 1;
             });
     }

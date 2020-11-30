@@ -3,6 +3,7 @@ package sciwhiz12.janitor.api.messages;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.requests.RestAction;
 import sciwhiz12.janitor.api.JanitorBot;
 import sciwhiz12.janitor.api.messages.substitution.ModifiableSubstitutions;
 import sciwhiz12.janitor.api.messages.substitution.ModifiableSubstitutor;
@@ -191,13 +192,15 @@ public class ListingMessage {
 
         Builder<T> with(final String argument, final Supplier<String> value);
 
-        void build(MessageChannel channel,
+        Builder<T> deletionReaction(final boolean addDeletionReaction);
+
+        RestAction<Message> build(MessageChannel channel,
             SubstitutionsMap globalSubstitutions,
             Message triggerMessage,
             List<T> entries);
 
-        default void build(MessageChannel channel, JanitorBot bot, Message triggerMessage, List<T> entries) {
-            build(channel, bot.getSubstitutions(), triggerMessage, entries);
+        default RestAction<Message> build(MessageChannel channel, JanitorBot bot, Message triggerMessage, List<T> entries) {
+            return build(channel, bot.getSubstitutions(), triggerMessage, entries);
         }
     }
 }

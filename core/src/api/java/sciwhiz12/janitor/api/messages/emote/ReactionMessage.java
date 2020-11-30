@@ -1,8 +1,10 @@
 package sciwhiz12.janitor.api.messages.emote;
 
 import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.requests.RestAction;
 import sciwhiz12.janitor.api.JanitorBot;
 
 import java.util.Map;
@@ -19,7 +21,7 @@ public interface ReactionMessage {
 
     ReactionMessage owner(long ownerID);
 
-    void create();
+    RestAction<Message> create(Message message);
 
     long getOwnerID();
 

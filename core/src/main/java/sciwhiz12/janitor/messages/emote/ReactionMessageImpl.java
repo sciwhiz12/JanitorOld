@@ -5,35 +5,35 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.exceptions.ErrorHandler;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.ErrorResponse;
+import net.dv8tion.jda.api.requests.RestAction;
 import sciwhiz12.janitor.JanitorBotImpl;
 import sciwhiz12.janitor.api.messages.emote.ReactionMessage;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
 
 import static net.dv8tion.jda.api.Permission.MESSAGE_MANAGE;
 
-public class ReactionMessageImpl extends ListenerAdapter implements ReactionMessage {
+public class ReactionMessageImpl implements ReactionMessage {
     private final JanitorBotImpl bot;
-    private final Message message;
+    private long messageID;
     private final Map<ReactionEmote, ReactionListener> emotes = new LinkedHashMap<>();
     private boolean removeEmotes = true;
     private long ownerID;
     private boolean onlyOwner;
 
-    public ReactionMessageImpl(JanitorBotImpl bot, Message message, boolean onlyOwner, long ownerID) {
+    public ReactionMessageImpl(JanitorBotImpl bot, boolean onlyOwner, long ownerID) {
         this.bot = bot;
-        this.message = message;
         this.ownerID = ownerID;
         this.onlyOwner = onlyOwner;
     }
 
-    public ReactionMessageImpl(JanitorBotImpl bot, Message message) {
-        this(bot, message, false, 0);
+    public ReactionMessageImpl(JanitorBotImpl bot) {
+        this(bot, false, 0);
     }
 
     public ReactionMessageImpl add(ReactionEmote emote, ReactionListener listener) {
@@ -60,21 +60,22 @@ public class ReactionMessageImpl extends ListenerAdapter implements ReactionMess
         return this;
     }
 
-    public void create() {
+    public RestAction<Message> create(Message message) {
+        List<RestAction<Void>> reactionList = new ArrayList<>();
         for (ReactionEmote reaction : emotes.keySet()) {
             if (reaction.isEmote()) {
-                message.addReaction(reaction.getEmote()).queue();
+                reactionList.add(message.addReaction(reaction.getEmote()));
             } else {
-                message.addReaction(reaction.getEmoji()).queue();
+                reactionList.add(message.addReaction(reaction.getEmoji()));
             }
         }
-        bot.getDiscord().addEventListener(this);
+        messageID = message.getIdLong();
+        return RestAction.allOf(reactionList)
+            .map($ -> message);
     }
 
-    @Override
-    public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
-        if (event.getMessageIdLong() != message.getIdLong()) return;
-        if (event.getUserIdLong() == bot.getDiscord().getSelfUser().getIdLong()) return;
+    void acceptReaction(MessageReactionAddEvent event) {
+        if (event.getMessageIdLong() != messageID) return;
         if (onlyOwner && event.getUserIdLong() != ownerID) return;
 
         emotes.keySet().stream()

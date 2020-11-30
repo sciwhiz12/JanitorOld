@@ -34,22 +34,23 @@ public class HelloCommand extends BaseCommand {
             final List<Member> memberList = getMembers("member", ctx).fromGuild(ctx.getSource().getGuild());
             if (memberList.size() == 1) {
                 final Member member = memberList.get(0);
-                ctx.getSource().getChannel().sendMessage("Hello " + member.getAsMention() + "!").queue(
-                    success -> {
-                        JANITOR.debug("Sent greeting message to {}, on cmd of {}", Util.toString(member.getUser()),
-                            Util.toString(ctx.getSource().getAuthor()));
-                        getBot().getReactions().newMessage(success)
-                            .add("\u274C", (msg, event) -> success.delete()
+                ctx.getSource().getChannel().sendMessage("Hello " + member.getAsMention() + "!")
+                    .flatMap(message ->
+                        getBot().getReactions().newMessage(message)
+                            .add("\u274C", (msg, event) -> message.delete()
                                 .flatMap(v -> event.getChannel()
                                     .deleteMessageById(ctx.getSource().getMessageIdLong()))
                                 .queue()
                             )
                             .owner(ctx.getSource().getAuthor().getIdLong())
-                            .create();
-                    },
-                    err -> JANITOR.error("Error while sending greeting message to {}, on cmd of {}",
-                        Util.toString(member.getUser()), Util.toString(ctx.getSource().getAuthor()))
-                );
+                            .create(message)
+                    )
+                    .queue(
+                        success -> JANITOR.debug("Sent greeting message to {}, on cmd of {}", Util.toString(member.getUser()),
+                            Util.toString(ctx.getSource().getAuthor())),
+                        err -> JANITOR.error("Error while sending greeting message to {}, on cmd of {}",
+                            Util.toString(member.getUser()), Util.toString(ctx.getSource().getAuthor()))
+                    );
             }
         }
         return 1;
