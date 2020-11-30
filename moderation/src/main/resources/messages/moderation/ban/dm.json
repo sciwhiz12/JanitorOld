@@ -5,16 +5,8 @@
     "icon_url": "${performer.guild.icon_url}"
   },
   "title": "You were banned from this server.",
-  "fields": [
-    {
-      "name": "Moderator",
-      "value": "${performer.mention}",
-      "inline": true
-    },
-    {
-      "name": "Reason",
-      "value": "${nullcheck;reason;_No reason specified._}",
-      "inline": true
-    }
-  ]
+  "fields": {
+    "Moderator": "${performer.mention}",
+    "Reason": "${nullcheck;reason;_No reason specified_}"
+  }
 }

@@ -1,16 +1,8 @@
 {
   "color": "${general.error.color}",
   "title": "Cannot remove warning from self.",
-  "fields": [
-    {
-      "name": "Performer/Target",
-      "value": "${performer.mention}",
-      "inline": true
-    },
-    {
-      "name": "Issuer",
-      "value": "${warning_entry.performer.mention}",
-      "inline": true
-    }
-  ]
+  "fields": {
+    "Performer/Target": "${performer.mention}",
+    "Issuer": "${warning_entry.performer.mention}"
+  }
 }

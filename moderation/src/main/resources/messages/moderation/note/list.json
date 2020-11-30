@@ -7,7 +7,11 @@
   },
   "entry": {
     "type": "description",
-    "text": "**#${note_entry.note_id}**:   ${note_entry.target.mention} by ${note_entry.performer.mention}\n  - _${note_entry.date_time}_\n${note_entry.contents}"
+    "text": [
+      "**#${note_entry.note_id}**:   ${note_entry.target.mention} by ${note_entry.performer.mention}",
+      "  - _${note_entry.date_time}_",
+      "${note_entry.contents}"
+    ]
   },
   "empty": "**_No recorded notes matching your query._**"
 }

@@ -4,31 +4,14 @@
     "name": "Banned user from server.",
     "icon_url": "${moderation.icon_url}"
   },
-  "fields": [
-    {
-      "name": "Performer",
-      "value": "${performer.mention}",
-      "inline": true
-    },
-    {
-      "name": "Target",
-      "value": "${target.mention}",
-      "inline": true
-    },
-    {
-      "name": "Sent DM",
-      "value": "${private_message}",
-      "inline": true
-    },
-    {
-      "name": "Message Deletion",
-      "value": "${delete_duration} day(s)",
-      "inline": true
-    },
-    {
-      "name": "Reason",
+  "fields": {
+    "Performer": "${performer.mention}",
+    "Target": "${target.mention}",
+    "Sent DM": "${private_message}",
+    "Message Deletion": "${delete_duration} day(s)",
+    "Reason": {
       "value": "${nullcheck;reason;_No reason specified._}",
       "inline": false
     }
-  ]
+  }
 }

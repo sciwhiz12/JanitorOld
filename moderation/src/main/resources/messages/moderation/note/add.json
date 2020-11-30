@@ -4,31 +4,14 @@
     "name": "Recorded note for user.",
     "icon_url": "${moderation.icon_url}"
   },
-  "fields": [
-    {
-      "name": "Performer",
-      "value": "${note_entry.performer.mention}",
-      "inline": true
-    },
-    {
-      "name": "Target",
-      "value": "${note_entry.target.mention}",
-      "inline": true
-    },
-    {
-      "name": "Note ID",
-      "value": "${note_entry.note_id}",
-      "inline": true
-    },
-    {
-      "name": "Date & Time",
-      "value": "${note_entry.date_time}",
-      "inline": true
-    },
-    {
-      "name": "Text",
+  "fields": {
+    "Performer": "${note_entry.performer.mention}"
+    "Target": "${note_entry.target.mention}"
+    "Note ID": "${note_entry.note_id}"
+    "Date & Time": "${note_entry.date_time}",
+    "Text": {
       "value": "${note_entry.contents}",
       "inline": false
     }
-  ]
+  }
 }

@@ -4,19 +4,14 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.base.Joiner;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import sciwhiz12.janitor.api.messages.RegularMessage;
+import sciwhiz12.janitor.utils.DeserializerUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nullable;
 
 public class RegularMessageDeserializer extends StdDeserializer<RegularMessage> {
-    public static final Joiner NEWLINE = Joiner.on('\n');
-
     public RegularMessageDeserializer() {
         super(RegularMessage.class);
     }
@@ -38,7 +33,7 @@ public class RegularMessageDeserializer extends StdDeserializer<RegularMessage> 
         String footerIconUrl = null;
         String imageUrl = node.path("image").asText(null);
         String thumbnailUrl = node.path("thumbnail").asText(null);
-        List<MessageEmbed.Field> fields = readFields(node);
+        List<MessageEmbed.Field> fields = DeserializerUtil.readFields(node.path("fields"));
 
         // Title
         if (node.path("title").isTextual()) {
@@ -67,31 +62,5 @@ public class RegularMessageDeserializer extends StdDeserializer<RegularMessage> 
 
         return new RegularMessage(title, url, description, color, authorName, authorUrl,
             authorIconUrl, footerText, footerIconUrl, imageUrl, thumbnailUrl, fields);
-    }
-
-    public static List<MessageEmbed.Field> readFields(JsonNode node) {
-        if (node.path("fields").isArray()) {
-            final ArrayList<MessageEmbed.Field> fields = new ArrayList<>();
-            for (int i = 0; i < node.path("fields").size(); i++) {
-                final MessageEmbed.Field field = readField(node.path("fields").path(i));
-                if (field != null) {
-                    fields.add(field);
-                }
-            }
-            return fields;
-        }
-        return Collections.emptyList();
-    }
-
-    @Nullable
-    public static MessageEmbed.Field readField(JsonNode fieldNode) {
-        if (fieldNode.path("name").isTextual()) {
-            return new MessageEmbed.Field(
-                fieldNode.path("name").asText(),
-                DeserializerUtil.readText(fieldNode.path("value")),
-                fieldNode.path("inline").asBoolean(false)
-            );
-        }
-        return null;
     }
 }

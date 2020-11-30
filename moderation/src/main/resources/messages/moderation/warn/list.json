@@ -7,7 +7,11 @@
   },
   "entry": {
     "type": "description",
-    "text": "**Case #${warning_entry.case_id}**: Warned ${warning_entry.target.mention} by ${warning_entry.performer.mention} \n - _Date & Time:_ ${warning_entry.date_time} \n - _Reason:_ ${warning_entry.reason}"
+    "text": [
+      "**Case #${warning_entry.case_id}**: Warned ${warning_entry.target.mention} by ${warning_entry.performer.mention}",
+      " - _Date & Time:_ ${warning_entry.date_time}",
+      " - _Reason:_ ${warning_entry.reason}"
+    ]
   },
   "empty": "**_No warnings logged matching your query._**"
 }
