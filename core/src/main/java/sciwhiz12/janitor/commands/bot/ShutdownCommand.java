@@ -29,6 +29,7 @@ public class ShutdownCommand extends BaseCommand {
             .getMessage()
             .getChannel()
             .sendMessage("Shutting down, in accordance with the owner's command. Goodbye all!")
+            .reference(ctx.getSource().getMessage())
             .submit()
             .whenComplete(Util.handle(
                 success -> JANITOR.debug("Sent shutdown message to channel {}", Util.toString(ctx.getSource().getAuthor())),

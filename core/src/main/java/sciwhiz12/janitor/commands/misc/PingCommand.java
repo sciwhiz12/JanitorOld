@@ -30,6 +30,7 @@ public class PingCommand extends BaseCommand {
             .getMessage()
             .getChannel()
             .sendMessage(reply)
+            .reference(ctx.getSource().getMessage())
             .queue(
                 success -> JANITOR.debug("Sent ping message to {}: {}", Util.toString(ctx.getSource().getAuthor()), reply),
                 err -> JANITOR.error("Error while sending ping message to {}", Util.toString(ctx.getSource().getAuthor()))

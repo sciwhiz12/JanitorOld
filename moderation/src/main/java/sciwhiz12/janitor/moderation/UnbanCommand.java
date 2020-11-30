@@ -6,6 +6,7 @@ import com.mojang.brigadier.context.CommandContext;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -50,7 +51,8 @@ public class UnbanCommand extends ModBaseCommand {
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
                 .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
             return;
         }
@@ -67,10 +69,11 @@ public class UnbanCommand extends ModBaseCommand {
                 if (bans.size() > 1) {
                     messages().getRegularMessage("general/error/ambiguous_member")
                         .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
-                        .send(getBot(), channel).queue();
+                        .send(getBot(), channel)
+                        .reference(ctx.getSource().getMessage()).queue();
 
                 } else if (bans.size() == 1) {
-                    tryUnban(channel, guild, performer, bans.get(0).getUser());
+                    tryUnban(ctx.getSource().getMessage(), performer, bans.get(0).getUser());
                 }
             });
     }
@@ -85,7 +88,8 @@ public class UnbanCommand extends ModBaseCommand {
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
                 .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
             return;
         }
@@ -101,22 +105,27 @@ public class UnbanCommand extends ModBaseCommand {
                 if (bans.size() != 1) {
                     return;
                 }
-                tryUnban(channel, guild, performer, bans.get(0).getUser());
+                tryUnban(ctx.getSource().getMessage(), performer, bans.get(0).getUser());
             });
     }
 
-    void tryUnban(MessageChannel channel, Guild guild, Member performer, User target) {
+    void tryUnban(Message originalMsg, Member performer, User target) {
+        final MessageChannel channel = originalMsg.getChannel();
+        final Guild guild = performer.getGuild();
         if (!guild.getSelfMember().hasPermission(UNBAN_PERMISSION)) {
             messages().getRegularMessage("general/error/insufficient_permissions")
                 .apply(MessageHelper.member("performer", performer))
                 .with("required_permissions", UNBAN_PERMISSION::toString)
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(originalMsg)
+                .queue();
 
         } else if (!performer.hasPermission(UNBAN_PERMISSION)) {
             messages().getRegularMessage("moderation/error/insufficient_permissions")
                 .apply(MessageHelper.member("performer", performer))
                 .with("required_permissions", UNBAN_PERMISSION::toString)
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(originalMsg).queue();
 
         } else {
             ModerationHelper.unbanUser(guild, target)
@@ -124,6 +133,7 @@ public class UnbanCommand extends ModBaseCommand {
                     .apply(MessageHelper.member("performer", performer))
                     .apply(MessageHelper.user("target", target))
                     .send(getBot(), channel)
+                    .reference(originalMsg)
                 )
                 .queue();
         }

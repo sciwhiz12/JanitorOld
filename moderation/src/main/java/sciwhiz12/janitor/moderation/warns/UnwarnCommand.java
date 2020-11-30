@@ -48,7 +48,8 @@ public class UnwarnCommand extends ModBaseCommand {
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
                 .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
             return;
         }
@@ -60,7 +61,8 @@ public class UnwarnCommand extends ModBaseCommand {
             messages().getRegularMessage("moderation/error/insufficient_permissions")
                 .apply(MessageHelper.member("performer", performer))
                 .with("required_permissions", WARN_PERMISSION::toString)
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else {
             final WarningStorage storage = getWarns(guild);
@@ -71,28 +73,32 @@ public class UnwarnCommand extends ModBaseCommand {
                 messages().getRegularMessage("moderation/error/unwarn/no_case_found")
                     .apply(MessageHelper.member("performer", performer))
                     .with("case_id", () -> String.valueOf(caseID))
-                    .send(getBot(), channel).queue();
+                    .send(getBot(), channel)
+                    .reference(ctx.getSource().getMessage()).queue();
 
             } else if (entry.getWarned().getIdLong() == performer.getIdLong()
                 && !config(guild).forGuild(ALLOW_REMOVE_SELF_WARNINGS)) {
                 messages().getRegularMessage("moderation/error/unwarn/cannot_unwarn_self")
                     .apply(MessageHelper.member("performer", performer))
                     .apply(ModerationHelper.warningEntry("warning_entry", caseID, entry))
-                    .send(getBot(), channel).queue();
+                    .send(getBot(), channel)
+                    .reference(ctx.getSource().getMessage()).queue();
 
             } else if (config(guild).forGuild(WARNS_RESPECT_MOD_ROLES)
                 && (temp = guild.getMember(entry.getPerformer())) != null && !performer.canInteract(temp)) {
                 messages().getRegularMessage("moderation/error/unwarn/cannot_remove_higher_mod")
                     .apply(MessageHelper.member("performer", performer))
                     .apply(ModerationHelper.warningEntry("warning_entry", caseID, entry))
-                    .send(getBot(), channel).queue();
+                    .send(getBot(), channel)
+                    .reference(ctx.getSource().getMessage()).queue();
 
             } else {
                 storage.removeWarning(caseID);
                 messages().getRegularMessage("moderation/unwarn/info")
                     .apply(MessageHelper.member("performer", performer))
                     .apply(ModerationHelper.warningEntry("warning_entry", caseID, entry))
-                    .send(getBot(), channel).queue();
+                    .send(getBot(), channel)
+                    .reference(ctx.getSource().getMessage()).queue();
 
             }
         }

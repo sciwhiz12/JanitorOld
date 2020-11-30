@@ -35,6 +35,7 @@ public class HelloCommand extends BaseCommand {
             if (memberList.size() == 1) {
                 final Member member = memberList.get(0);
                 ctx.getSource().getChannel().sendMessage("Hello " + member.getAsMention() + "!")
+                    .reference(ctx.getSource().getMessage())
                     .flatMap(message ->
                         getBot().getReactions().newMessage(message)
                             .add("\u274C", (msg, event) -> message.delete()

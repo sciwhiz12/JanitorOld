@@ -36,7 +36,8 @@ public class AboutCommand extends BaseCommand {
                     )
                     .apply(MessageHelper.member("bot.member", ctx.getSource().getGuild().getSelfMember()))
                     .with("guild.command_prefix", () -> config(ctx.getSource()).forGuild(COMMAND_PREFIX))
-                    .send(getBot(), ctx.getSource().getChannel()).queue();
+                    .send(getBot(), ctx.getSource().getChannel())
+                    .reference(ctx.getSource().getMessage()).queue();
                 return 1;
             });
     }

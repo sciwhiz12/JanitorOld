@@ -197,7 +197,18 @@ public class ListingMessage {
         RestAction<Message> build(MessageChannel channel,
             SubstitutionsMap globalSubstitutions,
             Message triggerMessage,
+            boolean reply,
             List<T> entries);
+
+        default RestAction<Message> build(MessageChannel channel, JanitorBot bot, Message triggerMessage, boolean reply,
+            List<T> entries) {
+            return build(channel, bot.getSubstitutions(), triggerMessage, reply, entries);
+        }
+
+        default RestAction<Message> build(MessageChannel channel, SubstitutionsMap globalSubstitutions, Message triggerMessage,
+            List<T> entries) {
+            return build(channel, globalSubstitutions, triggerMessage, true, entries);
+        }
 
         default RestAction<Message> build(MessageChannel channel, JanitorBot bot, Message triggerMessage, List<T> entries) {
             return build(channel, bot.getSubstitutions(), triggerMessage, entries);

@@ -52,7 +52,8 @@ public class WarnCommand extends ModBaseCommand {
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
                 .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
             return 1;
         }
@@ -67,30 +68,35 @@ public class WarnCommand extends ModBaseCommand {
         if (guild.getSelfMember().equals(target)) {
             messages().getRegularMessage("general/error/cannot_action_self")
                 .apply(MessageHelper.member("performer", performer))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else if (performer.equals(target)) {
             messages().getRegularMessage("general/error/cannot_action_performer")
                 .apply(MessageHelper.member("performer", performer))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else if (!performer.hasPermission(WARN_PERMISSION)) {
             messages().getRegularMessage("moderation/error/insufficient_permissions")
                 .apply(MessageHelper.member("performer", performer))
                 .with("required_permissions", WARN_PERMISSION::toString)
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else if (!performer.canInteract(target)) {
             messages().getRegularMessage("moderation/error/cannot_interact")
                 .apply(MessageHelper.member("performer", performer))
                 .apply(MessageHelper.member("target", target))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else if (target.hasPermission(WARN_PERMISSION) && config(guild).forGuild(ALLOW_WARN_OTHER_MODERATORS)) {
             messages().getRegularMessage("moderation/error/warn/cannot_warn_mods")
                 .apply(MessageHelper.member("performer", performer))
                 .apply(MessageHelper.member("target", target))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else {
             WarningEntry entry = new WarningEntry(performer.getUser(), target.getUser(), dateTime, reason);
@@ -108,6 +114,7 @@ public class WarnCommand extends ModBaseCommand {
                     .apply(ModerationHelper.warningEntry("warning_entry", caseId, entry))
                     .with("private_message", () -> res.isSuccess() ? "\u2705" : "\u274C")
                     .send(getBot(), channel)
+                    .reference(ctx.getSource().getMessage())
                 )
                 .queue();
         }

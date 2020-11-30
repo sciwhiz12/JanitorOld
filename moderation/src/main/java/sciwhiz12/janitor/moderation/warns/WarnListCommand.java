@@ -63,7 +63,8 @@ public class WarnListCommand extends ModBaseCommand {
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
                 .apply(user("performer", ctx.getSource().getAuthor()))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
             return 1;
         }
@@ -78,7 +79,8 @@ public class WarnListCommand extends ModBaseCommand {
             if (guild.getSelfMember().equals(target)) {
                 messages().getRegularMessage("general/error/cannot_interact")
                     .apply(member("target", target))
-                    .send(getBot(), channel).queue();
+                    .send(getBot(), channel)
+                    .reference(ctx.getSource().getMessage()).queue();
 
                 return 1;
             }
@@ -95,7 +97,8 @@ public class WarnListCommand extends ModBaseCommand {
             messages().getRegularMessage("moderation/error/insufficient_permissions")
                 .apply(member("performer", performer))
                 .with("required_permissions", WARN_PERMISSION::toString)
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else {
             messages().<Map.Entry<Integer, WarningEntry>>getListingMessage("moderation/warn/list")

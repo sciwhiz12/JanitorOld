@@ -58,7 +58,8 @@ public class BanCommand extends ModBaseCommand {
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
                 .apply(MessageHelper.user("performer", ctx.getSource().getAuthor()))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
             return 1;
         }
@@ -72,35 +73,41 @@ public class BanCommand extends ModBaseCommand {
         if (guild.getSelfMember().equals(target)) {
             messages().getRegularMessage("general/error/cannot_action_self")
                 .apply(MessageHelper.member("performer", performer))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else if (performer.equals(target)) {
             messages().getRegularMessage("general/error/cannot_action_performer")
                 .apply(MessageHelper.member("performer", performer))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else if (!guild.getSelfMember().hasPermission(BAN_PERMISSION)) {
             messages().getRegularMessage("general/error/insufficient_permissions")
                 .apply(MessageHelper.member("performer", performer))
                 .with("required_permissions", BAN_PERMISSION::toString)
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else if (!guild.getSelfMember().canInteract(target)) {
             messages().getRegularMessage("general/error/cannot_interact")
                 .apply(MessageHelper.member("target", target))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else if (!performer.hasPermission(BAN_PERMISSION)) {
             messages().getRegularMessage("moderation/error/insufficient_permissions")
                 .apply(MessageHelper.member("performer", performer))
                 .with("required_permissions", BAN_PERMISSION::toString)
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else if (!performer.canInteract(target)) {
             messages().getRegularMessage("moderation/error/cannot_interact")
                 .apply(MessageHelper.member("performer", performer))
                 .apply(MessageHelper.member("target", target))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else {
             target.getUser().openPrivateChannel()
@@ -120,6 +127,7 @@ public class BanCommand extends ModBaseCommand {
                             .with("delete_duration", () -> String.valueOf(days))
                             .with("reason", () -> reason)
                             .send(getBot(), channel)
+                            .reference(ctx.getSource().getMessage())
                         )
                 )
                 .queue();

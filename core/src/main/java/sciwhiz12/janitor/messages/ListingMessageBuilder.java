@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 import sciwhiz12.janitor.api.messages.ListingMessage;
 import sciwhiz12.janitor.api.messages.emote.ReactionMessage;
 import sciwhiz12.janitor.api.messages.substitution.ModifiableSubstitutor;
@@ -72,41 +73,23 @@ public class ListingMessageBuilder<T> implements ListingMessage.Builder<T> {
     public RestAction<Message> build(MessageChannel channel,
         SubstitutionsMap globalSubstitutions,
         Message triggerMessage,
+        boolean reply,
         List<T> entries) {
 
         final ModifiableSubstitutor<?> customSubs = globalSubstitutions.with(customSubstitutions);
         final ImmutableList<T> list = ImmutableList.copyOf(entries);
         final PagedMessage pagedMessage = new PagedMessage(message, list, amountPerPage);
 
-        return channel.sendMessage(pagedMessage.createMessage(customSubs, entryApplier))
-            .flatMap(listMsg -> {
-                    ReactionMessage reactionMsg = globalSubstitutions.getBot().getReactions().newMessage(listMsg)
-                        .owner(triggerMessage.getAuthor().getIdLong())
-                        .removeEmotes(true)
-                        .add("\u2b05", (msg, event) -> { // PREVIOUS
-                            if (pagedMessage.advancePage(PageDirection.PREVIOUS)) {
-                                event.retrieveMessage()
-                                    .flatMap(eventMsg -> eventMsg.editMessage(
-                                        pagedMessage.createMessage(customSubs, entryApplier))
-                                    )
-                                    .queue();
-                            }
-                        });
-
-                    if (addDeletionReaction) {
-                        reactionMsg.add("\u274c", (msg, event) -> { // CLOSE
-                            event.getChannel().deleteMessageById(event.getMessageIdLong())
-                                .flatMap(v -> !triggerMessage.isFromGuild() ||
-                                        event.getGuild().getSelfMember()
-                                            .hasPermission(triggerMessage.getTextChannel(),
-                                                Permission.MESSAGE_MANAGE),
-                                    v -> triggerMessage.delete())
-                                .queue();
-                        });
-                    }
-
-                    reactionMsg.add("\u27a1", (msg, event) -> { // NEXT
-                        if (pagedMessage.advancePage(PageDirection.NEXT)) {
+        MessageAction action = channel.sendMessage(pagedMessage.createMessage(customSubs, entryApplier));
+        if (reply) {
+            action = action.reference(triggerMessage);
+        }
+        return action.flatMap(listMsg -> {
+                ReactionMessage reactionMsg = globalSubstitutions.getBot().getReactions().newMessage(listMsg)
+                    .owner(triggerMessage.getAuthor().getIdLong())
+                    .removeEmotes(true)
+                    .add("\u2b05", (msg, event) -> { // PREVIOUS
+                        if (pagedMessage.advancePage(PageDirection.PREVIOUS)) {
                             event.retrieveMessage()
                                 .flatMap(eventMsg -> eventMsg.editMessage(
                                     pagedMessage.createMessage(customSubs, entryApplier))
@@ -115,9 +98,31 @@ public class ListingMessageBuilder<T> implements ListingMessage.Builder<T> {
                         }
                     });
 
-                    return reactionMsg.create(listMsg);
+                if (addDeletionReaction) {
+                    reactionMsg.add("\u274c", (msg, event) -> { // CLOSE
+                        event.getChannel().deleteMessageById(event.getMessageIdLong())
+                            .flatMap(v -> !triggerMessage.isFromGuild() ||
+                                    event.getGuild().getSelfMember()
+                                        .hasPermission(triggerMessage.getTextChannel(),
+                                            Permission.MESSAGE_MANAGE),
+                                v -> triggerMessage.delete())
+                            .queue();
+                    });
                 }
-            );
+
+                reactionMsg.add("\u27a1", (msg, event) -> { // NEXT
+                    if (pagedMessage.advancePage(PageDirection.NEXT)) {
+                        event.retrieveMessage()
+                            .flatMap(eventMsg -> eventMsg.editMessage(
+                                pagedMessage.createMessage(customSubs, entryApplier))
+                            )
+                            .queue();
+                    }
+                });
+
+                return reactionMsg.create(listMsg);
+            }
+        );
     }
 
     class PagedMessage {

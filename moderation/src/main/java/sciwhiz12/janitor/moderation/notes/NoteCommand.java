@@ -99,7 +99,8 @@ public class NoteCommand extends ModBaseCommand {
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
                 .apply(user("performer", ctx.getSource().getAuthor()))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
             return 1;
         }
@@ -113,18 +114,21 @@ public class NoteCommand extends ModBaseCommand {
         if (guild.getSelfMember().equals(target)) {
             messages().getRegularMessage("general/error/cannot_action_self")
                 .apply(MessageHelper.member("performer", performer))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else if (performer.equals(target)) {
             messages().getRegularMessage("general/error/cannot_action_performer")
                 .apply(MessageHelper.member("performer", performer))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else if (!performer.hasPermission(NOTE_PERMISSION)) {
             messages().getRegularMessage("moderation/error/insufficient_permissions")
                 .apply(MessageHelper.member("performer", performer))
                 .with("required_permissions", NOTE_PERMISSION::toString)
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else {
             final NoteStorage storage = getNotes(guild);
@@ -135,7 +139,8 @@ public class NoteCommand extends ModBaseCommand {
                     .apply(MessageHelper.member("performer", performer))
                     .apply(MessageHelper.member("target", target))
                     .with("notes_amount", () -> String.valueOf(maxAmount))
-                    .send(getBot(), channel).queue();
+                    .send(getBot(), channel)
+                    .reference(ctx.getSource().getMessage()).queue();
 
             } else {
                 final NoteEntry entry = new NoteEntry(performer.getUser(), target.getUser(), dateTime, noteContents);
@@ -144,7 +149,8 @@ public class NoteCommand extends ModBaseCommand {
                 messages().getRegularMessage("moderation/note/add")
                     .apply(MessageHelper.member("performer", performer))
                     .apply(ModerationHelper.noteEntry("note_entry", noteID, entry))
-                    .send(getBot(), channel).queue();
+                    .send(getBot(), channel)
+                    .reference(ctx.getSource().getMessage()).queue();
 
             }
         }
@@ -161,7 +167,8 @@ public class NoteCommand extends ModBaseCommand {
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
                 .apply(user("performer", ctx.getSource().getAuthor()))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
             return 1;
         }
@@ -176,7 +183,8 @@ public class NoteCommand extends ModBaseCommand {
             if (guild.getSelfMember().equals(target)) {
                 messages().getRegularMessage("general/error/cannot_interact")
                     .apply(MessageHelper.member("target", target))
-                    .send(getBot(), channel).queue();
+                    .send(getBot(), channel)
+                    .reference(ctx.getSource().getMessage()).queue();
 
                 return 1;
             }
@@ -199,7 +207,8 @@ public class NoteCommand extends ModBaseCommand {
             messages().getRegularMessage("moderation/error/insufficient_permissions")
                 .apply(MessageHelper.member("performer", performer))
                 .with("required_permissions", NOTE_PERMISSION::toString)
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else {
             messages().<Map.Entry<Integer, NoteEntry>>getListingMessage("moderation/note/list")
@@ -225,7 +234,8 @@ public class NoteCommand extends ModBaseCommand {
         if (!ctx.getSource().isFromGuild()) {
             messages().getRegularMessage("general/error/guild_only_command")
                 .apply(user("performer", ctx.getSource().getAuthor()))
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
             return 1;
         }
@@ -236,7 +246,8 @@ public class NoteCommand extends ModBaseCommand {
             messages().getRegularMessage("moderation/error/insufficient_permissions")
                 .apply(MessageHelper.member("performer", performer))
                 .with("required_permissions", NOTE_PERMISSION::toString)
-                .send(getBot(), channel).queue();
+                .send(getBot(), channel)
+                .reference(ctx.getSource().getMessage()).queue();
 
         } else {
             final NoteStorage storage = getNotes(guild);
@@ -246,7 +257,8 @@ public class NoteCommand extends ModBaseCommand {
                 messages().getRegularMessage("moderation/note/add")
                     .apply(MessageHelper.member("performer", performer))
                     .with("note_id", () -> String.valueOf(noteID))
-                    .send(getBot(), channel).queue();
+                    .send(getBot(), channel)
+                    .reference(ctx.getSource().getMessage()).queue();
 
             } else {
                 storage.removeNote(noteID);
@@ -254,7 +266,8 @@ public class NoteCommand extends ModBaseCommand {
                 messages().getRegularMessage("moderation/note/remove")
                     .apply(MessageHelper.member("performer", performer))
                     .apply(ModerationHelper.noteEntry("note_entry", noteID, entry))
-                    .send(getBot(), channel).queue();
+                    .send(getBot(), channel)
+                    .reference(ctx.getSource().getMessage()).queue();
             }
         }
         return 1;
