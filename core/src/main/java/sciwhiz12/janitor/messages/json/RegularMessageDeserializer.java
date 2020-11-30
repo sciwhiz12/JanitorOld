@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.google.common.base.Joiner;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import sciwhiz12.janitor.api.messages.RegularMessage;
 
@@ -14,6 +15,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 public class RegularMessageDeserializer extends StdDeserializer<RegularMessage> {
+    public static final Joiner NEWLINE = Joiner.on('\n');
+
     public RegularMessageDeserializer() {
         super(RegularMessage.class);
     }
@@ -26,7 +29,7 @@ public class RegularMessageDeserializer extends StdDeserializer<RegularMessage> 
 
         String title = null;
         String url = null;
-        String description = node.path("description").asText(null);
+        String description = DeserializerUtil.readText(node.path("description"));
         String color = node.path("color").asText(null);
         String authorName = null;
         String authorUrl = null;
@@ -82,10 +85,10 @@ public class RegularMessageDeserializer extends StdDeserializer<RegularMessage> 
 
     @Nullable
     public static MessageEmbed.Field readField(JsonNode fieldNode) {
-        if (fieldNode.path("name").isTextual() && fieldNode.path("value").isTextual()) {
+        if (fieldNode.path("name").isTextual()) {
             return new MessageEmbed.Field(
                 fieldNode.path("name").asText(),
-                fieldNode.path("value").asText(),
+                DeserializerUtil.readText(fieldNode.path("value")),
                 fieldNode.path("inline").asBoolean(false)
             );
         }

@@ -1,5 +1,8 @@
 {
   "color": "${general.error.color}",
   "title": "Ambiguous member argument!",
-  "description": "The name you have specified is too ambiguous (leads to more than 1 member)!\nPlease narrow down the specified name until it can uniquely identify a member of this guild."
+  "description": [
+    "The name you have specified is too ambiguous (leads to more than 1 member)!",
+    "Please narrow down the specified name until it can uniquely identify a member of this guild."
+  ]
 }
