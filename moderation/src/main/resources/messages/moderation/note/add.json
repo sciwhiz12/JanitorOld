@@ -5,9 +5,9 @@
     "icon_url": "${moderation.icon_url}"
   },
   "fields": {
-    "Performer": "${note_entry.performer.mention}"
-    "Target": "${note_entry.target.mention}"
-    "Note ID": "${note_entry.note_id}"
+    "Performer": "${note_entry.performer.mention}",
+    "Target": "${note_entry.target.mention}",
+    "Note ID": "${note_entry.note_id}",
     "Date & Time": "${note_entry.date_time}",
     "Text": {
       "value": "${note_entry.contents}",
