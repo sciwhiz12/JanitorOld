@@ -10,6 +10,7 @@ import sciwhiz12.janitor.api.command.CommandRegistry;
 import sciwhiz12.janitor.api.command.arguments.GuildMemberArgument;
 import sciwhiz12.janitor.utils.Util;
 
+import java.util.Collections;
 import java.util.List;
 
 import static sciwhiz12.janitor.api.Logging.JANITOR;
@@ -35,6 +36,7 @@ public class HelloCommand extends BaseCommand {
             if (memberList.size() == 1) {
                 final Member member = memberList.get(0);
                 ctx.getSource().getChannel().sendMessage("Hello " + member.getAsMention() + "!")
+                    .allowedMentions(Collections.emptyList())
                     .reference(ctx.getSource().getMessage())
                     .flatMap(message ->
                         getBot().getReactions().newMessage(message)
