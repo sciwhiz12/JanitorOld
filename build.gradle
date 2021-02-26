@@ -15,7 +15,7 @@ apply plugin: 'idea'
 apply plugin: 'application'
 apply plugin: 'maven-publish'
 
-group = 'sciwhiz12.janitor'
+group = 'tk.sciwhiz12.janitor'
 version = getVersion()
 println("Version: ${version}")
 
