@@ -1,0 +1,93 @@
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'org.ajoberstar.grgit', name: 'grgit-gradle', version: grgit_version
+        classpath group: 'com.github.jengelman.gradle.plugins', name: 'shadow', version: shadow_version
+    }
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'org.ajoberstar.grgit'
+apply plugin: 'idea'
+apply plugin: 'application'
+apply plugin: 'maven-publish'
+
+group = 'sciwhiz12.janitor'
+version = getVersion()
+println("Version: ${version}")
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven {
+        name = "Minecraft Libraries"
+        url = "https://libraries.minecraft.net"
+    }
+}
+
+dependencies {
+    shadow group: 'net.dv8tion', name: 'JDA', version: jda_version
+    shadow group: 'com.electronwill.night-config', name: 'toml', version: nightconfig_version
+    shadow group: 'net.sf.jopt-simple', name: 'jopt-simple', version: jopt_version
+    shadow group: 'com.google.guava', name: 'guava', version: guava_version
+    shadow group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
+    shadow group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
+    shadow group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
+    shadow group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: log4j_bridge_version
+    shadow group: 'ch.qos.logback', name: 'logback-classic', version: logback_version
+    shadow group: 'com.mojang', name: 'brigadier', version: brigadier_version
+}
+
+jar.finalizedBy 'shadowJar'
+shadowJar {
+    exclude 'META-INF/NOTICE**'
+    exclude 'META-INF/LICENSE**'
+    exclude 'META-INF/DEPENDENCIES'
+    exclude 'META-INF/proguard/**'
+    exclude 'META-INF/maven/**'
+    classifier ''
+    includeEmptyDirs false
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title": "janitor",
+                "Specification-Author": "sciwhiz12"
+        ] as LinkedHashMap)
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+    classifier "sources"
+}
+
+def getVersion() {
+    try {
+        String raw_version = grgit.describe(longDescr: true, tags: true)
+        def versionSep = raw_version.split "-"
+        def startVer = versionSep[0].substring(1)
+        return startVer + "." + versionSep[1]
+    } catch (Exception e) {
+        def ver = 'unknown'
+        if (System.getenv("GITHUB_RUN_NUMBER") != null) ver = "SNAPSHOT-${System.getenv("GITHUB_RUN_NUMBER")}"
+        logger.error("Error getting version information, defaulting to '${ver}': {}", e.getMessage())
+        return ver
+    }
+}
+
+
