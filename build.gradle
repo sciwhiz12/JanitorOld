@@ -36,7 +36,7 @@ dependencies {
 }
 
 application {
-    mainClassName = 'sciwhiz12.janitor.BotStartup'
+    mainClassName = 'tk.sciwhiz12.janitor.BotStartup'
 }
 jar.finalizedBy 'shadowJar'
 shadowJar {
