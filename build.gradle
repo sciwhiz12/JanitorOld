@@ -45,7 +45,7 @@ shadowJar {
     exclude 'META-INF/DEPENDENCIES'
     exclude 'META-INF/proguard/**'
     exclude 'META-INF/maven/**'
-    classifier ''
+    classifier 'all'
     includeEmptyDirs false
 }
 
@@ -70,7 +70,7 @@ tasks.withType(JavaCompile) {
 
 jar {
     from sourceSets.api.output
-    finalizedBy 'apiJar', 'sourcesJar'
+    finalizedBy 'sourcesJar'
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
