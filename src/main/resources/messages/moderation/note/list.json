@@ -1,0 +1,17 @@
+{
+  "type": "listing",
+  "color": "${moderation.color}",
+  "author": {
+    "name": "Listing of Notes (Page ${page.current}/${page.max})",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "entry": {
+    "type": "description",
+    "text": [
+      "**#${note_entry.note_id}**:   ${note_entry.target.mention} by ${note_entry.performer.mention}",
+      "  - _${note_entry.date_time}_",
+      "${note_entry.contents}"
+    ]
+  },
+  "empty": "**_No recorded notes matching your query._**"
+}

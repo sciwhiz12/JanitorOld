@@ -1,0 +1,12 @@
+{
+  "title": "${bot.member.name}",
+  "thumbnail": "${bot.member.avatar}",
+  "description": [
+    "A general and extensible housekeeping bot. Created by SciWhiz12.",
+    "_Use `${guild.command_prefix}commands` to get the list of enabled commands in this guild._",
+    "\nRunning **${bot.name}**, version **${bot.version}**. Serving **${bot.guild_count}** guilds."
+  ],
+  "fields": {
+    "Active Modules (${bot.modules.count})": "${bot.modules.names}"
+  }
+}

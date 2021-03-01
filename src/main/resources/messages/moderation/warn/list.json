@@ -1,0 +1,17 @@
+{
+  "type": "listing",
+  "color": "${moderation.color}",
+  "author": {
+    "name": "Listing of Warnings (Page ${page.current}/${page.max})",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "entry": {
+    "type": "description",
+    "text": [
+      "**Case #${warning_entry.case_id}**: Warned ${warning_entry.target.mention} by ${warning_entry.performer.mention}",
+      " - _Date & Time:_ ${warning_entry.date_time}",
+      " - _Reason:_ ${warning_entry.reason}"
+    ]
+  },
+  "empty": "**_No warnings logged matching your query._**"
+}

@@ -1,0 +1,7 @@
+{
+  "color": "${general.error.color}",
+  "description": "The performer of this command has insufficient permissions to use this command.",
+  "fields": {
+    "Required permissions": "${required_permissions}"
+  }
+}

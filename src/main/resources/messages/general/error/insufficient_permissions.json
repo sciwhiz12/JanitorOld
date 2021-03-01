@@ -1,0 +1,10 @@
+{
+  "color": "${general.error.color}",
+  "description": [
+    "I do not have sufficient permissions to carry out this action.",
+    "Please contact your server administrators if you believe this is in error."
+  ],
+  "fields": {
+    "Required permissions": "${required_permissions}"
+  }
+}

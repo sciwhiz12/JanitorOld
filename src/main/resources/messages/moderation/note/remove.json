@@ -1,0 +1,18 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "Removed note.",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "fields": {
+    "Performer": "${performer.mention}",
+    "Original Performer": "${note_entry.performer.mention}",
+    "Original Target": "${note_entry.target.mention}",
+    "Note ID": "${note_entry.note_id}",
+    "Date & Time": "${note_entry.date_time}",
+    "Text": {
+      "value": "${note_entry.contents}",
+      "inline": false
+    }
+  }
+}

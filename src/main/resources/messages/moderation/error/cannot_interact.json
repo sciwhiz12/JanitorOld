@@ -1,0 +1,7 @@
+{
+  "color": "${general.error.color}",
+  "description": "The performer of this command cannot moderate the target user, likely due to being lower in the role hierarchy.",
+  "fields": {
+    "Target": "${target.mention}"
+  }
+}

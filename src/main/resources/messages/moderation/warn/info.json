@@ -1,0 +1,18 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "Warned user.",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "fields": {
+    "Performer": "${warning_entry.performer.mention}",
+    "Target": "${warning_entry.target.mention}",
+    "Case ID": "${warning_entry.case_id}",
+    "Sent DM": "${private_message}",
+    "Date & Time": "${warning_entry.date_time}",
+    "Reason": {
+      "value": "${nullcheck;warning_entry.reason;_No reason specified._}",
+      "inline": false
+    }
+  }
+}

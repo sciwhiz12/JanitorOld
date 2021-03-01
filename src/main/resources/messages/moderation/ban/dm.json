@@ -1,0 +1,12 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "${performer.guild.name}",
+    "icon_url": "${performer.guild.icon_url}"
+  },
+  "title": "You were banned from this server.",
+  "fields": {
+    "Moderator": "${performer.mention}",
+    "Reason": "${nullcheck;reason;_No reason specified_}"
+  }
+}

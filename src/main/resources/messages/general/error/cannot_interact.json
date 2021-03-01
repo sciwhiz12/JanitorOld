@@ -1,0 +1,7 @@
+{
+  "color": "${general.error.color}",
+  "description": "Cannot perform action on the given member, likely due to me being lower in the role hierarchy.",
+  "fields": {
+    "Target": "${target.mention}"
+  }
+}

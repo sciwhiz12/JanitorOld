@@ -1,0 +1,7 @@
+{
+  "color": "${general.error.color}",
+  "title": "Cannot warn other moderators.",
+  "fields": {
+    "Target": "${target.mention}"
+  }
+}

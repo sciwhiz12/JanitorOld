@@ -1,0 +1,8 @@
+{
+  "color": "${general.error.color}",
+  "description": "The performer has reached the maximum amount of notes for the target user.",
+  "fields": {
+    "Target": "${target.mention}",
+    "(Max.) Amount": "${notes_amount}"
+  }
+}

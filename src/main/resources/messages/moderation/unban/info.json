@@ -1,0 +1,11 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "Unbanned user from server.",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "fields": {
+    "Performer": "${performer.mention}",
+    "Target": "${target.mention}"
+  }
+}

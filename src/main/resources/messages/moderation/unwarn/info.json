@@ -1,0 +1,18 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "Removed warning from user.",
+    "icon_url": "${moderation.icon_url}"
+  },
+  "fields": {
+    "Performer": "${performer.mention}",
+    "Original Target": "${warning_entry.target.mention}",
+    "Original Performer": "${warning_entry.performer.mention}",
+    "Case ID": "${warning_entry.case_id}",
+    "Date & Time": "${warning_entry.date_time}",
+    "Reason": {
+      "value": "${nullcheck;warning_entry.reason;_No reason specified._}",
+      "inline": false
+    }
+  }
+}

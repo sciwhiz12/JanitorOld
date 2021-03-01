@@ -1,0 +1,16 @@
+{
+  "color": "${moderation.color}",
+  "author": {
+    "name": "${performer.guild.name}",
+    "icon_url": "${performer.guild.icon_url}"
+  },
+  "title": "You were warned by a moderator.",
+  "fields": {
+    "Moderator": "${warning_entry.performer.mention}",
+    "Date & Time": "${warning_entry.date_time}",
+    "Reason": {
+      "value": "${nullcheck;warning_entry.reason;_No reason specified._}",
+      "inline": false
+    }
+  }
+}

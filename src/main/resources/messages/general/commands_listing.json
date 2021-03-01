@@ -1,0 +1,11 @@
+{
+  "type": "listing",
+  "author": {
+    "name": "List of Commands (Page ${page.current}/${page.max})"
+  },
+  "entry": {
+    "type": "description",
+    "text": "${commands_prefix}${command}"
+  },
+  "empty": "_**No commands listed.** Please report this to your bot maintainer/administrator."
+}
