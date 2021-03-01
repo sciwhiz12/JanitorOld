@@ -16,28 +16,28 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'maven-publish'
 
+group = 'tk.sciwhiz12.janitor'
 version = getVersion()
 println("Version: ${version}")
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven {
+        name = "Minecraft Libraries"
+        url = "https://libraries.minecraft.net"
+    }
+}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
 
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
-dependencies {
-    implementation project(':core')
-    implementation project(path: ':core', configuration: 'api')
-    runtimeOnly project(':moderation')
-    runtimeOnly project(path: ':moderation', configuration: 'api')
-}
-
 application {
     mainClassName = 'tk.sciwhiz12.janitor.BotStartup'
 }
+
 jar.finalizedBy 'shadowJar'
 shadowJar {
     exclude 'META-INF/NOTICE**'
@@ -49,92 +49,51 @@ shadowJar {
     includeEmptyDirs false
 }
 
-allprojects {
-    apply plugin: 'java'
-    group = 'sciwhiz12.janitor'
-    version = rootProject.version
+sourceSets { api }
 
-    repositories {
-        mavenCentral()
-        jcenter()
-        maven {
-            name = "Minecraft Libraries"
-            url = "https://libraries.minecraft.net"
-        }
+configurations {
+    apiImplementation.extendsFrom apiDependency
+    api {
+        canBeConsumed = true
+        canBeResolved = true
+        extendsFrom apiDependency
+    }
+    implementation.extendsFrom apiImplementation, api
+    'default' {
+        extendsFrom api, apiDependency
     }
 }
 
-subprojects {
-    sourceSets { api }
-
-    configurations {
-        apiImplementation.extendsFrom apiDependency
-        api {
-            canBeConsumed = true
-            canBeResolved = true
-            extendsFrom apiDependency
-        }
-        implementation.extendsFrom apiImplementation, api
-        'default' {
-            extendsFrom api, apiDependency
-        }
-    }
-
-    dependencies {
-        api sourceSets.api.output
-        testImplementation group: 'junit', name: 'junit', version: junit_version
-    }
-
-    jar {
-        from sourceSets.api.output
-        finalizedBy 'apiJar', 'sourcesJar'
-    }
-
-    task apiJar(type: Jar, dependsOn: apiClasses) {
-        from sourceSets.api.allJava
-        classifier "api"
-    }
-
-    task sourcesJar(type: Jar, dependsOn: classes) {
-        from sourceSets.main.allSource
-        from sourceSets.api.allSource
-        classifier "sources"
-    }
-
-    java {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
 
-project(':core') {
-    apply plugin: 'com.github.johnrengelman.shadow'
-    archivesBaseName = 'janitor-core'
-
-    dependencies {
-        apiDependency group: 'net.dv8tion', name: 'JDA', version: jda_version
-        apiDependency group: 'com.electronwill.night-config', name: 'toml', version: nightconfig_version
-        apiDependency group: 'net.sf.jopt-simple', name: 'jopt-simple', version: jopt_version
-        apiDependency group: 'com.google.guava', name: 'guava', version: guava_version
-        apiDependency group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
-        apiDependency group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
-        apiDependency group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
-        apiDependency group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: log4j_bridge_version
-        apiDependency group: 'ch.qos.logback', name: 'logback-classic', version: logback_version
-        apiDependency group: 'com.mojang', name: 'brigadier', version: brigadier_version
-    }
-
-    shadowJar.configurations = [project.configurations.api]
-
-    jar.finalizedBy 'shadowJar'
+jar {
+    from sourceSets.api.output
+    finalizedBy 'apiJar', 'sourcesJar'
 }
 
-project(':moderation') {
-    archivesBaseName = 'janitor-moderation'
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+    from sourceSets.api.allSource
+    classifier "sources"
+}
 
-    dependencies {
-        apiDependency project(path: ':core', configuration: 'api')
-    }
+dependencies {
+    api sourceSets.api.output
+
+    apiDependency group: 'net.dv8tion', name: 'JDA', version: jda_version
+    apiDependency group: 'com.electronwill.night-config', name: 'toml', version: nightconfig_version
+    apiDependency group: 'net.sf.jopt-simple', name: 'jopt-simple', version: jopt_version
+    apiDependency group: 'com.google.guava', name: 'guava', version: guava_version
+    apiDependency group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jackson_version
+    apiDependency group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jackson_version
+    apiDependency group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: jackson_version
+    apiDependency group: 'org.apache.logging.log4j', name: 'log4j-to-slf4j', version: log4j_bridge_version
+    apiDependency group: 'ch.qos.logback', name: 'logback-classic', version: logback_version
+    apiDependency group: 'com.mojang', name: 'brigadier', version: brigadier_version
+
+    testImplementation group: 'junit', name: 'junit', version: junit_version
 }
 
 def getVersion() {

@@ -7,8 +7,9 @@ import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.jetbrains.annotations.NotNull;
-import tk.sciwhiz12.janitor.config.BotConfigImpl;
-import tk.sciwhiz12.janitor.config.BotOptions;
+import tk.sciwhiz12.janitor.core.JanitorBotImpl;
+import tk.sciwhiz12.janitor.core.config.BotConfigImpl;
+import tk.sciwhiz12.janitor.core.config.BotOptions;
 
 import java.util.EnumSet;
 
