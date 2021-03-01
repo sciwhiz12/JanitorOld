@@ -1,3 +1,5 @@
+import java.time.OffsetDateTime
+
 buildscript {
     repositories {
         jcenter()
@@ -15,9 +17,10 @@ apply plugin: 'idea'
 apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'maven-publish'
+apply from: 'utils/version.gradle'
 
 group = 'tk.sciwhiz12.janitor'
-version = getVersion()
+version = calculateVersion()
 println("Version: ${version}")
 
 repositories {
@@ -36,17 +39,6 @@ java {
 
 application {
     mainClassName = 'tk.sciwhiz12.janitor.BotStartup'
-}
-
-jar.finalizedBy 'shadowJar'
-shadowJar {
-    exclude 'META-INF/NOTICE**'
-    exclude 'META-INF/LICENSE**'
-    exclude 'META-INF/DEPENDENCIES'
-    exclude 'META-INF/proguard/**'
-    exclude 'META-INF/maven/**'
-    classifier 'all'
-    includeEmptyDirs false
 }
 
 sourceSets { api }
@@ -68,9 +60,34 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
+def datetime = OffsetDateTime.now()
 jar {
     from sourceSets.api.output
-    finalizedBy 'sourcesJar'
+    finalizedBy 'sourcesJar', 'shadowJar'
+    manifest {
+        attributes([
+                "Specification-Title"   : "Janitor",
+                "Specification-Vendor"  : "sciwhiz12",
+                "Specification-Version" : project.version,
+                "Implementation-Title"  : project.name,
+                "Implementation-Vendor" : "sciwhiz12",
+                "Implementation-Version": getCommitHash(),
+                "Built-By-Java"         : System.getProperty('java.version'),
+                "Built-By-JVM"          : System.getProperty('java.vm.version') + ' (' + System.getProperty('java.vendor') + ')',
+                "Commit-Hash"           : getCommitHash(),
+                "Commit-Timestamp"      : getCommitTimestamp()
+        ] as LinkedHashMap)
+    }
+}
+
+shadowJar {
+    exclude 'META-INF/NOTICE**'
+    exclude 'META-INF/LICENSE**'
+    exclude 'META-INF/DEPENDENCIES'
+    exclude 'META-INF/proguard/**'
+    exclude 'META-INF/maven/**'
+    classifier 'all'
+    includeEmptyDirs false
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
@@ -94,20 +111,6 @@ dependencies {
     apiDependency group: 'com.mojang', name: 'brigadier', version: brigadier_version
 
     testImplementation group: 'junit', name: 'junit', version: junit_version
-}
-
-def getVersion() {
-    try {
-        String raw_version = grgit.describe(longDescr: true, tags: true)
-        def versionSep = raw_version.split "-"
-        def startVer = versionSep[0].substring(1)
-        return startVer + "." + versionSep[1]
-    } catch (Exception e) {
-        def ver = 'unknown'
-        if (System.getenv("GITHUB_RUN_NUMBER") != null) ver = System.getenv("GITHUB_RUN_NUMBER")
-        logger.error("Error getting version information, defaulting to '${ver}': {}", e.getMessage())
-        return ver
-    }
 }
 
 
